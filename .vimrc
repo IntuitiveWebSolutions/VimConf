@@ -11,6 +11,8 @@
     set background=dark " we plan to use a dark background
     colorscheme koehler " my favorite colorscheme
     syntax on " syntax highlighting on
+    call pathogen#runtime_append_all_bundles() " Append .vim/bundles apps
+    "let python_highlight_all=1 " Highlight all Python syntax
 " }
 
 " General {
@@ -19,7 +21,7 @@
     set backup " make backup files
     set backupdir=~/.vim/backup " where to put backup files
     set directory=~/.vim/tmp " directory to place swap files in
-    set fileformats=unix,dos,mac " support all three, in this order
+    set fileformats=unix,mac,dos " support all three, in this order
     set hidden " you can change buffers without saving
     " (XXX: #VIM/tpope warns the line below could break things)
     set iskeyword+=_,$,@,%,# " none of these are word dividers
@@ -86,10 +88,6 @@
                        "should a tab be (see expandtab)
     set tabstop=8 " real tabs should be 8, and they will show with
                    " set list on
-" }
-
-" Plugins {
-    let python_highlight_all=1 " Highlight all Python syntax
 " }
 
 " Mappings {
