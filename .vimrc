@@ -12,7 +12,7 @@
     colorscheme koehler " my favorite colorscheme
     syntax on " syntax highlighting on
     call pathogen#runtime_append_all_bundles() " Append .vim/bundles apps
-    "let python_highlight_all=1 " Highlight all Python syntax
+    let python_highlight_all=1 " Highlight all Python syntax
 " }
 
 " General {
