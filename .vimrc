@@ -100,7 +100,6 @@
     nnoremap ,np :set nopaste number<return>
     " Mapping Plugin commands
     nnoremap ,Nt :NERDTree<return>
-    nnoremap ,Tl :Tlist<return>
     " Write as super user
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace
