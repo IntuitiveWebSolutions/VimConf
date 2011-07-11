@@ -1,4 +1,5 @@
 VimConf
 =======
 
-My vimrc file, plugins and stuffis.
+My vimrc file and different bundles.
+
