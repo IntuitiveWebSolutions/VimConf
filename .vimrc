@@ -100,6 +100,7 @@
     nnoremap ,np :set nopaste number<return>
     " Mapping Plugin commands
     nnoremap ,Nt :NERDTree<return>
+    nnoremap ,Tb :TagbarToggle<return>
     " Write as super user
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace
