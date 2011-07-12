@@ -11,7 +11,7 @@
     set background=dark " we plan to use a dark background
     colorscheme koehler " my favorite colorscheme
     syntax on " syntax highlighting on
-    call pathogen#runtime_append_all_bundles() " Append .vim/bundles apps
+    call pathogen#infect() " Append .vim/bundles apps
     let python_highlight_all=1 " Highlight all Python syntax
 " }
 
