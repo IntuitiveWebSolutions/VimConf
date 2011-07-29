@@ -12,3 +12,15 @@ Bundle list:
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 
+Custom Keybindings and Commands:
+
+* ,tc ==> :tabc
+* ,tn ==> :tabn
+* ,tp ==> :tabp
+* ,tN ==> :tabnew
+* ,p  ==> :set paste nonumber
+* ,np ==> :set nopaste number
+* ,Nt ==> :NERDTree
+* ,Tb ==> :TagbarToggle
+* command W w !sudo tee % > /dev/null    " Write as super user
+* command TrimWS %s/\s*$//g | noh    " Trim trailing whitespace
