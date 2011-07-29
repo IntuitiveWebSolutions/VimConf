@@ -17,13 +17,13 @@ Custom Keybindings and Commands:
 * **,,** *Toggle single line comment*
 * **,c** *Comment line*
 * **,C** *Uncomment line*
-* **,tc** :tabc
-* **,tn** :tabn
-* **,tp** :tabp
-* **,tN** :tabnew
-* **,p** :set paste nonumber
-* **,np** :set nopaste number
-* **,Nt** :NERDTree
-* **,Tb** :TagbarToggle
+* **,tc** *Close tab*
+* **,tn** *Next tab*
+* **,tp** *Previous tab*
+* **,tN** *New tab*
+* **,p** *Set paste nonumber for easy copy & pasting in a terminal*
+* **,np** *Set nopaste number to go back normal editing mode*
+* **,Nt** *Toggle NERDTree plugin*
+* **,Tb** *Toggle Tagbar plugin*
 * command **W** *Write as super user*
 * command **TrimWS** *Trim trailing whitespacer*
