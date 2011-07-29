@@ -14,6 +14,9 @@ Bundle list:
 
 Custom Keybindings and Commands:
 
+* **,,** *Toggle single line comment*
+* **,c** *Comment line*
+* **,C** *Uncomment line*
 * **,tc** :tabc
 * **,tn** :tabn
 * **,tp** :tabp
