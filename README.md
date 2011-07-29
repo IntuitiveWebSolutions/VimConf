@@ -14,13 +14,13 @@ Bundle list:
 
 Custom Keybindings and Commands:
 
-* **,tc** ==> :tabc
-* **,tn** ==> :tabn
-* **,tp** ==> :tabp
-* **,tN** ==> :tabnew
-* **,p** ==> :set paste nonumber
-* **,np** ==> :set nopaste number
-* **,Nt** ==> :NERDTree
-* **,Tb** ==> :TagbarToggle
-* command **W**  *Write as super user*
+* **,tc** :tabc
+* **,tn** :tabn
+* **,tp** :tabp
+* **,tN** :tabnew
+* **,p** :set paste nonumber
+* **,np** :set nopaste number
+* **,Nt** :NERDTree
+* **,Tb** :TagbarToggle
+* command **W** *Write as super user*
 * command **TrimWS** *Trim trailing whitespacer*
