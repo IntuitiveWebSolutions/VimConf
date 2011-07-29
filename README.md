@@ -10,6 +10,20 @@ Bundle list:
 * [python.vim](https://github.com/vim-scripts/python.vim "python.vim")
 * [simplecommenter](https://github.com/vim-scripts/simplecommenter "simplecommenter")
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
-* [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 
+Custom Keybindings and Commands:
+
+* **,,** *Toggle single line comment*
+* **,c** *Comment line*
+* **,C** *Uncomment line*
+* **,tc** *Close tab*
+* **,tn** *Next tab*
+* **,tp** *Previous tab*
+* **,tN** *New tab*
+* **,p** *Set paste nonumber for easy copy & pasting in a terminal*
+* **,np** *Set nopaste number to go back normal editing mode*
+* **,Nt** *Toggle NERDTree plugin*
+* **,Tb** *Toggle Tagbar plugin*
+* command **W** *Write as super user*
+* command **TrimWS** *Trim trailing whitespacer*
