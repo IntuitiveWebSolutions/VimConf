@@ -9,10 +9,10 @@
 " Basics {
     set nocompatible " explicitly get out of vi-compatible mode
     set background=dark " we plan to use a dark background
-    colorscheme koehler " my favorite colorscheme
+    set t_Co=256 " enable 256 colors in vim
+    colorscheme herald " my favorite colorscheme
     syntax on " syntax highlighting on
     call pathogen#infect() " Append .vim/bundles apps
-    let python_highlight_all=1 " Highlight all Python syntax
 " }
 
 " General {
