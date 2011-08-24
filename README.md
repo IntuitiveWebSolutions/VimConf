@@ -11,6 +11,10 @@ Bundle list:
 * [simplecommenter](https://github.com/vim-scripts/simplecommenter "simplecommenter")
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
+ 
+Colors:
+
+* [herald colorscheme](https://github.com/vim-scripts/herald.vim "herald colorscheme")
 
 Custom Keybindings and Commands:
 
