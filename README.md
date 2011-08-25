@@ -37,4 +37,4 @@ Custom Keybindings and Commands:
 * **down arrow** *Jump down 10 lines*
 * **up arrow** *Jump up 10 lines*
 * command **W** *Write as super user*
-* command **TrimWS** *Trim trailing whitespacer*
+* command **TrimWS** *Trim trailing whitespace*
