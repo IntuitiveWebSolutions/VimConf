@@ -379,7 +379,7 @@ hi! default link bbcodeUnderline htmlUnderline
 
 " Spellcheck formatting
 if has("spell")
-    hi SpellBad   guisp=#FC4234 gui=undercurl
+    hi SpellBad   term=reverse ctermbg=53 guisp=#FC4234 gui=undercurl
     hi SpellCap   guisp=#70BDF1 gui=undercurl
     hi SpellLocal guisp=#FFEE68 gui=undercurl
     hi SpellRare  guisp=#6DF584 gui=undercurl
