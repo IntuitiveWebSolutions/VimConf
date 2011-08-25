@@ -30,5 +30,11 @@ Custom Keybindings and Commands:
 * **,np** *Set nopaste number to go back normal editing mode*
 * **,Nt** *Toggle NERDTree plugin*
 * **,Tb** *Toggle Tagbar plugin*
+* **,q**  *Write & Quit file*
+* **,s** *Write file*
+* **,v** *Visual Split window*
+* **,h** *Turn of highlighting*
+* **<S-Down>** *Jump down 10 lines*
+* **<S-Up> 10k** *Jump up 10 lines*
 * command **W** *Write as super user*
 * command **TrimWS** *Trim trailing whitespacer*
