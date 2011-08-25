@@ -27,6 +27,8 @@
     set iskeyword+=_,$,@,%,# " none of these are word dividers
     set mouse=a " use mouse everywhere
     set noerrorbells " don't make noise
+    set undofile " enable file undoing
+    set undodir=~/.vim/undo " where to put undo files
     set whichwrap=b,s,h,l,<,>,~,[,] " everything wraps
     "             | | | | | | | | |
     "             | | | | | | | | +-- "]" Insert and Replace
