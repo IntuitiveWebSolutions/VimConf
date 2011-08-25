@@ -1,7 +1,7 @@
 VimConf
 =======
 
-My vimrc file and different bundles.
+My vimrc file and different bundles. My vim setup requires at least Vim 7.3 compiled with python (for pyflakes) & multibyte (for tagbar) support.
 
 Bundle list:
 
