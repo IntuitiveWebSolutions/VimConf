@@ -106,7 +106,7 @@
     " Map some convenience commands
     nnoremap ,q :wq<return>
     nnoremap ,s :w<return>
-    nnoremap ,v :vsp-
+    nnoremap ,v :vsp 
     nnoremap ,h :noh<return>
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
