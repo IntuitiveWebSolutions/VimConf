@@ -34,7 +34,7 @@ Custom Keybindings and Commands:
 * **,s** *Write file*
 * **,v** *Visual Split window*
 * **,h** *Turn of highlighting*
-* **<S-Down>** *Jump down 10 lines*
-* **<S-Up> 10k** *Jump up 10 lines*
+* **down arrow** *Jump down 10 lines*
+* **up arrow** *Jump up 10 lines*
 * command **W** *Write as super user*
 * command **TrimWS** *Trim trailing whitespacer*
