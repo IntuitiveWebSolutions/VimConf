@@ -6,6 +6,7 @@ My vimrc file and different bundles.
 Bundle list:
 
 * [nerdtree](https://github.com/scrooloose/nerdtree "nerdtree")
+* [pyflakes.vim](https://github.com/kevinw/pyflakes-vim "pyflakes")
 * [python.vim--Vasiliev](https://github.com/vim-scripts/python.vim--Vasiliev "python.vim--Vasiliev")
 * [python.vim](https://github.com/vim-scripts/python.vim "python.vim")
 * [simplecommenter](https://github.com/vim-scripts/simplecommenter "simplecommenter")
@@ -14,7 +15,7 @@ Bundle list:
  
 Colors:
 
-* [herald colorscheme](https://github.com/vim-scripts/herald.vim "herald colorscheme")
+* [herald](https://github.com/vim-scripts/herald.vim "herald")
 
 Custom Keybindings and Commands:
 
