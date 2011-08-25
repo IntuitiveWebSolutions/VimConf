@@ -103,6 +103,13 @@
     " Mapping Plugin commands
     nnoremap ,Nt :NERDTree<return>
     nnoremap ,Tb :TagbarToggle<return>
+    " Map some convenience commands
+    nnoremap ,q :wq<return>
+    nnoremap ,s :w<return>
+    nnoremap ,v :vsp-
+    nnoremap ,h :noh<return>
+    nnoremap <S-Down> 10j
+    nnoremap <S-Up> 10k
     " Write as super user
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace
