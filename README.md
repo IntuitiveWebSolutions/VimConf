@@ -3,6 +3,8 @@ VimConf
 
 My vimrc file and different bundles. My vim setup requires at least Vim 7.3 compiled with python (for pyflakes) & multibyte (for tagbar) support.
 
+The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfonts/inconsolata.html "Inconsolata").
+
 Bundle list:
 
 * [nerdtree](https://github.com/scrooloose/nerdtree "nerdtree")
