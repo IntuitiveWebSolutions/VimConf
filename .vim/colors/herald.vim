@@ -20,7 +20,7 @@ let python_highlight_all=1 " Highlight all Python syntax
 if has("gui_running")
 
     " -> Set GUI Font
-    set guifont="Inconsolata:h16"
+    set guifont=Inconsolata:h16
 
     " -> Text; Miscellaneous
     hi Normal         guibg=#1F1F1F guifg=#D0D0D0 gui=none
