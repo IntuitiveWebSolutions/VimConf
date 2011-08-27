@@ -5,6 +5,8 @@ My vimrc file and different bundles. My vim setup requires at least Vim 7.3 comp
 
 The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfonts/inconsolata.html "Inconsolata"); I've included the OpenType file in this repo.
 
+I use [pathogen](https://github.com/tpope/vim-pathogen "pathogen") for automatically adding the below bundles to the Vim runtimepath. To generate the documentation tags for each plugin, run :Helptags.
+
 Bundle list:
 
 * [nerdtree](https://github.com/scrooloose/nerdtree "nerdtree")
