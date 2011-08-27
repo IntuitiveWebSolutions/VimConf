@@ -12,7 +12,8 @@ endif
 
 let colors_name = "herald"
 
-set background=dark
+set background=dark " we want to use a dark background
+set t_Co=256 " enable 256 colors in vim
 
 " Set some syntax-related variables
 let python_highlight_all=1 " Highlight all Python syntax

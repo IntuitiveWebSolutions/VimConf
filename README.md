@@ -3,7 +3,7 @@ VimConf
 
 My vimrc file and different bundles. My vim setup requires at least Vim 7.3 compiled with python (for pyflakes) & multibyte (for tagbar) support.
 
-The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfonts/inconsolata.html "Inconsolata").
+The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfonts/inconsolata.html "Inconsolata"); I've included the OpenType file in this repo.
 
 Bundle list:
 
@@ -14,7 +14,7 @@ Bundle list:
 * [simplecommenter](https://github.com/vim-scripts/simplecommenter "simplecommenter")
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
- 
+
 Colors:
 
 * [herald](https://github.com/vim-scripts/herald.vim "herald")

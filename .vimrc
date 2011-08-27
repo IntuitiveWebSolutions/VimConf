@@ -8,9 +8,7 @@
 
 " Basics {
     set nocompatible " explicitly get out of vi-compatible mode
-    set background=dark " we plan to use a dark background
-    set t_Co=256 " enable 256 colors in vim
-    colorscheme herald " my favorite colorscheme
+    colorscheme herald " set our customized colorscheme
     syntax on " syntax highlighting on
     call pathogen#infect() " Append .vim/bundles apps
 " }
@@ -97,7 +95,7 @@
     nnoremap ,tc :tabc<return>
     nnoremap ,tn :tabn<return>
     nnoremap ,tp :tabp<return>
-    nnoremap ,tN :tabnew<return>
+    nnoremap ,tN :tabnew 
     nnoremap ,p :set paste nonumber<return>
     nnoremap ,np :set nopaste number<return>
     " Mapping Plugin commands
