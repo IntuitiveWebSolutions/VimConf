@@ -1,9 +1,6 @@
 " Notes {
 "   Ben Hayden
-"   http://beardedp.posterous.com
-"
-"   Modified from:
-"   http://www.vi-improved.org/vimrc.php
+"   https://github.com/beardedprojamz/VimConf
 "}
 
 " Basics {
@@ -24,7 +21,7 @@
     " (XXX: #VIM/tpope warns the line below could break things)
     set iskeyword+=_,$,@,%,# " none of these are word dividers
     set mouse=a " use mouse everywhere
-    set noerrorbells " don't make noise
+    set noerrorbells " don't make noise when something errors
     set undofile " enable file undoing
     set undodir=~/.vim/undo " where to put undo files
     set whichwrap=b,s,h,l,<,>,~,[,] " everything wraps
@@ -60,7 +57,6 @@
     set matchtime=5 " how many tenths of a second to blink
                      " matching brackets for
     set nostartofline " leave my cursor where it was
-    set visualbell t_vb= " don't blink or beep
     set number " turn on line numbers
     set numberwidth=5 " We are good up to 99999 lines
     set report=0 " tell us when anything is changed via :...
@@ -123,4 +119,3 @@
     vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR>
     vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR>
 " }
-
