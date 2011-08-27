@@ -42,5 +42,5 @@ Custom Keybindings and Commands:
 * **,h** *Turn off highlighting*
 * **shift + down arrow** *Jump down 10 lines*
 * **shift + up arrow** *Jump up 10 lines*
-* command **W** *Write as super user*
-* command **TrimWS** *Trim trailing whitespace*
+* **:W** *Write as super user*
+* **:TrimWS** *Trim trailing whitespace*
