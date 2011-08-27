@@ -13,9 +13,10 @@ Bundle list:
 * [python.vim](https://github.com/vim-scripts/python.vim "python.vim")
 * [simplecommenter](https://github.com/vim-scripts/simplecommenter "simplecommenter")
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
+* [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 
-Colors:
+Colors (looks best with 256 colors and above):
 
 * [herald](https://github.com/vim-scripts/herald.vim "herald")
 
@@ -32,11 +33,12 @@ Custom Keybindings and Commands:
 * **,np** *Set nopaste number to go back normal editing mode*
 * **,Nt** *Toggle NERDTree plugin*
 * **,Tb** *Toggle Tagbar plugin*
+* **,ig** *Toggle IndentGuides plugin*
 * **,q**  *Write & quit file*
 * **,s** *Write file*
 * **,v** *Visual split window*
 * **,h** *Turn off highlighting*
-* **down arrow** *Jump down 10 lines*
-* **up arrow** *Jump up 10 lines*
+* **shift + down arrow** *Jump down 10 lines*
+* **shift + up arrow** *Jump up 10 lines*
 * command **W** *Write as super user*
 * command **TrimWS** *Trim trailing whitespace*
