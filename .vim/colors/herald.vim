@@ -10,13 +10,10 @@ if exists("syntax_on")
     syntax reset
 endif
 
-let colors_name = "herald"
-
-set background=dark " we want to use a dark background
-set t_Co=256 " enable 256 colors in vim
-
-" Set some syntax-related variables
+let colors_name = "herald" " Name of the scheme
 let python_highlight_all=1 " Highlight all Python syntax
+
+set t_Co=256 " Enable 256 colors in vim
 
 if has("gui_running")
 
@@ -392,3 +389,5 @@ if has("spell")
     hi SpellLocal guisp=#FFEE68 gui=undercurl
     hi SpellRare  guisp=#6DF584 gui=undercurl
 endif
+
+set background=dark " We want to use a dark background

@@ -60,7 +60,7 @@
     set matchtime=5 " how many tenths of a second to blink
                      " matching brackets for
     set nostartofline " leave my cursor where it was
-    set novisualbell " don't blink
+    set visualbell t_vb= " don't blink or beep
     set number " turn on line numbers
     set numberwidth=5 " We are good up to 99999 lines
     set report=0 " tell us when anything is changed via :...
@@ -91,6 +91,7 @@
 " }
 
 " Mappings {
+    let mapleader = ","
     " Mapping tab commands
     nnoremap ,tc :tabc<return>
     nnoremap ,tn :tabn<return>
