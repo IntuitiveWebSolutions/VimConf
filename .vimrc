@@ -107,7 +107,6 @@
     nnoremap <Leader>s :w<return>
     nnoremap <Leader>v :vsp 
     nnoremap <Leader>h :noh<return>
-    nnoremap <Leader>r :syntax off | syntax on<return>
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
     " Write as super user
