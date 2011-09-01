@@ -20,10 +20,14 @@
     set hidden " you can change buffers without saving
     " (XXX: #VIM/tpope warns the line below could break things)
     set iskeyword+=_,$,@,%,# " none of these are word dividers
-    set mouse=a " use mouse everywhere
+    if has("mouse")
+        set mouse=a " use mouse everywhere
+    endif
     set noerrorbells " don't make noise when something errors
-    set undofile " enable file undoing
-    set undodir=~/.vim/undo " where to put undo files
+    if has("undofile")
+        set undofile " enable file undoing
+        set undodir=~/.vim/undo " where to put undo files
+    endif
     set whichwrap=b,s,h,l,<,>,~,[,] " everything wraps
     "             | | | | | | | | |
     "             | | | | | | | | +-- "]" Insert and Replace
