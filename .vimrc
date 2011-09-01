@@ -89,20 +89,21 @@
 " Mappings {
     let mapleader = ","
     " Mapping tab commands
-    nnoremap ,tc :tabc<return>
-    nnoremap ,tn :tabn<return>
-    nnoremap ,tp :tabp<return>
-    nnoremap ,tN :tabnew 
-    nnoremap ,p :set paste nonumber<return>
-    nnoremap ,np :set nopaste number<return>
+    nnoremap <Leader>tc :tabc<return>
+    nnoremap <Leader>tn :tabn<return>
+    nnoremap <Leader>tp :tabp<return>
+    nnoremap <Leader>tN :tabnew 
+    nnoremap <Leader>p :set paste nonumber<return>
+    nnoremap <Leader>np :set nopaste number<return>
     " Mapping Plugin commands
-    nnoremap ,Nt :NERDTree<return>
-    nnoremap ,Tb :TagbarToggle<return>
+    nnoremap <Leader>Nt :NERDTree<return>
+    nnoremap <Leader>Tb :TagbarToggle<return>
     " Map some convenience commands
-    nnoremap ,q :wq<return>
-    nnoremap ,s :w<return>
-    nnoremap ,v :vsp 
-    nnoremap ,h :noh<return>
+    nnoremap <Leader>q :wq<return>
+    nnoremap <Leader>s :w<return>
+    nnoremap <Leader>v :vsp 
+    nnoremap <Leader>h :noh<return>
+    nnoremap <Leader>r :syntax off | syntax on<return>
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
     " Write as super user
