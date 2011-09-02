@@ -24,7 +24,7 @@
         set mouse=a " use mouse everywhere
     endif
     set noerrorbells " don't make noise when something errors
-    if has("undofile")
+    if has("persistent_undo")
         set undofile " enable file undoing
         set undodir=~/.vim/undo " where to put undo files
     endif
