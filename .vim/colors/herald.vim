@@ -25,7 +25,7 @@ if has("gui_running")
     endif
 
     " -> Text; Miscellaneous
-    hi Normal         guibg=#1F1F1F guifg=#D0D0D0 gui=none
+    hi Normal         guibg=#1F1F1F guifg=#FFFFFF gui=none
     hi SpecialKey     guibg=#1F1F1F guifg=#E783E9 gui=none
     hi VertSplit      guibg=#1F1F1F guifg=#FFEE68 gui=none
     hi SignColumn     guibg=#1F1F1F guifg=#BF81FA gui=none
@@ -49,7 +49,7 @@ if has("gui_running")
     hi StatusLineNC   guibg=#25365a guifg=#696567 gui=none
 
     " -> Messages
-    hi ErrorMsg       guibg=#A32024 guifg=#D0D0D0 gui=none
+    hi ErrorMsg       guibg=#A32024 guifg=#FFFFFF gui=none
     hi Question       guibg=#1F1F1F guifg=#FFA500 gui=none
     hi WarningMsg     guibg=#FFA500 guifg=#000000 gui=none
     hi MoreMsg        guibg=#1F1F1F guifg=#FFA500 gui=none
@@ -75,10 +75,10 @@ if has("gui_running")
     " -> Tabs
     hi TabLine        guibg=#141414 guifg=#1F1F1F gui=none
     hi TabLineFill    guibg=#000000               gui=none
-    hi TabLineSel     guibg=#1F1F1F guifg=#D0D0D0 gui=bold
+    hi TabLineSel     guibg=#1F1F1F guifg=#FFFFFF gui=bold
     "
     " -> Visual Mode
-    hi Visual         guibg=#000000 guifg=#FFB539 gui=none
+    hi Visual         guibg=#403D3D gui=none
     hi VisualNOS      guibg=#000000 guifg=#696567 gui=none
 
     " -> Code
@@ -94,20 +94,20 @@ if has("gui_running")
     hi Special        guibg=#1F1F1F guifg=#FFEE68 gui=none
     hi Todo           guibg=#1F1F1F guifg=#FC4234 gui=bold
     hi Underlined     guibg=#1F1F1F guifg=#FC4234 gui=underline
-    hi Statement      guibg=#1F1F1F guifg=#E783E9 gui=none
+    hi Statement      guibg=#1F1F1F guifg=#FF0090 gui=none
     hi Operator       guibg=#1F1F1F guifg=#FC6984 gui=none
     hi Delimiter      guibg=#1F1F1F guifg=#FC6984 gui=none
     hi Type           guibg=#1F1F1F guifg=#FFEE68 gui=none
     hi Exception      guibg=#1F1F1F guifg=#FC4234 gui=none
 
     " -> HTML-specific
-    hi htmlBold                 guibg=#1F1F1F guifg=#D0D0D0 gui=bold
-    hi htmlBoldItalic           guibg=#1F1F1F guifg=#D0D0D0 gui=bold,italic
-    hi htmlBoldUnderline        guibg=#1F1F1F guifg=#D0D0D0 gui=bold,underline
-    hi htmlBoldUnderlineItalic  guibg=#1F1F1F guifg=#D0D0D0 gui=bold,underline,italic
-    hi htmlItalic               guibg=#1F1F1F guifg=#D0D0D0 gui=italic
-    hi htmlUnderline            guibg=#1F1F1F guifg=#D0D0D0 gui=underline
-    hi htmlUnderlineItalic      guibg=#1F1F1F guifg=#D0D0D0 gui=underline,italic
+    hi htmlBold                 guibg=#1F1F1F guifg=#FFFFFF gui=bold
+    hi htmlBoldItalic           guibg=#1F1F1F guifg=#FFFFFF gui=bold,italic
+    hi htmlBoldUnderline        guibg=#1F1F1F guifg=#FFFFFF gui=bold,underline
+    hi htmlBoldUnderlineItalic  guibg=#1F1F1F guifg=#FFFFFF gui=bold,underline,italic
+    hi htmlItalic               guibg=#1F1F1F guifg=#FFFFFF gui=italic
+    hi htmlUnderline            guibg=#1F1F1F guifg=#FFFFFF gui=underline
+    hi htmlUnderlineItalic      guibg=#1F1F1F guifg=#FFFFFF gui=underline,italic
 
 elseif &t_Co == 256
 
