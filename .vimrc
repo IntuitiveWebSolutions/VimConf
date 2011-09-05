@@ -113,6 +113,8 @@
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace
     command TrimWS %s/\s*$//g | noh
+    " Replace tabs with spaces
+    command Tabs2Spaces %s/\t/    /g | noh
     " Visual Selection Search using * and #
     function! s:VSetSearch()
         let temp = @@

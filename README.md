@@ -18,7 +18,7 @@ Bundle list:
 * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 
-Colors (looks best with 256 colors and above):
+Colors (looks best with a 256 color terminal or gVim):
 
 * [herald](https://github.com/vim-scripts/herald.vim "herald")
 
@@ -43,4 +43,5 @@ Custom Keybindings and Commands:
 * **shift + down arrow** *Jump down 10 lines*
 * **shift + up arrow** *Jump up 10 lines*
 * **:W** *Write as super user*
+* **:Tabs2Spaces** *Convert tab characters to 4 space characters*
 * **:TrimWS** *Trim trailing whitespace*
