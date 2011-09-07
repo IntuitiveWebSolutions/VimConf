@@ -5,7 +5,7 @@
 
 " Basics {
     set nocompatible " explicitly get out of vi-compatible mode
-    colorscheme herald " set our customized colorscheme
+    colorscheme blayden " set our customized colorscheme
     syntax on " syntax highlighting on
     call pathogen#infect() " Append .vim/bundles apps
 " }
