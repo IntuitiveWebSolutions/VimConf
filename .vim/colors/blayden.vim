@@ -1,8 +1,9 @@
 " Vim color file
-" Name:       herald.vim
-" Author:     Fabio Cevasco <h3rald@h3rald.com>
-" Version:    0.2.0
-" Notes:      Supports 8, 16, 256 and 16,777,216 (RGB) color modes
+" Name:       blayden.vim
+" Author:     Ben Hayden <hayden767@gmail.com>; Scott Blevins <sblevins@gmail.com>
+" Version:    0.1.0
+" Notes:      Supports 8, 16, 256 and 16,777,216 (RGB) color modes; Derived
+"             from herald and molokai colorschemes.
 
 hi clear
 

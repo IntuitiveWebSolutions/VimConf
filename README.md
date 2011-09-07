@@ -20,7 +20,9 @@ Bundle list:
 
 Colors (looks best with a 256 color terminal or gVim):
 
+* blayden (Default scheme - combination of herald / molokai schemes)
 * [herald](https://github.com/vim-scripts/herald.vim "herald")
+* [molokai](https://github.com/vim-scripts/molokai "molokai")
 
 Custom Keybindings and Commands:
 
