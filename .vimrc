@@ -109,6 +109,7 @@
     nnoremap <Leader>h :noh<return>
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
+    nnoremap <Leader>r :syntax off<return>:syntax on<return>
     " Write as super user
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace
