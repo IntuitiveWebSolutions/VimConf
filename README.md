@@ -1,7 +1,7 @@
 VimConf
 =======
 
-My vimrc file and different bundles. My vim setup requires at least Vim 7.3 compiled with python (for pyflakes) & multibyte (for tagbar) support.
+A vimrc file and different bundles. This vim setup requires at least Vim 7.3 compiled with python (for pyflakes) & multibyte (for tagbar) support.
 
 The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfonts/inconsolata.html "Inconsolata"); I've included the OpenType file in this repo.
 
@@ -20,7 +20,7 @@ Bundle list:
 
 Colors (looks best with a 256 color terminal or gVim):
 
-* blayden (Default scheme - inspired by herald / molokai schemes)
+* blayden (Default scheme - inspired by herald and molokai schemes)
 * [herald](https://github.com/vim-scripts/herald.vim "herald")
 * [molokai](https://github.com/vim-scripts/molokai "molokai")
 
