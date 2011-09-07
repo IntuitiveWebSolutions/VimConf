@@ -2,8 +2,8 @@
 " Name:       blayden.vim
 " Author:     Ben Hayden <hayden767@gmail.com>; Scott Blevins <sblevins@gmail.com>
 " Version:    0.1.0
-" Notes:      Supports 8, 16, 256 and 16,777,216 (RGB) color modes; Derived
-"             from herald and molokai colorschemes.
+" Notes:      Supports 8, 16, 256 and 16,777,216 (RGB) color modes; Inspired
+"             by herald and molokai colorschemes.
 
 hi clear
 
@@ -11,7 +11,7 @@ if exists("syntax_on")
     syntax reset
 endif
 
-let colors_name = "herald" " Name of the scheme
+let colors_name = "blayden" " Name of the scheme
 let python_highlight_all=1 " Highlight all Python syntax
 
 set t_Co=256 " Enable 256 colors in vim
