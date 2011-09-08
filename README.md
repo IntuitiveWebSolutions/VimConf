@@ -40,6 +40,7 @@ Custom Keybindings and Commands:
 * **,ig** *Toggle IndentGuides plugin*
 * **,q**  *Write & quit file*
 * **,s** *Write file*
+* **,r** *Turn Syntax off/on on a file. A "refresh" of the syntax highlighting.*
 * **,v** *Visual split window*
 * **,h** *Turn off highlighting*
 * **shift + down arrow** *Jump down 10 lines*
