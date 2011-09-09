@@ -94,7 +94,7 @@ if has("gui_running")
     hi MatchParen     guibg=#FFA500 guifg=#1F1F1F gui=none
     hi PreProc        guibg=#1F1F1F guifg=#BF81FA gui=none
     hi Special        guibg=#1F1F1F guifg=#FC5200 gui=none
-    hi Self           guibg=#1F1F1F guifg=#FC99C6 gui=none
+    hi Self           guibg=#1F1F1F guifg=#FCB5D9 gui=none
     hi Todo           guibg=#1F1F1F guifg=#FC4234 gui=bold
     hi Underlined     guibg=#1F1F1F guifg=#FC4234 gui=underline
     hi Statement      guibg=#1F1F1F guifg=#FF0090 gui=none
