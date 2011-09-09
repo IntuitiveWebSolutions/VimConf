@@ -245,8 +245,7 @@ syn match   pythonBinError	"\<0[bB][01]*[2-9]\d*[lL]\=\>" display
 
 " Special highlighting of accepted conventions
 syn keyword   pythonHighlightSpecial    self
-syn match   pythonHighlightDictKey "\s*\'\w*\':\s" display
-syn match   pythonHighlightDictKey "\s*\"\w*\":\s" display
+syn match     pythonHighlightDictKey "\(\s*\'\w*\':\s\|\s*\"\w*\":\s\)" display
 
 if exists("python_highlight_builtin_objs") && python_highlight_builtin_objs != 0
   " Builtin objects and types
