@@ -1,4 +1,5 @@
 alias goxen='ssh scottblevins@britecore.xen'
+alias govm='ssh root@192.168.56.125'
 alias vim='/Applications/MacVim.app/Contents/MacOS/Vim'
 # Setting PATH for Python 2.7
 # The orginal version is saved in .bash_profile.pysave
