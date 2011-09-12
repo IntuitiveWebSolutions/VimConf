@@ -1,0 +1,8 @@
+alias goxen='ssh scottblevins@britecore.xen'
+alias govm='ssh root@192.168.56.125'
+alias vim='/Applications/MacVim.app/Contents/MacOS/Vim'
+# Setting PATH for Python 2.7
+# The orginal version is saved in .bash_profile.pysave
+PATH="/Library/Frameworks/Python.framework/Versions/2.7/bin:${PATH}"
+alias vimmy='cd ~/repos/VimConf && git pull && cd ~/ && cp -rf ~/repos/VimConf/.vim* ~/ && cp -rf ~/repos/VimConf/.g* ~/'
+export PATH
