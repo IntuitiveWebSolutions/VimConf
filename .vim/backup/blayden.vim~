@@ -83,7 +83,7 @@ if has("gui_running")
     hi VisualNOS      guibg=#000000 guifg=#696567 gui=none
 
     " -> Code
-    hi DictKey        guibg=#1F1F1F guifg=#DCFCB5 gui=none
+    hi DictKey        guibg=#1F1F1F guifg=#FCF900 gui=none
     hi Comment        guibg=#1F1F1F guifg=#696567 gui=none
     hi Constant       guibg=#1F1F1F guifg=#6DF584 gui=none
     hi String         guibg=#1F1F1F guifg=#FFB539 gui=none

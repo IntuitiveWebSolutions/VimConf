@@ -1,0 +1,2970 @@
+"""
+The payments module handles the electronic payment requests from the front-end and verifies
+the payments or credits with the BriteCore database and then passes the request to the
+appropriate clients payment processor.
+
+@author: Dev Ops
+@contact: engineering@iws-web.com
+@organization: IWS
+
+#=======================================================================
+# Authorize.net Tests
+#=======================================================================
+
+Test Credit Cards:
+
+    AMEX:   370000000000002
+    Disc:   6011000000000012
+    Visa:   4007000000027
+    JCB:    3088000000000017
+    Diners: 38000000000006
+
+Test Bank Account:
+
+    Account:   12345678  (Any account number will do)
+    Routing:   091801234 (Valid bank account routing number is REQUIRED--Use this one)
+
+    Notes:
+        - It appears that there is a cap on the transaction amount that is
+          permitted. We currently do not have any explicit details as this was
+          discovered through trial and error. A $1.00 transaction should clear normally.
+
+#=======================================================================
+# National Merchant Alliance Tests
+#=======================================================================
+
+Test Credit Cards:
+
+    MC: 5454545454545454
+
+Test Bank Account:
+    Account Number: 8091234567
+    Routing Number: 123456780
+
+
+#=======================================================================
+# Special Notes
+#=======================================================================
+
+A lot of this code has been re-written completely while a good portion of it has simply
+been refactored. Due to time constraints, not all of the code has been replaced but we
+have certainly tried our best to re-write all the biggest trouble spots. There are
+most definitely still areas for improvement as time permits.
+
+"""
+import hashlib
+import os
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from locale import currency
+from time import time, strftime
+from traceback import format_exc
+
+from iwslib.toolbox import format_page, get_config, HAL, identity, json_dumps, \
+                           json_loads, to_dec, uuid, date_parse
+
+from accounting import Account, retrieve_payments
+from contacts import retrieveContactInfo
+from notes import make_note, retrieve_event_alerts, schedule_event_alert
+from reports import Report, retrieve_agent
+from settings import VendorStates, get_admin_alerts_section, get_settings_path, \
+                     retrieveVendorData
+
+from payments_helpers import payment_method_formatter
+from policies_utils import  get_payment_date_cutoff, get_primary_insured, get_agent_email, \
+                            get_revision_id, get_contacts, get_polid_from_polnum
+from snippets import bc_mail, create_log, kurrency, bail_out, live_status
+from vendors_utils import VendorIdContainer
+
+CONFIG = get_config(os.path.join(os.path.dirname(__file__),
+                                 os.pardir, 'britecore.cfg'))
+LOGGER = create_log('payments')  # Global logger object to trace payments code.
+REQ = None  # A mp_request object
+VIDS = VendorIdContainer()  # A class instance containing vendor table ids
+
+
+class PaymentController(object):
+    """
+    This is the class that controls the flow of the payment process. It handles all of the
+    important things about payments for ensuring the integrity of the payment process itself.
+
+    It handles all of the errors, logging, and communication to the client.
+
+    It strives to make sure that a payment is completely valid before writing it to the
+    database, and barring that, it will gracefully back out and notify us of a problem.
+
+    This concept was developed by Dev Ops (Myself (Scott), Ben, and Myles) to ensure robust
+    code in the future.
+    """
+
+    def __init__(self, request=None):
+        """
+        Initialize a vendor controller and necessary mod_python request information.
+
+        @keyword request: Optional mod_python request.
+        """
+        LOGGER.info('PaymentController().__init__()')
+
+        self.hal = HAL(CONFIG)
+        self.request = REQ if REQ else request
+        self.vendor_controller = VendorController()  # You know we'll need one! ;)
+
+        if self.request:
+            self.britecore_user = self.request.uinfo
+            if 'X-Forwarded-For' in self.request.headers_in:
+                self.remote_ip = self.request.headers_in['X-Forwarded-For']
+            else:
+                self.remote_ip = self.request.get_remote_host()
+        else:
+            self.britecore_user = {'username': 'system', 'id': None}
+            self.remote_ip = '10.10.10.12'
+
+        # Current Payment Record which is the Active payment record
+        self.current_precord = None
+
+        # Let's store all the payment records we've worked with in here. They will get updated on store and set.
+        self.payment_records = {}
+
+        # List of uuids of accounting credits that have been created for this payment
+        self.accounting_credits = []
+
+    def set_payment_records(self, payment_record):
+        """
+        This is called when a payment record is set in the PaymentRecord.set_row() method
+        it updates the self.payment_records dictionary with the payment_record that's being
+        set currently in the set_row method. Since it stores each record class instance by
+        uuid, it must be a record that exists in the database.
+
+        @param payment_record: An instance of the PaymentRecord class
+        """
+        payment_record_id = payment_record.row.get('id')
+        if payment_record_id:
+            self.payment_records[payment_record_id] = payment_record
+
+    def set_current_precord(self, payment_record_id):
+        """
+        Gets a payment_record instance from the self.payment_records dictionary if it is
+        available. Otherwise, it creates one and pulls the corresponding record from the
+        database to go in the .row property.
+
+        @param payment_record_id: The id of the payment record row
+        """
+        existing_record = self.payment_records.get(payment_record_id)
+
+        if existing_record:
+            self.current_precord = existing_record
+        else:
+            self.current_precord = PaymentRecord(controller=self)
+            self.current_precord.get_row(payment_record_id)
+            self.payment_records[payment_record_id] = self.current_precord
+
+    def roll_back(self, message="No reason for the roll-back. It needs to be added to the code."):
+        """
+        The roll_back method is our last-ditch effort to clean up and notify in the event
+        of a failure at some point in the payments process.
+
+        @param message: The message that should be logged and sent back to the user.
+        """
+        LOGGER.error('PaymentController().roll_back()')
+        try:
+            LOGGER.error(message)
+            log_message = message
+        except StandardError:
+            log_message = message + ": Couldn't roll back PaymentController(). Traceback: %s" % format_exc()
+            message = '''There was a serious error processing your request.
+                         Britecore administrators have been notified automatically.'''
+
+        return bail_out(emails='engineering@iwsapps.com', message=message, log_message=log_message, logger=LOGGER)
+
+    def add_commission_payment(self, transaction_amount, payment_method_id, commission_id, contact_id):
+        """
+        This function takes a transaction amount, a payment method and a commission payment id and queues the
+        payment up to be submitted in the daycron.
+
+        @param transaction_amount: A decimal amount to make the payment for.
+        @param payment_method_id: The payment method to pull funds from once the sweep is submitted.
+        @param commission_id: The commission_payment id stored as commPayId.
+        @param contact_id: The contact id stored as payorId. This is the contact receiving the commission payment.
+        @return: A dictionary containing the success of the addition.
+        """
+        # Build CREDIT record in payments table from commission_payments table.
+        self.current_precord = PaymentRecord(controller=self, policy_numbers=[])
+        self.current_precord.set_row(transactionAmount=transaction_amount, committer=self.britecore_user['username'],
+                                     payorId=contact_id, paymentMethodId=payment_method_id, commPayId=commission_id,
+                                     britecoreTransactionState='unapplied', commissionPayment=1, printedToDeposit=1,
+                                     transactionType='CREDIT')
+        # Store the record in the payments table. It will NOT
+        # be procesed until the night after the queue is submitted.
+        result = self.current_precord.store()
+        if result.get('success'):
+            result["message"] = "The commission payment has been successfully added to the payments table."
+            # Set commission payment to exported
+            self.hal.update({commission_id: {'exported': True}}, 'commission_payments')
+
+        return result
+
+    def add_to_sweep_queue(self, policy_number, transaction_amount, payment_method_id, pass_check=True):
+        """
+        This function takes a policy number, a transaction amount and a payment method and queues the
+        payment up to be ran at a later date.
+
+        @param policy_number: A policy number to apply the payment towards.
+        @param transaction_amount: A decimal amount to make the payment for.
+        @param payment_method_id: The payment method to pull funds from once the sweep is submitted.
+        @keyword pass_check: A boolean saying whether or not to pass the suggested billing schedule
+                             check or not. If False, the system will suggest a possible change in billing
+                             schedule when making the payment.
+        @return: A dictionary containing the success of the addition, and whether or not a billing
+                 schedule change is recommended or not.
+        """
+        self.current_precord = PaymentRecord(controller=self, policy_numbers=[policy_number])
+        self.current_precord.set_row(transactionAmount=transaction_amount, committer=self.britecore_user['username'],
+                                     payorId=self.britecore_user['id'], paymentMethodId=payment_method_id, printedToDeposit=1)
+
+        # If we suggest that another billing schedule might be a better fit...
+        suggested_change = self.current_precord.suggested_billing_change()
+        if not pass_check and suggested_change:
+            # Return something to the front end to let them know
+            # to display a message
+            return {'success': False, 'paymentCheck': suggested_change,
+                    'message': 'The payment has not been added to the sweep queue. A billing schedule change has been recommended.'}
+
+        # Otherwise, store the record in the payments table. It will NOT
+        # be procesed until the night after the queue is submitted.
+        result = self.current_precord.store()
+        if result.get('success'):
+            result["message"] = "The payment has been successfully added to the sweep queue."
+
+        return result
+
+    def submit_commission_payments(self):
+        """
+        This function grabs all the queued payments for commissions in the past 25 days and runs
+        make_payment on each record.
+
+        @return: A list containing failed commission payments and the message saying why the
+                 payment failed.
+        """
+        LOGGER.info('PaymentController().submit_commission_payments()')
+        comm_payments = self.hal.execsql('''SELECT * FROM `payments`
+                                         WHERE `commissionPayment` = 1
+                                         AND `vendorStage` IS NULL
+                                         AND `paymentMethodId` IS NOT NULL
+                                         AND `britecoreTransactionState` = 'unapplied'
+                                         AND `transactionDateTime` BETWEEN SUBTIME(CURRENT_TIMESTAMP, '25 0:0:0') AND CURRENT_TIMESTAMP''')
+
+        failed_payments = []
+        pc = PaymentController()
+
+        for comm_payment in comm_payments:
+            precord = PaymentRecord(controller=pc, policy_numbers=[])
+            precord.get_row(comm_payment['id'])
+            result = pc.make_payment('commission', [], comm_payment['transactionAmount'],
+                                     comm_payment['payorId'], comm_payment['paymentMethodId'], current_precord=precord)
+
+            if not result['success']:
+                failed_payments.append({'paymentId': comm_payment['id'],
+                                        'payorId': comm_payment['payorId'],
+                                        'transactionAmount': comm_payment['transactionAmount'],
+                                        'message': result['message']})
+
+        return failed_payments
+
+    def submit_sweep_queue(self):
+        """
+        This function empties the sweep queue for the logged in user and processes the payments from the
+        queue. Generates and sends out a sweep queue receipt after a successful submission.
+
+        @return: Return dictionary containing success of the submission.
+        """
+        LOGGER.info('PaymentController().submit_sweep_queue()')
+        queued_payments = json_loads(retrieveSweepQueue(self.request))
+        queued_payments = self.hal.execsql('''SELECT * FROM `payments`
+                                           WHERE `id` IN %s''' % (
+                                           (''.join(["('", "', '".join([payment['paymentId'] for payment in queued_payments]), "')"]))))
+
+        failed = {}
+        receipt_list, result_codes = [], []
+        pc = PaymentController()
+
+        # Loop over queued sweep payments
+        for payment in queued_payments:
+            # Submit the payment for processing
+            policy_numbers = json_loads(payment['policyNumbers'])
+            precord = PaymentRecord(controller=pc, policy_numbers=policy_numbers)
+            precord.get_row(payment['id'])
+            result = pc.make_payment('sweep', policy_numbers, payment['transactionAmount'],
+                                     payment['payorId'], payment['paymentMethodId'], current_precord=precord)
+            if result['success']:
+                receipt_list.append(payment['id'])
+                result_codes.append(payment['confirmationNumber'])
+            else:
+                failed[payment['id']] = precord.row.copy()
+                failed[payment['id']]['responseText'] = result.get('message')
+
+        emails = get_admin_alerts_section('payments')
+
+        agent_email = self.hal.execsql('''SELECT `emailNotices`, `noticeEmailId` FROM
+                    `contacts` WHERE `id` = %s''', self.britecore_user['id'], fetchall=False)
+
+        if agent_email['emailNotices'] and agent_email['noticeEmailId']:
+            agent_email = self.hal.get_col('email', 'emails', agent_email['noticeEmailId'])
+            emails.append(agent_email)
+
+        if failed:
+            msg_parts = {}
+            msg_parts['plain'] = ''.join(["The following sweep payments failed",
+                                        " verification:\n\t- %s" % (
+                                '\n\n\t- '.join([''.join(["%s -- Named insured: %s\n",
+                                                        "\t\t* Payment Method: %s\n\t\t* Payor: %s\n",
+                                                        "\t\t* Amount: $%s\n\t\t* Reason: %s"]) % (
+                                failed[fail_id]['policyNumbers'],
+                                get_primary_insured(get_polid_from_polnum(failed[fail_id]['policyNumbers'][0])),
+                                payment_method_formatter(failed[fail_id]['paymentMethodId'], format_type='combo_box'),
+                                self.hal.get_col('name', 'contacts', failed[fail_id]['payorId'], default=''),
+                                failed[fail_id]['transactionAmount'], failed[fail_id]['responseText'])
+                                for fail_id in failed]))])
+            bc_mail(emails, 'BriteCore Alert: Failed Sweep Payments', msg_parts)
+
+        # Display the result if there is at least one payment verified.
+        if result_codes:
+            current_dir = os.path.join('/'.join(os.path.abspath(__file__).split('/')[:-1]), os.pardir)
+            sweep_receipt = Report().build_receipt(receipt_list, "Sweep Receipt")
+            file_info = self.hal.execsql('''SELECT `title`, `url` FROM `files` WHERE
+                                         `id` = %s''', sweep_receipt, fetchall=False)
+            msg_parts = {}
+            msg_parts['plain'] = ''.join([
+                "Attached to this email is a sweep receipt for the sweep payment made by ",
+                "%s.\n\nThis is an automated message sent by the Britecore system. ",
+                "If you have received this message on accident, please disregard."]) % (
+                self.hal.get_col('name', 'contacts', self.britecore_user['id']), )
+            msg_parts['attach'] = [(file_info['title'] + ".pdf", os.path.join(current_dir, file_info['url']))]
+            bc_mail(emails, 'BriteCore Alert: Sweep Payment Receipt', msg_parts)
+
+            return {'success': True,
+                    'message': 'All payments have been submitted successfully from the sweep queue.',
+                    'attachmentId': sweep_receipt,
+                    'confirmationCode': ', '.join(list(set(result_codes))),
+                    'sweepQueue': {}}
+        else:
+            if failed:
+                return {'success': False,
+                        'message': 'There were payments that could not successfully be submitted from the sweep queue.',
+                        'failed': failed}
+            else:
+                return {'success': False,
+                        'message': 'There were no payments to submit.'}
+
+    def get_payment_method_uuids(self, contact_id):
+        """
+        Builds a list of payment method uuids for the given contact
+
+        @param contact_id: UUID of the contact to search for payment methods
+        @return: List of payment method UUIDs
+        """
+        LOGGER.info('PaymentController().get_payment_method_uuids()')
+        LOGGER.info('contact_id: %s' % contact_id)
+
+        payment_methods = self.hal.execsql('''
+                SELECT `id`
+                FROM `payment_methods`
+                WHERE `active` = 1 AND `contactId` = %s''',
+                contact_id)
+
+        return [method['id'] for method in payment_methods]
+
+    def make_payment(self, payment_type, policy_numbers, transaction_amount, contact_id=None,
+                     payment_method_id=None, transaction_date_time=datetime.now(), **kwargs):
+        """
+        This method actually performs all the steps to create a payment in the system. It
+        takes our established PaymentRecord instance and runs methods on it until everything
+        is done.
+
+        TODO: Add param docs
+        @return: A dictionary containing the success of the payment creation.
+        """
+        LOGGER.info('kwargs: %s' % kwargs)
+        LOGGER.info('transaction_amount: %s' % transaction_amount)
+
+        result = {}
+
+        # Special negative amount check. Prevent it from even going to the vendor.
+        if transaction_amount < 0:
+            return {'success': False, 'message': 'Payments with negative amounts are not allowed.'}
+
+        # We're going to grab the current payment record if it gets passed into the kwargs
+        # from any method with an existing payment record. Otherwise, we'll make a new one.
+        if not kwargs.get('current_precord'):
+            self.current_precord = PaymentRecord(controller=self, policy_numbers=policy_numbers)
+        else:
+            self.current_precord = kwargs.get('current_precord')
+
+        # The apply_now key will cause non-electronic payments to get applied
+        # to Britecore immediately instead of during the cron.
+        apply_now = kwargs.get('apply_now', False)
+        email_addr = kwargs.get('email_addr')
+        is_electronic = payment_type not in ('Cash', 'Check', 'Money Order')
+
+        # We use this to determine whether or not store will require verification.
+        is_payment = payment_type != 'void'
+
+        LOGGER.info('PaymentController().make_payment()')
+
+        if payment_type not in ('void', 'commission'):
+            # Agentless check and duplicate check not needed for voids and commission payments.
+            for policy_number in policy_numbers:
+
+                policy_id = get_polid_from_polnum(policy_number)
+
+                # Ensure that an agent is associated with the policy
+                result.update(self.current_precord.check_for_policy_agent(policy_id, policy_number))
+                if not result.get('success'):
+                    return result
+
+                # Check for any duplicates of this payment
+                result.update(self.current_precord.check_for_duplicate(policy_id, policy_number,
+                                                                    transaction_amount, transaction_date_time))
+                if not result.get('success'):
+                    return result
+
+        if is_electronic:
+            # If it is electronic, we need a payment method ID.
+            if not payment_method_id:
+                return {'success': False, 'message': 'A payment method ID is required when making an electronic payment.'}
+
+            # Set the payment method because we are going to need it for sweeps and commission payments to fill in
+            # missing fields such as accountName, etc.
+            if not self.current_precord.payment_method:
+                self.current_precord.get_payment_method(payment_method_id)
+
+            # Set everything so far. (Or update if this is a website payment)
+            # We need to set printedToDeposit to 1, otherwise it will show in the DCR log.
+            self.current_precord.set_row(transactionAmount=transaction_amount, payorId=contact_id, paymentMethodId=payment_method_id,
+                                         transactionDateTime=transaction_date_time, policyNumbers=policy_numbers, printedToDeposit=1)
+
+            # The vendor controller only needs the payment_record instance to function.
+            # It builds everything else from there.
+            result.update(self.vendor_controller.make_payment(self.current_precord, payment_type))
+
+            # This method will check the vendor response and set keys such as the vendorLog.
+            # It also handles checking for valid responses and sets the britecoreTransactionsState
+            result.update(self.process_vendor_payment_response(result, payment_type))
+
+        # This payment is not electronic. (Cash, Check, Money Order)
+        else:
+            # All we need to do is set everything in the row and then store it below.
+            self.current_precord.set_row(transactionAmount=transaction_amount, payorId=contact_id, accountName=payment_type,
+                                         transactionDateTime=transaction_date_time, maskedNumber=kwargs.get('masked_number'),
+                                         policyNumbers=policy_numbers, authorizationState='approved')
+
+        # Common actions to all payments begin here:
+
+        # Okay, at this point we should be done validating the response and the data
+        # It's fine to go ahead and store the payment to the DB and set the return to
+        # the result of that action.
+        result.update(self.current_precord.store(verify=is_payment))
+
+        if result.get('success') and payment_type not in ('commission', 'void'):
+            # Now build accounting credits for this payment record.
+            result.update(self.current_precord.build_accounting_credits())
+        else:
+            return result
+
+        if not is_electronic and apply_now:
+            apply_success = self.current_precord.apply_payment()
+            if not apply_success:
+                # This didn't work, roll it back.
+                return self.roll_back("Something failed in the payment application process. Payment ID: %s" % self.current_precord.row['id'])
+
+        if not result.get('success'):
+            # This didn't work, roll it back.
+            return self.roll_back("Something failed in the payment process: %s" % result.get('message'))
+        else:
+            # Generate receipt if successful.
+            result.update(self.current_precord.generate_receipts(email_addr))
+
+        return result
+
+    def process_vendor_payment_response(self, result, payment_type=None):
+        """
+        This method is a left-over from bank. The goal is to figure out a better way to do this
+        and make sure that every single response we get back from the vendor is covered by the
+        error-checking portion of this method. I believe that this section of the code was the
+        reason for a lot of our ills in the past. It is very important that we always write a
+        valid payment record or we get notified. NO MORE ZOMBIE PAYMENT RECORDS!
+
+        @param result: Vendor Response that we process for a payment record.
+        @return: Return the success of the newly updated payment record.
+        """
+        try:
+            stage = result.get('stage')
+            # Complete
+            if stage == 'completed':
+
+                if result['success']:
+                    self.current_precord.set_row(authorizationState='approved', britecoreTransactionState='committed')
+                else:
+                    self.current_precord.set_row(authorizationState='declined')
+
+            # Void
+            elif stage == 'voided':
+
+                if result['success']:
+                    self.current_precord.set_row(authorizationState='voided')
+
+            # Batch
+            elif stage == 'batched':
+
+                # Prevent multiple submissions to the vendor | #4899
+                if result['success']:
+                    if payment_type in ('sweep', 'commission'):
+                        self.current_precord.set_row(britecoreTransactionState='committed')
+
+                else:
+                    self.current_precord.set_row(authorizationState='declined')
+
+            # Verify
+            elif stage == 'verified':
+
+                if not result['success']:
+                    self.current_precord.set_row(authorizationState='declined')
+                    # TODO: Do we need to notify somehow?
+            else:
+                # No stage... we need to handle this.
+                if result.get('STATUS_CODE') == 4 and result.get('RESULT_CODE') == 4:
+                    # This is a successful NMA commissions ACH
+                    result['success'] = True
+                    stage = 'batched'
+                    result['stage'] = stage
+                    self.current_precord.set_row(britecoreTransactionState='committed')
+                else:
+                    return self.roll_back("There was an error processing the vendor response because there was no vendor stage returned.")
+
+            # Set the vendor response and other various keys.
+            self.current_precord.set_row(vendorResponse=result.get('response'), vendorStage=stage,
+                                         vendorStageSuccess=result.get('success', False),
+                                         accountName=self.current_precord.payment_method.get('accountName'),
+                                         maskedNumber=self.current_precord.payment_method.get('maskedNumber'))
+
+            # We need to append the latest requests and responses to the current ones
+            # At this point we either need the proper response from the vendor file or
+            # create a blank one if that fails.
+            new_vendor_log = result.get('vendorLog', {'requests': [], 'responses': []})
+
+            # Now we need to grab any current vendorLog data from previous vendor calls
+            # associated with this payment record.
+            old_vendor_log = json_loads(self.current_precord.row.get('vendorLog'))
+
+            # If there isn't anything there, create a blank one to merge our new ones with
+            if not old_vendor_log:
+                old_vendor_log = {
+                    'requests': [],
+                    'responses': []
+                }
+
+            old_vendor_log['requests'] += new_vendor_log['requests']
+            old_vendor_log['responses'] += new_vendor_log['responses']
+
+            # Put the log back in the row now.
+            self.current_precord.set_row(vendorLog=old_vendor_log)
+
+            return {'success': True, 'message': 'The vendor response was processed successfully.'}
+
+        except StandardError as error:
+            return self.roll_back("There was an error processing the vendor response: %s" % error)
+
+    def make_website_payment(self, call_data, **kwargs):
+        """
+        Wrapper function around make_payment. Website payments come from the Secure
+        checkout screen - the insured's must enter both payment method information
+        and policy number / billing schedule information.
+
+        @param call_data: A dictionary containing all the data necessary to create
+                          a payment method & issue an electronic payment.
+        @return: A dictionary containing the success of the payment creation.
+        """
+        policy_numbers = [call_data.get('policyNumber')]
+
+        # We need one policy number and one policy number only.
+        if len(policy_numbers) != 1:
+            return {'success': False, 'message': 'A policy number is required to make a payment.'}
+
+        # Instantiate the payment record class. This class controls creating, updating, and
+        # modifying payment records. We are emulating an active record pattern like this.
+        self.current_precord = PaymentRecord(controller=self, policy_numbers=policy_numbers)
+
+        # If we are making a secure checkout payment, we need to create a payment method on the fly.
+        result = self.vendor_controller.make_payment_method(call_data)
+
+        # Check yourself before you wreck yourself.
+        if not result.get('success'):
+            return result  # This will bubble-up the error from the VendorController.
+
+        payment_method_id = self.vendor_controller.payment_method.get('id')
+
+        # Do we actually have a payment method ID?
+        if not payment_method_id:
+            return {'success': False, 'message': '''There was an error processing this payment method.
+                                                    Please verify the information submitted and try again.'''}
+
+        # A contact ID is necessary. Get it from one of the common key values.
+        contact_id = call_data.get('payorId') or call_data.get('contactId')
+        if not contact_id:
+            return {'success': False, 'message': '''There was an error processing this payment because we cannot
+                                                    find a Britecore contact to process it with. Please contact
+                                                    support.'''}
+
+        # We're not validating this here because it gets validated twice inside of make_payment
+        transaction_amount = call_data.get('transactionAmount')
+
+        # Set what we have so far to the payment record row dict
+        self.current_precord.set_row(payorId=contact_id, paymentMethodId=payment_method_id,
+                                     policyNumbers=policy_numbers, **call_data)
+
+        # Pass this to make_payment
+        kwargs['current_precord'] = self.current_precord
+
+        # Call make_payment now since we are done with making a payment method on the fly and now it's
+        # business as usual.
+        return self.make_payment('website', policy_numbers, transaction_amount, contact_id, payment_method_id, **kwargs)
+
+    def remove_payment(self, payment_id=None):
+        """
+        This method will remove a payment from the system. It needs to be able to handle
+        both payments that have processed as well as ones that have not. I imagine that we
+        will need to make sure that we have a payment_id and we can update self.PaymentRecord
+        to reflect that we are working with an active record.
+
+        @param payment_id: (String) This is a uuid that corresponds with a payment record in
+                           the Britecore database. It is optional because we could possibly
+                           already have an active record that is loaded into self.current_precord.
+        """
+        LOGGER.info('PaymentController().remove_payment()')
+
+        delete_record = False
+        result = {'success': False, 'message': 'The payment could not be deleted.'}
+
+        if payment_id:
+            self.set_current_precord(payment_id)
+
+        if not self.current_precord.row:
+            return bail_out(message='You need a payment ID or payment record to remove a payment.', logger=LOGGER)
+
+        if self.current_precord.row.get('paymentMethodId'):
+            # Payment is electronic so we need to void it.
+            if self.current_precord.row.get('authorizationState') == 'pending' and self.current_precord.row.get('vendorStage') == 'batched':
+                # This payment is only batched and can be reversed.
+                # make_payment(self, payment_type, policy_numbers, transaction_amount, contact_id=None,
+                #     payment_method_id=None, transaction_date_time=datetime.now(), **kwargs):
+                result.update(self.make_payment('void', self.current_precord.row.get('policyNumbers'),
+                                                self.current_precord.row.get('transactionAmount'),
+                                                contact_id=self.current_precord.row.get('payorId'),
+                                                payment_method_id=self.current_precord.row.get('paymentMethodId'),
+                                                current_precord=self.current_precord))
+                if result.get('success'):
+                    delete_record = True
+                    self.current_precord.set_row(authorizationState='voided')
+
+            else:
+                # It has already processed and needs to just be deleted.
+                delete_record = True
+        else:
+            delete_record = True
+
+        if delete_record:
+
+            # Determine if any BriteCore processing has taken place
+            if self.current_precord.row['britecoreTransactionState'] in ('committed', 'unapplied', 'unresolved'):
+
+                # Then retrieve the matching accounting credits
+                kredits = self.hal.execsql('''SELECT `id`, `policyId`, `creditAmount`
+                                           FROM `accounting_credits`
+                                           WHERE `paymentId` = %s''', self.current_precord.row['id'])
+
+                # If no credits exist - this won't run
+                for kredit in kredits:
+                    # Cancel the accounting kredit record
+                    self.hal.update({kredit['id']: {'canceled': True}}, 'accounting_credits')
+
+                    # Notate the credit cancelation
+                    make_note(kredit['policyId'],
+                              "Canceling Payment Record",
+                              "A payment made on {0}, for which {1} was applied to this policy, was canceled.".format(
+                              self.current_precord.row['transactionDateTime'].strftime("%m/%d/%Y"),
+                              currency(kredit['creditAmount'], grouping=True)))
+
+                # Look up the return premium id to use with our delete statement
+                rp_id = self.hal.get_col('id', 'return_premium', self.current_precord.row['id'], whereid='paymentId')
+
+                # Cancel the return premium record
+                if rp_id:
+                    self.hal.update({rp_id: {'canceled': True}}, 'return_premium')
+
+            # If the payment has been fully processed
+            elif self.current_precord.row['britecoreTransactionState'] == 'processed':
+
+                # Try to get the policyId from the accounting_credits table:
+                polid = self.hal.get_col('policyId', 'accounting_credits', self.current_precord.row['id'], whereid='paymentId')
+
+                if not polid:
+                    polid = self.hal.get_col('policyId', 'return_premium', self.current_precord.row['id'], whereid='paymentId')
+
+                if not polid:
+                    return bail_out("No policy ID, payment cannot be cancelled. Payment ID: %s" % self.current_precord.row['id'],
+                                    emails='engineering@iwsapps.com', logger=LOGGER)
+
+                acct = Account(polid)
+
+                # Then retrieve the matching accounting credits
+                kredits = self.hal.execsql('''SELECT `id`, `policyId`, `creditAmount`
+                                           FROM `accounting_credits`
+                                           WHERE `paymentId` = %s''', self.current_precord.row['id'])
+
+                for kredit in kredits:
+                    records = self.hal.execsql('''SELECT `id`
+                                               FROM `accounting`
+                                               WHERE `referenceId` = %s''',
+                                               kredit['id'])
+
+                    for record in records:
+                        acct.cancel_transaction(record['id'])
+
+                acct.apply_all_transactions()
+
+            # Make a note of the payment cancelation
+            make_note(self.current_precord.row['payorId'],
+                      "Canceling Payment Record",
+                      "A {0} payment made on {1} was canceled.".format(
+                      currency(self.current_precord.row['transactionAmount'], grouping=True),
+                      self.current_precord.row['transactionDateTime'].strftime("%m/%d/%Y")))
+
+            # Cancel / Delete the payment record
+            self.current_precord.set_row(britecoreTransactionState='deleted')
+            self.current_precord.store()
+
+        return result
+
+    def apply_payments(self, payments, dcr_button=None):
+        """
+        This method applies active payments in Britecore.
+
+        @param payments: List of payment uuids.
+        @keyword dcr_button: Optional, if supplied, can generate a daily cash receipt.
+        """
+        LOGGER.info('PaymentController().apply_payment()')
+
+        failed_payments = []
+        # Set the the britecore status of these payments to committed to
+        # allow for cron to try again later
+        update_dict = {}
+        update_dict = {payment['paymentId']: {'britecoreTransactionState': 'committed'} for payment in payments}
+        self.hal.update(update_dict, 'payments')
+
+        # For now, grab all the information for each payment.
+        payments = self.hal.execsql('''SELECT * FROM `payments`
+                                           WHERE `id` IN %s''' %
+                                           (''.join(["('", "', '".join([payment['paymentId'] for payment in payments]), "')"])))
+
+        for payment in payments:
+            pay_record = PaymentRecord(self, request=self.request, policy_numbers=json_loads(payment['policyNumbers']))
+            pay_record.set_row(**payment)
+            apply_success = pay_record.apply_payment()
+
+            # If the payment did NOT successfully apply, record that fact.
+            if not apply_success:
+                failed_payments.append(pay_record.row['id'])
+
+            else:
+                # If the payment application was successful, make sure to schedule
+                # any note alerts.
+                policy_ids = self.hal.execsql('''SELECT `id` FROM `policies`
+                                                WHERE `policyNumber` IN %s''' %
+                                                (''.join(["('", "', '".join(payment['policyNumbers']), "')"])))
+
+                for policy_id in policy_ids:
+                    schedule_event_alert(policy_id, 'payReceived')
+
+        # At this point all payments that should be applied have been applied (or have failed)
+        # If we applied all, we also need to print a deposit receipt, so select the successful
+        # payments and generate the receipt.
+        if dcr_button == 'applyAll':
+            # All successfully applied payments that have yet to be included on a DCR
+            successful_payments = [p['id'] for p in self.hal.execsql('''
+                    SELECT `id`
+                    FROM `payments`
+                    WHERE `printedToDeposit` = 0
+                    AND `britecoreTransactionState` = 'processed'
+                    AND (`paymentMethodId` IS NULL OR `paymentMethodId` = '')
+                    AND `accountName` IS NOT NULL''')]
+
+            if successful_payments:
+                deposit_receipt = Report().build_receipt(successful_payments, "Daily Cash Receipts")
+                self.hal.execsql('''UPDATE `payments`
+                                    SET `printedToDeposit` = 1
+                                    WHERE `id` IN %s''' % ''.join(["('", "', '".join(successful_payments), "')"]))
+
+               # Email the Daily Cash Receipt
+                current_dir = os.path.join('/'.join(os.path.abspath(__file__).split('/')[:-1]), os.pardir)
+                subject = 'BriteCore Administrative Alert: Daily Cash Receipt'
+                # The date and time now, used in the email msg
+                date_time = datetime.now()
+                msg_parts = {}
+                msg_parts['plain'] = ''.join(['Attached to this email is the daily cash receipt ',
+                                              'generated on %s at %s.\n\nThis is an automated ',
+                                              'message from the BriteCore system.\nIf you believe ',
+                                              'you have received this message in error, please ',
+                                              'disregard this email.']) % (
+                                                      date_time.date().strftime("%m/%d/%Y"),
+                                                      date_time.time().strftime("%I:%M %p"))
+
+                file_info = self.hal.execsql('''SELECT `url`, `title` FROM `files`
+                            WHERE `id` = %s''', deposit_receipt, fetchall=False)
+                msg_parts['attach'] = [(file_info['title'] + ".pdf", os.path.join(current_dir, file_info['url']))]
+
+                bc_mail(get_admin_alerts_section('maildepositreceipt'), subject, msg_parts)
+
+                return {'attachmentId': deposit_receipt, 'event_alerts': retrieve_event_alerts()}
+
+            else:
+                return {'failed': failed_payments}
+
+        else:
+            return {"event_alerts": retrieve_event_alerts(), 'failed': failed_payments}
+
+
+class PaymentRecord(object):
+    """
+    Class which handles all payment transactions within the britecore system. Determines
+    how to process incoming payment system requests such as authorization
+    of new transactions, as well as retrieving payment data for the front-end. This is the
+    only class with access to the payments table, and handles all SQL to and from the
+    payments table.
+    """
+
+    def __init__(self, controller, request=None, policy_numbers=None):
+        """
+        Initialize a database row dictionary, row, and a list of policy numbers
+        to apply the payment against.
+
+        @param controller: A PaymentController instance.
+        @keyword request: A mod_python request object.
+        @keyword policy_numbers: A list of policy numbers.
+        """
+        from random import randint
+        LOGGER.info('PaymentRecord().__init__()')
+        self.hal = HAL(CONFIG)
+        self.controller = controller
+
+        # A payment record can have more than one policy number
+        self.policy_numbers = policy_numbers
+
+        # This key controls whether or not we pop up the payment distribution pop-up on the front end.
+        self.show_distribution = False
+
+        # This is where we will store a payment record's corresponding payment method record.
+        # Although this doesn't strictly fit the active record pattern, this is a very useful
+        # thing to do.
+        self.payment_method = {}
+
+        # Define schema and set defaults for empty records. This is in the spirit of the active
+        # record pattern. The PaymentController class handles payment records. A payment record
+        # instance should always correspond with a real row that is either already written to
+        # the database or going to be.
+        self.row = {
+            'id': None,
+            'fileIds': [],
+            'paymentMethodId': None,
+            'payorId': None,
+            'policyNumbers': policy_numbers or [],
+            'accountName': None,
+            'maskedNumber': None,
+            'transactionType': 'SALE',
+            'transactionAmount': 0,
+            'transactionDateTime': None,
+            'britecoreTransactionState': 'pending',
+            'authorizationState': 'pending',
+            'vendorStage': None,
+            'vendorStageSuccess': 0,
+            'vendorResponse': {},
+            'vendorLog': [],
+            'committer': 'system',
+            'remoteIP': '10.10.10.12',
+            'confirmationNumber': '%d%d' % (randint(1000, 9999), int(time())),
+            'checkNumber': None,
+            'commissionPayment': 0,
+            'commPayId': None,
+            'nsf': 0,
+            'printedToDeposit': 0,
+            'selectedOnDeposit': 0
+        }
+
+    def get_payment_method(self, payment_method_id=None):
+        """
+        Gets the corresponding payment_method record for this payment record. It can take
+        a payment method ID or use the one in self.row.
+
+        @param payment_method_id: A payment methods table id.
+        @return: A dictionary containing the payment method details.
+        """
+        if not payment_method_id:
+            payment_method_id = self.row.get('paymentMethodId')
+
+        if payment_method_id:
+            # Set and return for flexibility
+            self.payment_method = self.hal.get_row(payment_method_id, 'payment_methods')
+            return self.payment_method
+        else:
+            return bail_out(message='You need a payment method ID to retrieve a payment method.', logger=LOGGER)
+
+    def get_row(self, payment_id=None):
+        """
+        Gets the corresponding record for this payment. It can take a payment ID or use the one in self.row.
+
+        @param payment_id: A payment table id.
+        @return: A PaymentRecord instance 'row' attribute (dictionary).
+        """
+        if not payment_id:
+            payment_id = self.row.get('id')
+
+        if payment_id:
+            # Set and return for flexibility
+            self.row = self.hal.get_row(payment_id, 'payments')
+            self.row['fileIds'] = json_loads(self.row.get('fileIds'))
+            self.row['vendorLog'] = json_loads(self.row.get('vendorLog'))
+            self.row['vendorResponse'] = json_loads(self.row.get('vendorResponse'))
+            self.row['policyNumbers'] = json_loads(self.row.get('policyNumbers'))
+            return self.row
+        else:
+            return bail_out(message='You need a payment ID to retrieve a payment row.', logger=LOGGER)
+
+    def build_accounting_credits(self):
+        """
+        Build accounting credits for all of self.policy_numbers on the
+        given PaymentRecord instance.
+
+        @return: Dictionary containing a showDistribution boolean stating
+                 whether or not the store payment distribution popup should
+                 be displayed.
+        """
+        LOGGER.info('build_accounting_credits()')
+
+        transaction_amount = to_dec(self.row['transactionAmount'])
+        self.show_distribution = False
+
+        paid_policies, agentless_policies, duplicate_payments = [], [], []
+
+        if not self.policy_numbers:
+            raise UserWarning("There is no policy number listed in the transaction.")
+
+        for policy_number in self.policy_numbers:
+
+            policy_id = get_polid_from_polnum(policy_number)
+            acct = Account(policy_id)
+
+            unapplied_credits = self.hal.execsql('''
+                    SELECT `policyId`, SUM(CAST(`creditAmount` AS decimal))
+                        AS `creditAmount`, `britecoreTransactionState`
+                    FROM `accounting_credits`
+                    LEFT JOIN `payments`
+                    ON `payments`.`id` = `accounting_credits`.`paymentId`
+                    WHERE `policyId` = '{0}'
+                    AND `payments`.`britecoreTransactionState`
+                        NOT IN ('canceled', 'deleted', 'unresolved')
+                    AND `accounting_credits`.`processed` = 0
+                    AND `accounting_credits`.`canceled` = 0
+                    GROUP BY `policyId`'''.format(policy_id), fetchall=False)
+
+            if unapplied_credits:
+                unapplied_amount = unapplied_credits['creditAmount']
+                self.show_distribution = True
+            else:
+                unapplied_amount = 0
+
+            # Determine the amount due for the current policy
+            current_balance = acct.retrieve_current_balance()
+            adjusted_current_balance = current_balance + unapplied_amount
+
+            # Determine the amount to apply to current policy
+            if adjusted_current_balance > 0:
+                amount_to_apply = 0
+
+            else:
+                amount_to_apply = transaction_amount + adjusted_current_balance
+
+            #===============================================================
+
+            # If the policy is canceled, set self.show_distribution to True
+            if acct.data['revision']['status'].find('Canceled') != -1:
+                self.show_distribution = True
+
+            #===============================================================
+
+            # Begin building the accounting credits dictionary
+            credit = {}
+            credit_id = uuid()
+            credit['creditDate'] = self.row['transactionDateTime']
+            credit['writtenOff'] = acct.data['revision']['writeOffBalance']
+            credit['creditDateMicro'] = str(credit['creditDate'].microsecond).rjust(6, '0')
+            credit['policyId'] = policy_id
+            credit['paymentId'] = self.row['id']
+            credit['policyStatus'] = acct.data['revision']['status']
+            credit['paymentAction'] = 'nothing'
+            credit['applyImmediate'] = 1  # Do we need this anymore?
+
+            # Happens when paying less money than is currently owed on this policy
+            if amount_to_apply < 0:
+                credit['creditAmount'] = abs(transaction_amount)
+                transaction_amount = 0
+                self.show_distribution = True
+
+            # Happens when only one policy has been given to apply payments to
+            elif len(self.policy_numbers) == 1:
+                credit['creditAmount'] = abs(transaction_amount)
+                transaction_amount = 0
+
+            # All other cases
+            else:
+                credit['creditAmount'] = abs(adjusted_current_balance)
+                # adjusted_current_balance is negative, this reduces the transaction_amount left for additional policies
+                transaction_amount += adjusted_current_balance
+
+            # Insert the accounting credit for this policy
+            self.hal.insert(credit_id, credit, 'accounting_credits')
+
+            # Conditions to manually set self.show_distribution to True
+            if amount_to_apply > 0:
+                self.show_distribution = True
+
+            # Set up any event based alerts that should fire because of this trigger.
+            schedule_event_alert(policy_id, 'payReceived')
+
+            if any((transaction_amount != 0, len(self.policy_numbers) != 1)):
+                self.show_distribution = True
+
+            #========================== End -> for loop ========================
+
+        if self.show_distribution:
+            #self.hal.update({self.row['id']: {'britecoreTransactionState': 'unresolved'}}, 'payments')
+            self.set_row(britecoreTransactionState='unresolved')
+            self.store()
+            return {'paymentId': self.row['id'],
+                    'showDistribution': self.show_distribution}
+
+        else:
+            #self.hal.update({self.row['id']: {'britecoreTransactionState': 'unapplied'}}, 'payments')
+            self.set_row(britecoreTransactionState='unapplied')
+            self.store()
+            return {'paymentId': self.row['id'],
+                    'showDistribution': self.show_distribution,
+                    'event_alerts': retrieve_event_alerts()}
+
+    def set_row(self, **kwargs):
+        """
+        Use each key in kwargs to set the appropriate value in self.row.
+        """
+        for key in kwargs:
+            # IMPORTANT:
+            # We are only ever going to set values that exist in the database schema!
+            # If you add a field to the payments table, it must be added to the row
+            # definition in this class' init.
+            if key in self.row:
+                self.row[key] = kwargs[key]
+            #else:
+            #    raise UserWarning('Key: "%s" does not exist in row' % key)
+
+            # Delete this from the payment_records dict since we are making changes to it
+            # It will be put back on store()
+            self.controller.payment_records.pop(self.row['id'], None)
+
+    def suggested_billing_change(self):
+        """
+        Based on the amount paid, amount due, and the non-pay threshold
+        (set in the policies), this method checks to see if the amount
+        is within the non-pay threshold. If not, it suggests a new billing
+        schedule.
+        """
+        LOGGER.info('PaymentRecord().suggested_billing_change()')
+
+        def within_threshold(amt_paid, threshold, amt_due):
+            """A very simple function which determines whether or not the
+               amount paid falls between the amount due +/- the threshold."""
+            return (amt_due - threshold) <= amt_paid <= (amt_due + threshold)
+
+        polid = get_polid_from_polnum(self.policy_numbers[0])
+        acct = Account(polid)
+        amount_due = acct.retrieve_account_balance()['currentBalance']
+        amount_paid = self.row['transactionAmount']
+        threshold = 0
+
+        revision_state = acct.data['revision']['revisionState']
+        revision_effective = acct.data['revision']['effDate']
+        unpaid_invoices = acct.retrieve_invoices(complete=False)
+
+        curr_sched = self.hal.execsql('''
+                    SELECT `billing_schedules`.*
+                    FROM `billing_schedules`
+                    LEFT JOIN `policies`
+                    ON `policies`.`billSchedId` = `billing_schedules`.`id`
+                    WHERE `policies`.`id` = %s''',
+                    polid, fetchall=False)
+
+        threshold_info = self.hal.execsql('''
+                    SELECT `minThresholdType`, `minThresholdAmount`
+                    FROM `policy_life_cycles`
+                    WHERE `id` = %s''',
+                    curr_sched['lifeCycleId'], fetchall=False)
+
+        # If the threshold is defined as a factor of the term premium, calculate it.
+        if threshold_info['minThresholdType'] == 'Factor':
+            term_premium = self.hal.get_col('termPremiumTotal', 'revisions', acct.data['revision']['id'])
+            threshold = threshold_info['minThresholdAmount'] * term_premium
+        else:
+            threshold = threshold_info['minThresholdAmount']
+
+        #########
+        # Note: #
+        #########
+        # The following block was added to mostly resolve ticket #4305. Suggestion
+        # functionality may not work as expected if a policy is effective and committed
+        # but has no invoices. However, the popup should no longer display in the cases
+        # which were flagged as confusing.
+        # =======================================================================
+        # If the policy is not yet committed or not yet effective...
+        if revision_state == 'open' or revision_effective >= datetime.now().date() or not unpaid_invoices:
+            # And the amount paid isn't larger than the total pro-rata premium
+            if amount_paid <= acct.calculate_total_earned_premium()['total']:
+                # Then don't suggest a change.
+                return False
+        # =======================================================================
+
+        if within_threshold(amount_paid, threshold, amount_due):
+            # The billing schedule is ok, nothing needs to be altered.
+            return False
+
+        # The payment does not match the billing schedule, look for better schedules.
+        else:
+            # A list of schedule ids that would be allowed for this policy.
+            available_scheds = [sched['billingScheduleId'] for sched in acct.retrieve_billing_options()]
+
+            # Information from retrieve_all_billing_schedules, but filtered down to
+            # include only billing schedules that are valid for this policy.
+            billing_scheds = [sched for sched in acct.retrieve_all_billing_schedules()
+                                              if sched['id'] in available_scheds]
+
+            # A list of schedules that might fit better.
+            possible_scheds = []
+
+            for sched in billing_scheds:
+                # If this is the same as the current schedule, just skip it
+                if sched['name'] == curr_sched['name']:
+                    continue
+                # For each possible payment amount for this billing schedule (first, mid, and final)
+                for i in range(-1, 2):
+                    try:
+                        if within_threshold(amount_paid, threshold, sched['installments'][i]['total']):
+                            possible_scheds.append({"amt_match": sched['installments'][i]['total'],
+                                                    "sched_name": sched['name']})
+                            break
+                    except IndexError:
+                        # This means there was no midtemr installment for this type.
+                        continue
+
+            # If any schedules matched, sort them by amounts (descending) and return those options.
+            if possible_scheds:
+                possible_scheds = sorted(possible_scheds, key=lambda i: i.get('amt_match'), reverse=True)
+                amount_due = ('$%.2f' if amount_due > 0 else "<span style='color:red'>$%.2f</span>") % (amount_due, )
+                to_consider = ''.join(['The <b>Amount</b> of $%.2f is not within the non-pay<br />threshold (+/- $%.2f) ',
+                                       'of the amount due (%s).<br />Based on the <b>Amount</b>, we recommend using ',
+                                       'one<br />of the following billing schedules instead: <ul><li><b>%s</b></li></ul>',
+                                       "<br /><i>Billing schedule changes take place immediately.<br />"]) % (
+                                               amount_paid, threshold, amount_due,
+                                        '</li><li>'.join([option['sched_name'] for option in possible_scheds]))
+
+                return to_consider
+
+    def apply_payment(self):
+        """
+        This function instantiates account for each payment submitted and
+        runs apply_credits() and apply_adjustments() on the payment record.
+        This adds them to the accounting database and sets the payment to a
+        britecoreTransactionStatus of 'processed'.
+
+        @return: Boolean stating whether or not if there are any accounting
+                 credits not left processed for the given payment record.
+        """
+
+        LOGGER.info('apply_payment()')
+        LOGGER.info('payment: %s' % self.row)
+
+        credits = self.hal.execsql('''SELECT *
+                                      FROM `accounting_credits`
+                                      WHERE `paymentId` = %s
+                                      AND NOT `canceled`''', self.row['id'])
+
+        for credit in credits:
+            policy_id = credit['policyId']
+            acct = Account(policy_id)
+
+            # Run Account instance apply methods
+            acct.apply_credits()
+            acct.apply_adjustments()
+
+            ###############################
+            # And now a bunch of notes... #
+            ###############################
+            payor_name = self.hal.get_col('name', 'contacts', self.row['payorId'])
+            p_numb = self.hal.get_col('policyNumber', 'policies', policy_id)
+
+            # Create a note, attached to the payor, reflecting the payment
+            make_note(self.row['payorId'],
+                      'Payment Applied',
+                      ('A payment of %s was made on %s, by %s. %s of this payment has '
+                      'been applied to the %s policy.' %
+                      (currency(self.row['transactionAmount'], grouping=True),
+                      self.row['transactionDateTime'].strftime('%m/%d/%Y'),
+                      payor_name,
+                      currency(credit['creditAmount'], grouping=True),
+                      p_numb)))
+
+            # Create a note, attached to the policy, reflecting the payment
+            make_note(credit['policyId'],
+                      'Payment Applied',
+                      ('Applied a payment of $%.2f to this policy, made '
+                      'by %s on %s.' %
+                      (credit['creditAmount'],
+                      payor_name,
+                      self.row['transactionDateTime'].strftime('%m/%d/%Y'))))
+
+            primary_named_insured = get_primary_insured(policy_id, uuid=True)
+
+            if self.row['payorId'] != primary_named_insured:
+                # Create a note, attached to the primary named insured, reflecting the payment
+                make_note(primary_named_insured,
+                          'Payment Applied',
+                          ('A payment of %s was made on %s, by %s. %s of this payment has '
+                          'been applied to the %s policy.' %
+                          (currency(self.row['transactionAmount'], grouping=True),
+                          self.row['transactionDateTime'].strftime('%m/%d/%Y'),
+                          payor_name,
+                          currency(credit['creditAmount'], grouping=True),
+                          p_numb)))
+
+        #=================== End Credit For Loop =======================
+
+        # Check success of Account instance apply methods.
+        # The following query should return None if everything succeeded.
+        epic_failure = self.hal.execsql('''
+                    SELECT `processed`, `id`
+                    FROM `accounting_credits`
+                    WHERE `paymentId` = %s
+                    AND `processed` = 0''', self.row['id'])
+
+        # If 'epic_failure' the payment application failed... Return false.
+        if epic_failure:
+            return False
+
+        # Otherwise, update the database to reflect the processing and return True
+        else:
+            self.hal.update({self.row['id']: {'britecoreTransactionState': 'processed',
+                                              'selectedOnDeposit': 0}}, 'payments')
+            return True
+
+    def store(self, verify=False):
+        """
+        Since we are using a controller / record pattern, this class represents a payments
+        table record already in the row property. It is now a cinch to write it to the DB
+        and figure out if we need to insert or update.
+
+        @return: Dictionary containing the success of the database store.
+        """
+
+        # Below is the verify integrity call. The ability to bypass this call is built-in
+        # because there will be times you don't want to verify before writing. For
+        # instance: You want to set a broken record to britecoreTransactionState deleted.
+        # We already know the record is broken so we want to write it to delete it.
+        # There might be other cases as well. That's why you can bypass it.
+        write_it = True
+        verified = {'success': True, 'message': ''}
+
+        if verify:
+            # verify_record_integrity returns True or False.
+            verified = self.verify_record_integrity()
+            write_it = verified['success']
+
+        if write_it:  # Either it passed or we bypassed.
+            try:
+                # We need to JSON dump these for storage
+                self.row['fileIds'] = json_dumps(self.row['fileIds'])
+                self.row['vendorLog'] = json_dumps(self.row['vendorLog'])
+                self.row['vendorResponse'] = json_dumps(self.row['vendorResponse'])
+                self.row['policyNumbers'] = json_dumps(self.row['policyNumbers'])
+
+                # Sets the transaction date time to now if none was passed.
+                if not self.row['transactionDateTime']:
+                    self.row['transactionDateTime'] = datetime.now()
+
+                # We need to pop the id off of the record for updates
+                # and creation of records.
+                payment_id = self.row.pop('id')
+
+                if payment_id:
+                    self.hal.update({payment_id: self.row}, 'payments')
+                else:
+                    payment_id = uuid()
+                    self.hal.insert(payment_id, self.row, 'payments')
+
+                # Restore the payment id to the record.
+                self.row['id'] = payment_id
+
+                # Load these from their JSON counterparts so we can keep using them.
+                self.row['fileIds'] = json_loads(self.row['fileIds'])
+                self.row['vendorLog'] = json_loads(self.row['vendorLog'])
+                self.row['vendorResponse'] = json_loads(self.row['vendorResponse'])
+                self.row['policyNumbers'] = json_loads(self.row['policyNumbers'])
+
+                # Update the payment records dict for the controller.
+                self.controller.set_payment_records(self)
+
+                return {'success': True, 'message': 'The payment record was successfully stored in the database.'}
+
+            except StandardError as e:
+                return {'success': False, 'message': 'Something went wrong storing this payment record. Error: %s' % e}
+        else:
+            message = 'The payment record failed the integrity check and cannot be written. Error: %s' % verified.get('message')
+            log_message = message + ' Row Data: %s' % self.row
+
+            return bail_out(message=message, log_message=log_message, emails='engineering@iwsapps.com', logger=LOGGER)
+
+    def delete_row(self, payment_id=None):
+        """
+        Removes the corresponding record for this payment. It can take a payment ID or use the one in self.row.
+
+        @keyword payment_id: Id for the payments table, if not supplied, the current_precord is deleted.
+        """
+        if not payment_id:
+            payment_id = self.row.get('id')
+
+        if payment_id:
+            # Set and return for flexibility
+            self.row = self.get_row(payment_id)
+            self.set_row(britecoreTransactionState='deleted')
+            self.store()
+            return self.row
+        else:
+            return bail_out(message='You need a payment ID to delete a payment row.', logger=LOGGER)
+
+    def check_for_policy_agent(self, policy_id, policy_number):
+        url = '/html/britecore/policies/information.html?policyId='
+        agent = retrieve_agent(get_revision_id(policy_id, rev_state='committed'))['agent'].get('contactId', '')
+
+        if agent:
+            return {'success': True, 'message': 'Agent found for policy number: %s' % policy_number}
+        else:
+            return {'success': False, 'message': '''You must have an agent before making a payment on policy
+                    <a target="_blank" id="agentlessPolicy" href="{0}{1}">{2}</a>.'''.format(url, policy_id, policy_number)}
+
+    def check_for_duplicate(self, policy_id, policy_number, amount, deposit_date=None):
+        """
+        Verifies whether or not this payment should be denied as a duplicate payment.
+        If the payment is a duplicate, email notices will be sent.
+
+        @param policy_id: (String) id into policies
+        @param policy_number: (String) policy number into policies
+        @return: (Dictionary|Boolean) Success true if no duplicate payment, a string message
+                    containing duplication info if one is found.
+        """
+
+        hal = HAL(CONFIG)
+        LOGGER.info('duplicate_payment_found()')
+        LOGGER.info('amount: %s - deposit_date: %s - policy_id: %s - policy_number: %s' % (amount, deposit_date, policy_id, policy_number))
+
+        result = {'success': True, 'message': 'No duplicate payments found.'}
+
+        # Bypass duplicate check on test sites.
+        if live_status() == 2:
+            return result
+
+        dup_threshold = 2  # Days
+        acct = Account(policy_id)
+
+        if not deposit_date:
+            deposit_date = datetime.now()
+
+        duplicate = hal.execsql('''
+                SELECT `payments`.`transactionDateTime` FROM `payments`
+                LEFT JOIN `accounting_credits`
+                ON `accounting_credits`.`paymentId` = `payments`.`id`
+                WHERE `accounting_credits`.`policyId` = '%s'
+                AND `payments`.`transactionAmount` = %s
+                AND `payments`.`commissionPayment` = 0
+                AND `payments`.`transactionDateTime` >= '%s'
+                AND `payments`.`britecoreTransactionState` NOT IN ('canceled', 'deleted')
+                LIMIT 1''' % (policy_id, amount,
+                (deposit_date - relativedelta(days=dup_threshold))), fetchall=False)
+
+        # Ensure the duplicate can not be applied to an outstanding balance
+        if duplicate:
+
+            if acct.retrieve_account_balance()['processed'] <= 0:
+                message = ('A duplicate payment was made on %s for policy #%s in the amount of $%s.'
+                            % (duplicate['transactionDateTime'].strftime('%m/%d/%Y at %I:%M%p'),
+                                policy_number, amount))
+
+                msg = {'plain': '\n'.join(['Document Root: %s' % CONFIG.get('release', 'docroot'),
+                                            'Version: %s' % CONFIG.get('release', 'britecore'),
+                                            'Policy ID: %s' % repr(policy_id),
+                                            'Amount: %s' % amount,
+                                            message])}
+                bc_mail('engineering@iws-web.com', 'A duplicate payment was denied', msg)
+
+                settings_cfg = get_config(get_settings_path())
+                alert_agent = (settings_cfg.get('admin-alerts', 'ifDuplicatePayment') == 'True')
+                agent_email = get_agent_email(acct.data['revision']['id'])
+                if alert_agent and agent_email:
+                    msg['plain'] = message
+                    bc_mail(agent_email, 'A duplicate payment was denied', msg)
+
+                fdict = {'days': str(dup_threshold),
+                            'date': duplicate['transactionDateTime'].strftime('%m/%d/%Y at %I:%M%p')}
+                result['success'] = False
+                result['message'] = ''.join(['A similar payment was made less than %(days)s days ago on %(date)s. ',
+                                                'For protection, the current payment is being rejected.<br><br>',
+                                                'If you feel this is in error, please contact an IWS admin.']) % fdict
+
+        return result
+
+    def generate_receipts(self, email_addr=None):
+        """
+        Generates and emails a receipt for the payment for the passed policy numbers.
+
+        @param email_addr: (Optional) An email address to email the receipt to.
+        @return: The receipt ids from the files table.
+        """
+        LOGGER.info('PaymentRecord().generate_receipts()')
+
+        result = {}
+        # Loop over all policy numbers and generate receipts
+        for dex, policy_number in enumerate(self.policy_numbers):
+            result['policyId'] = get_polid_from_polnum(policy_number)
+
+            try:
+                result['attachmentId'] = Report().build_receipt([self.row['id']],
+                                                                "Payment Receipt",
+                                                                policyid=result['policyId'])
+            except StandardError as e:
+                # Report a failed receipt generation, but move on to the next policy
+                message = "Receipt failed to generate for policy #%s. Payment ID: %s - Error:%s" % (policy_number, self.row['id'], e)
+                bail_out(message=message, emails='engineering@iwsapps.com', logger=LOGGER,
+                         subject="Payment receipt failed to generate for #%s" % policy_number)
+                continue
+
+            self.row['fileIds'].append(result['attachmentId'])
+
+            # Only email a receipt on first loop, and if the email address is non-falsey
+            if not dex and email_addr:
+                msg_parts = {}
+                try:
+                    file_info = self.hal.execsql('''SELECT `url`, `title` FROM `files`
+                                                    WHERE `id` = %s''', result['attachmentId'], fetchall=False)
+                    msg_parts['attach'] = [(file_info['title'] + ".pdf",
+                                            os.path.join(os.path.dirname(__file__),
+                                                        os.pardir, file_info['url']))]
+                except KeyError:
+                    pass
+
+                subject = 'BriteCore - Payment Received for Policy #%s' % policy_number
+                msg_parts['plain'] = '\n\n'.join([
+                    'A payment of %s was successfully received for policy #%s on %s. This payment is pending vendor verification.',
+                    'The payor was: %s',
+                    'The confirmation number for this payment is: %s']) % (
+                        currency(self.row['transactionAmount'], grouping=True),
+                        policy_number,
+                        self.row['transactionDateTime'].strftime("%m/%d/%Y"),
+                        self.row['nameOnAccount'],
+                        self.row['confirmationNumber'])
+
+                try:
+                    bc_mail(email_addr, subject, msg_parts)
+                except StandardError:
+                    pass
+
+        # Store the file id list on the payment record for reference
+        self.store()
+        return result
+
+    def verify_record_integrity(self):
+        """
+        This is a method to check the payment information and records for completeness
+        and accuracy before finalizing a payment in the system. Optionally, we could
+        make this a dual-purpose method that would also check an already finalized payment
+        for problems or issues.
+
+        Or, alternatively, we could make two different methods for these tasks.
+        returns True if the record passed, False if not.
+        """
+        LOGGER.info('PaymentRecord().verify_record_integrity()')
+
+        # Always require policy numbers
+        if not self.row['policyNumbers'] and not self.row['commissionPayment']:
+            return {'success': False, 'message': 'Missing policy number(s).'}
+
+        # Always require a payment type
+        if not self.row['accountName']:
+            return {'success': False, 'message': 'Missing payment type.'}
+
+        # Always require a transaction date time
+        if not self.row['transactionDateTime']:
+            return {'success': False, 'message': 'Missing transaction date time.'}
+
+        # Always require a transaction amount if not a commission payment
+        if not self.row['commissionPayment']:
+            if not self.row['transactionAmount'] or self.row['transactionAmount'] <= 0:
+                return {'success': False, 'message': 'Missing or invalid transaction amount.'}
+
+        is_electronic = self.row['accountName'] not in ('Cash', 'Check', 'Money Order')
+
+        # Electronic only checks:
+        if is_electronic:
+
+            # Always require a payment method ID for electronic payments
+            if not self.row['paymentMethodId']:
+                return {'success': False, 'message': 'Missing payment method ID.'}
+
+            # Require a vendorResponse
+            if not self.row['vendorResponse']:
+                return {'success': False, 'message': '''Missing vendor response.
+                                                        (This is probably a network error.)'''}
+
+            # Require a maskedNumber
+            if not self.row['maskedNumber']:
+                return {'success': False, 'message': 'Missing masked number.'}
+
+            # Require a vendor stage
+            if not self.row['vendorStage']:
+                return {'success': False, 'message': 'Missing vendor stage.'}
+
+        # We passed all the checks! Write it!
+        return {'success': True, 'message': 'Successfully verified row.'}
+
+
+class VendorCall(object):
+    """
+    This class is an abstraction for all Vendor Calls to NationalMerchant
+    and AuthorizeDotNet class instance. The method set_BFT builds the
+    necessary BFT (dictionary) for these vendor calls to main() to work.
+    """
+
+    def __init__(self, call_data, contact_id=None, payment_method_id=None, controller=None):
+        """
+        Initialize vendor and customer data before sending off a vendor call.
+
+        @param call_data: Dictionary containing all the needed information
+                          for a vendor call (like making a payment or payment method).
+        @keyword contact_id: Contact responsible for the vendor call.
+        @keyword payment_method_id: Payment method to be used in the vendor call.
+        @keyword controller: A VendorController instance.
+        """
+        self.hal = HAL(CONFIG)
+        self.call_data = call_data
+        self.vendor = get_vendor_data()
+        self.contact_id = contact_id
+        self.controller = controller
+
+        # Same thing... just put in self.account_hash for cleaner access
+        self.account_hash = self.build_account_hash()
+        self.call_data['accountHash'] = self.account_hash
+
+        # To remain compatible with vendor files... populated just before
+        # send_to_vendor()
+        self.BFT = None
+
+        # payment_method_id will need to be passed in...
+        self.gateway_ids = self.get_gateway_ids(payment_method_id) if payment_method_id else None
+        # contact_id will need to be passed in...
+        self.customer = self.get_customer_record(contact_id) if contact_id else None
+
+    def get_customer_record(self, contact_id):
+        """
+        Returns the contact information (email, phone, address, etc) for the contact.
+
+        @param contact_id: A contacts database id.
+        @return: Dictionary of contact information.
+        """
+        customer_record = json_loads(retrieveContactInfo({'id': contact_id}))
+        customer_record['type'] = self.hal.get_col('type', 'contacts', contact_id)
+        customer_record['id'] = contact_id
+
+        return customer_record
+
+    def get_customer_profile_id(self, contact_id, vendor_id):
+        """
+        Return the vendor customer profile id with a given contact & vendor
+        id from the payment_methods table.
+
+        @param contact_id: Contacts table id.
+        @param vendor_id: Vendors table id.
+        @return: Dictionary containing the customerProfileId.
+        """
+        # Determine if the contact already has a customerProfileId with the vendor
+        customer_profile_id = self.hal.execsql('''SELECT `customerProfileId`
+                                               FROM `payment_methods`
+                                               WHERE `contactId` = %s
+                                               AND `vendorId` = %s
+                                               AND `customerProfileId` IS NOT NULL''',
+                                               (contact_id, vendor_id), fetchall=False)
+
+        return customer_profile_id
+
+    def get_gateway_ids(self, payment_method_id):
+        """
+        This method accepts a payment method id and returns the gateway
+        credentials to prepare for vendor transactions.
+
+        @param payment_method_id: A payment methods table id.
+        @return: Dictionary containing the customerProfileId and vendorPaymentMethodId.
+        """
+        gateway_ids = self.hal.execsql('''SELECT `customerProfileId`, `vendorPaymentMethodId`
+                                       FROM `payment_methods`
+                                       WHERE `id` = %s''',
+                                       payment_method_id, fetchall=False)
+
+        return gateway_ids
+
+    def send_to_vendor(self):
+        """
+        This method sends off self.BFT to either the AuthorizeDotNet
+        or NationalMerchant vendor classes, through the main() methods.
+        """
+        response = None
+
+        if self.vendor['vendorName'] in ('AuthnetCP', 'AuthnetCNP'):
+            from authnet import AuthorizeDotNet
+            try:
+                response = AuthorizeDotNet().main(self.BFT)
+            except StandardError as error:
+                return bail_out(message='There was a problem contacting Authorize.net to process your payment. Please try again. Error: %s' % error,
+                                emails='engineering@iwsapps.com', logger=LOGGER)
+
+        elif self.vendor['vendorName'] == 'NMA':
+            from nationalmerchant import NationalMerchant
+            try:
+                response = NationalMerchant().main(self.BFT)
+            except StandardError as error:
+                return bail_out(message='There was a problem contacting NMA to process your payment. Please try again. Error: %s' % error,
+                                emails='engineering@iwsapps.com', logger=LOGGER)
+
+        else:
+            message = "There is no vendor associated with this BFT record."
+            return bail_out(message=message, log_message=message + ' BFT: %s' % self.BFT,
+                            emails='engineering@iwsapps.com', logger=LOGGER)
+
+        if not response:
+            message = 'There was no response while trying to send to the vendor.'
+            return bail_out(message=message, log_message=message + ' BFT: %s' % self.BFT,
+                            emails='engineering@iwsapps.com', logger=LOGGER)
+        else:
+            return response
+
+    def create_stamp_cn(self):
+        """
+        Returns a random check number for NMA ACH payments built
+        from unix timestamps converted to hex.
+
+        @return: An integer check number.
+        """
+        from string import maketrans
+        stamp_check_number = hex(int(time())).replace('0x', '')
+        stamp_check_number = stamp_check_number.translate(maketrans("abcdef", "123456"))
+        return int(stamp_check_number)
+
+    def set_BFT(self, mode='', method='', action='', payment_record=None):
+        """
+        Sets the self.BFT field to a dictionary containing necessary information
+        for the vendor classes based on the passed mode, method & action.
+
+        @keyword mode: A mode string, such as 'customer_transaction' or 'payment_method'.
+        @keyword method: A method string, such as 'void' or 'credit'.
+        @keyword action: An action string, such as 'create'.
+        @keyword payment_record: An optional payment record for removing / voiding payments.
+        """
+        # Only add a check number if we are using NMA ACH.
+        if self.vendor['vendorName'] == 'NMA' and self.call_data['paperOrPlastic'] == 'ACH':
+            self.call_data['checkNumber'] = self.create_stamp_cn()
+            ach_payment_method = self.controller.get_ach_payment_method(self.controller.payment_method.get('vendorPaymentMethodId'))
+            if ach_payment_method:
+                self.call_data['accountNumber'] = ach_payment_method.get('accountNumber')
+                self.call_data['routingNumber'] = ach_payment_method.get('routingNumber')
+
+        # Currently just for create_payment_method
+        self.BFT = {
+            'customer': self.customer,
+            'vendor': self.vendor,
+            'money': self.call_data,
+            'britecore': {},
+            'mode': mode,
+            'action': action,
+            'method': method
+        }
+
+        # Ugh... if we are making a payment set this for compatibility with current vendor file.
+        if mode == 'customer_transaction' and method != 'commission':
+            self.BFT['britecore'] = {
+                'policyNumber': self.call_data.get('policyNumber', self.call_data.get('policy_number', '')),
+                'policyId': self.call_data.get('policyId', self.call_data.get('policy_id', '')),
+                'currentRevisionId': self.call_data.get('currentRevisionId', self.call_data.get('current_revision_id', '')),
+                'paymentId': self.call_data.get('paymentId', self.call_data.get('payment_id', '')),
+                'primaryNamedInsured': self.call_data.get('primaryNamedInsured', self.call_data.get('primary_named_insured', '')),
+                'currentRevisionStatus': self.call_data.get('currentRevisionStatus', self.call_data.get('current_revision_status', '')),
+                'email': self.call_data.get('email', self.call_data.get('email_addr', '')),
+                'paymentMethodId': self.call_data.get('paymentMethodId', self.call_data.get('payment_method_id', '')),
+            }
+
+            if method == 'credit':
+                # NMA ACH Void
+                self.BFT['money']['transactionType'] = "CREDIT"
+                self.BFT['money']['customerProfileId'] = None
+                self.BFT['money']['vendorResponse'] = None
+
+            elif method == 'void':
+                # Everything Else Void
+                # The original vendorResponse is used for transaction codes to send to the vendor
+                self.BFT['vendor']['vendorResponse'] = payment_record.row.get('vendorResponse')
+
+        elif mode == 'customer_transaction' and method == 'commission':
+            # This is a commission payment. Right now these only work with NMA ACH.
+            self.BFT['money']['transactionType'] = 'CREDIT'
+            self.BFT['money']['customerProfileId'] = self.call_data.get('customerProfileId', self.call_data.get('customer_profile_id', ''))
+            self.BFT['money']['transactionAmount'] = self.call_data.get('transactionAmount', self.call_data.get('transaction_amount', ''))
+            self.BFT['money']['paymentMethodId'] = self.call_data.get('paymentMethodId', self.call_data.get('payment_method_id', ''))
+            self.BFT['money']['vendorId'] = self.BFT['vendor'].get('vendorId')
+            self.BFT['money']['paperOrPlastic'] = self.call_data.get('paperOrPlastic', self.call_data.get('paper_or_plastic', ''))
+            self.BFT['money']['nameOnAccount'] = self.call_data.get('nameOnAccount', self.call_data.get('name_on_account', ''))
+            self.BFT['money']['accountType'] = self.call_data.get('accountType', self.call_data.get('account_type', ''))
+            self.BFT['britecore']['paymentId'] = payment_record.row.get('id', '')
+            self.BFT['britecore']['paymentMethodId'] = self.call_data.get('paymentMethodId', self.call_data.get('payment_method_id', ''))
+
+    def build_account_hash(self):
+        """
+        Builds an 'account hash' based off the account number and expire date (or routing number).
+
+        @return: A string hash based off account information.
+        """
+        account_hash = ''
+
+        if self.call_data.get('paperOrPlastic'):
+            # Build a hash of the sensitive data in money
+            if 'accountNumber' in self.call_data:
+                if self.call_data['paperOrPlastic'] == 'CC':
+                    hash_text = self.call_data['accountNumber'] + str(self.call_data['expireDate'])
+                else:
+                    hash_text = self.call_data['accountNumber'] + self.call_data['routingNumber']
+
+                account_hash = hashlib.sha1(hash_text).hexdigest()
+
+        return account_hash
+
+    def existing_methods(self):
+        """
+        Returns all existing payment methods for the given 'account hash' for the vendor call.
+
+        @return: A list of payment methods if any exist.
+        """
+        # Collect all of the accounts for the given hash
+        payment_methods = self.hal.execsql('''
+                SELECT *
+                FROM `payment_methods`
+                WHERE `accountHash` = %s''',
+                self.call_data['accountHash'])
+
+        # Filter out those that match the customer record for a given vendor
+        return [method for method in payment_methods if method['contactId'] == self.contact_id and method['vendorId'] == self.vendor['vendorId']]
+
+    def create_nma_ach_method(self):
+        """
+        NMA's ADDON API that is used by BriteCore
+        to store customer account information and customer data on the
+        gateway servers, has no ability to store ACH data. It is credit card
+        only. Therefore we have to continue to store ACH data for NMA clients
+        until this is added to NMA, or we depricate NMA support.
+
+        @return: The content results of store_payment_method()
+        """
+        # Build the ach_payment_methods dictionary
+        ach_id = uuid()
+        self.call_data['vendorPaymentMethodId'] = ach_id
+        self.call_data['customerProfileId'] = None
+        ach_record = {}
+        ach_record['accountNumber'] = self.call_data['accountNumber']
+        ach_record['routingNumber'] = self.call_data['routingNumber']
+
+        current_check_number = self.create_stamp_cn()
+        ach_record['currentCheckNumber'] = current_check_number
+
+        # Insert the record into the ach_payment_methods table
+        self.hal.insert(ach_id, ach_record, 'ach_payment_methods', encrypt_keys=['accountNumber', 'routingNumber'])
+
+        # We'll use the store_payment_method() since it checks for existing records.
+        return self.store_payment_method()
+
+    def get_payment_method(self, payment_method_id):
+        """
+        @return: A dictionary containing the payment method information
+        """
+        payment_method = self.hal.execsql('''SELECT * FROM `payment_methods`
+                                          WHERE `id` = %s''', payment_method_id, fetchall=False)
+
+        return payment_method
+
+    def get_current_payment_method(self):
+        """
+        Gets the payment method record that matches the criteria of the current vendor call.
+        (For example: call_data from trying to add a new payment method matches an existing record.)
+        Returns False if nothing found.
+
+        @return: A dictionary containing the payment method information, or False.
+        """
+        payment_method = self.hal.execsql('''SELECT * FROM `payment_methods`
+                                          WHERE `active` = 1
+                                          AND `contactId` = %s
+                                          AND vendorId = %s
+                                          AND accountHash = %s
+                                          AND `customerProfileId` IS NOT NULL''',
+                                          (self.contact_id, self.vendor['vendorId'], self.account_hash))
+
+        if len(payment_method) > 1:
+            message = "There is more than one payment method in the system. This should not happen."
+            log_message = message + " payment_method: " % payment_method
+            return bail_out(emails='engineering@iwsapps.com', message=message, log_message=log_message,
+                            logger=LOGGER)
+
+        if payment_method:
+            return payment_method
+        else:
+            return {}
+
+    def store_payment_method(self, payment_method_id=None):
+        """
+        This method writes the current vendor call payment method to the DB.
+        It adds if necessary and updates otherwise. This is incredibly simplified
+        from the 5 or so methods required to do this in the previous version of
+        payments.
+
+        @return: A dictionary containing the success of the DB store.
+        """
+        if not payment_method_id:
+            payment_method = self.get_current_payment_method()
+        else:
+            payment_method = self.get_payment_method(payment_method_id)
+
+        self.account_hash = self.build_account_hash()
+
+        payment_method_data = {
+            'contactId': self.contact_id,
+            'vendorId': self.vendor['vendorId'],
+            'accountHash': self.account_hash,
+            'customerProfileId': self.call_data['customerProfileId'],
+            'vendorPaymentMethodId': self.call_data['vendorPaymentMethodId'],
+            'method': self.call_data['paperOrPlastic'],
+            'accountName': self.call_data['accountName'],
+            'maskedNumber': '...{0}'.format(self.call_data['accountNumber'][-4:]),
+            'maskedRouting': '...{0}'.format(self.call_data['routingNumber'][-4:]) if self.call_data.get('routingNumber') else None,
+            'expireDate': date_parse(self.call_data['expireDate']) if self.call_data.get('expireDate') else None,
+            'accountType': self.call_data['accountType'],
+            'nameOnAccount': self.call_data['nameOnAccount'],
+            'companyOnAccount': self.call_data['companyOnAccount'],
+            'accountDescription': self.call_data['accountDescription'],
+            'addressLine1': self.call_data['addressLine1'],
+            'addressCity': self.call_data['addressCity'],
+            'addressState': self.call_data['addressState'],
+            'addressZip': self.call_data['addressZip'],
+            'active': 1,
+            'vendor': self.vendor['vendorName'],
+            'updatedOn': strftime('%Y-%m-%d %H:%M:%S')
+        }
+
+        if payment_method:
+            # Exists... update.
+            payment_method_id = payment_method['id']
+            self.hal.update({payment_method_id: payment_method_data}, 'payment_methods')
+        else:
+            # New record... insert
+            payment_method_id = uuid()
+            self.hal.insert(payment_method_id, payment_method_data, 'payment_methods')
+
+        payment_method_data['id'] = payment_method_id
+
+        self.controller.payment_method = payment_method_data
+
+        return {'success': True, 'message': 'The payment method was successfully written.'}
+
+
+class VendorController(object):
+    """
+    A VendorCall manager, routing all vendor calls for PaymentRecords.
+    """
+
+    def __init__(self, request=None):
+        """
+        Initialize mod_python request information and other data structures.
+
+        @keyword request: A mod_python request.
+        """
+        LOGGER.info('VendorController().__init__')
+        self.hal = HAL(CONFIG)
+        self.vendorResponse = None
+        self.policy_id = None
+        self.payment_method = {}
+
+        if request:
+            self.remote_ip = request.headers_in['X-Forwarded-For'] if 'X-Forwarded-For' in request.headers_in else request.get_remote_host()
+            self.britecore_user = request.uinfo
+        else:
+            self.remote_ip = '10.10.10.12'
+            self.britecore_user = {'username': 'system', 'id': None}
+
+    def get_ach_payment_method(self, ach_payment_method_id):
+        """
+        Returns ACH Payment method data from the ach_payment_methods table.
+
+        @param ach_payment_method_id: A database id to ach_payment_methods table.
+        @return: A dictionary containg payment method info or None.
+        """
+        if ach_payment_method_id:
+            ach_payment_method = self.hal.get_row(ach_payment_method_id, 'ach_payment_methods',
+                                                  decrypt_keys=['accountNumber', 'routingNumber'])
+            LOGGER.info('ach_payment_method: %s' % ach_payment_method)
+            return ach_payment_method
+        else:
+            return None
+
+    def get_payment_method(self, payment_method_id):
+        """
+        Returns Payment method data from the payment_methods table.
+
+        @param payment_method_id: A database id to payment_methods table.
+        @return: A dictionary containg payment method info or None.
+        """
+        payment_method = self.hal.execsql('''SELECT *
+                                        FROM `payment_methods`
+                                        WHERE `id` = %s''',
+                                        payment_method_id, fetchall=False)
+
+        ach_payment_method = self.get_ach_payment_method(payment_method.get('vendorPaymentMethodId'))
+        if ach_payment_method:
+            del ach_payment_method['id']
+            payment_method.update(ach_payment_method)
+
+        return payment_method
+
+    def get_contact_id(self, call_data):
+        """
+        Attempt to retrieve the contact id from the passed call_data.
+
+        @param call_data: A dictionary sent to the vendor controller for payment / payment methods.
+        @return: The contacts table id.
+        """
+        self.contact_id = call_data.get('payorId')
+
+        if not self.contact_id:
+            self.policy_id = call_data.get('policyId')
+
+            if not self.policy_id:
+                policy_number = call_data.get('policyNumber')
+
+                if policy_number:
+                    self.policy_id = get_polid_from_polnum(policy_number)
+
+            if self.policy_id:
+                return get_primary_insured(self.policy_id, uuid=True)
+            else:
+                message = "A valid policy ID, policy number, or contact ID is required to add a payment method."
+                return bail_out(emails='engineering@iwsapps.com', message=message, logger=LOGGER)
+
+    def create_payment_call_data(self, payment_row):
+        """
+        Given a payment row, generate the necessary vendor call data to send off
+        to the vendor classes.
+
+        @param: A PaymentRecord.row dictionary.
+        @return: A dictionary containing the vendor call data in the new format.
+        """
+        call_data = None
+
+        # This builds the proper dict for a payment method vendor call. The reason this method
+        # exists is because we want to maintain compatibility with the vendor files while
+        # making it possible to see the information required for a given call.
+
+        # The kwargs can come from the front, back, or both.
+        call_data = {
+            'contactId': payment_row.get('payorId'),
+            'vendorPaymentMethodId': self.payment_method.get('vendorPaymentMethodId'),
+            'accountDescription': self.payment_method.get('accountDescription', ''),
+            'accountNumber': payment_row.get('accountNumber', ''),
+            'companyOnAccount': self.payment_method.get('companyOnAccount', ''),
+            'paperOrPlastic': self.payment_method.get('method', ''),
+            'accountType': self.payment_method.get('accountType', ''),
+            'addressLine1': self.payment_method.get('addressLine1', ''),
+            'routingNumber': '',
+            'addressCity': self.payment_method.get('addressCity', ''),
+            'expireDate': self.payment_method.get('expireDate', ''),
+            'addressState': self.payment_method.get('addressState', ''),
+            'accountName': self.payment_method.get('accountName', ''),
+            'nameOnAccount': self.payment_method.get('nameOnAccount', ''),
+            'addressZip': self.payment_method.get('addressZip', ''),
+            'recurringBilling': 0,
+            'paymentMethodId': self.payment_method.get('id', ''),
+            'remoteIP': payment_row.get('remoteIP', ''),
+            'maskedNumber': self.payment_method.get('maskedNumber', ''),
+            'customerProfileId': self.payment_method.get('customerProfileId', ''),
+            'transactionAmount': to_dec(payment_row.get('transactionAmount', 0)),
+            'transactionType': payment_row.get('transactionType', ''),
+            'checkNumber': payment_row.get('checkNumber', '')
+        }
+
+        return call_data
+
+    def make_payment_method(self, call_data):
+        """
+        Creates a vendor call and sends off the electronic
+        payment method creation.
+
+        @param call_data: A dictionary of call data necessary to
+                          create the payment method.
+        @return: A dictionary storing the success of the payment method creation.
+        """
+        LOGGER.info('VendorController().make_payment_method()')
+        LOGGER.warning('call_data: %s' % call_data)
+
+        contact_id = call_data.get('contactId', call_data.get('contact_id', call_data.get('payorId')))
+
+        # If there is not a contact_id, get the primary insured's id (website)
+        if not contact_id:
+            contact_id = self.get_contact_id(call_data)
+            call_data['contactId'] = contact_id
+
+        vendor_call = VendorCall(call_data, contact_id=contact_id, controller=self)
+        existing_methods = vendor_call.existing_methods()
+
+        LOGGER.info(existing_methods)
+
+        # The method already exists... do not create it again.
+        if len(existing_methods) == 1:
+            pay_method = existing_methods[0]
+            vendor_call.payment_method_id = pay_method['id']
+            vendor_call.vendor['vendorPaymentMethodId'] = pay_method['vendorPaymentMethodId']
+            vendor_call.vendor['customerProfileId'] = pay_method['customerProfileId']
+            self.payment_method = pay_method
+            result = {
+                'success': True,
+                'paymentMethod': pay_method,
+                'message': 'The payment method was successfully found & used.'
+            }
+
+        # There shouldn't ever be more than 1
+        elif len(existing_methods) > 1:
+            return bail_out('There is a duplicate of this payment method in BriteCore.',
+                            log_message='Duplicate payment method' + '|'.join(existing_methods), logger=LOGGER)
+
+        # We need to create one.
+        else:
+            cust_profile_id = vendor_call.get_customer_profile_id(vendor_call.contact_id, vendor_call.vendor['vendorId'])
+
+            if cust_profile_id:
+                vendor_call.call_data.update(cust_profile_id)
+                vendor_call.set_BFT(mode='payment_method', action='create', method='')
+            else:
+                # There is no customer profile, so we need to send a different mode (customer_profile)
+                # to the Vendor file.
+                vendor_call.set_BFT(mode='customer_profile', action='create', method='')
+
+            # Now we finish crafting the dicts required to make the payment method. Different
+            # call for NMA ACH. Everything else uses the same one.
+            if vendor_call.vendor['vendorName'] == 'NMA' and vendor_call.call_data['paperOrPlastic'] == 'ACH':
+                # We need to do some special stuff for NMA ACH.
+                # This method writes the record directly without going to the vendor.
+                result = vendor_call.create_nma_ach_method()
+            else:
+                ## We're going to send it to the vendor now.
+                result = vendor_call.send_to_vendor()
+                self.vendorResponse = result
+                if result.get('success'):
+                    # If the vendor call was a success, write the record to the DB.
+
+                    # We need to get the insert key from the vendor response. It contains
+                    # the vendorPaymentMethodId.
+                    insert = self.get_vendor_response_insert()
+                    try:
+                        # This requires the vendorPaymentMethodId key to be present to proceed.
+                        vendor_call.call_data['vendorPaymentMethodId'] = insert['vendorPaymentMethodId']
+                        vendor_call.call_data['customerProfileId'] = insert.get('customerProfileId')
+                        result = vendor_call.store_payment_method()
+                    except (KeyError, TypeError):
+                        # If not, roll it back.
+                        return self.roll_back("vendorPaymentMethodId was not present. Possible network failure")
+
+        LOGGER.info('Result: %s' % result)
+        LOGGER.warning('self.payment_method: %s' % self.payment_method)
+
+        if not result.get('success'):
+            # This didn't work, roll it back.
+            if result.get('message') == 'An error occurred during processing. Please try again.':
+                return self.roll_back('''Authorize.net is experiencing technical difficulties.
+                                         This is not an error with Britecore.
+                                         It is an error with the payment vendor itself.''')
+            else:
+                return self.roll_back("Vendor Failure: %s" % result.get('message'))
+        else:
+            result['paymentMethod'] = self.payment_method
+
+        return result
+
+    def settle_batch(self):
+        """
+        Perform a batch settlement on vendors that support this feature.
+
+        @return: None, True or False based on if the batch settlement was a success.
+        """
+
+        LOGGER.info('VendorController().settle_batch()')
+        vdata = get_vendor_data()
+
+        if vdata['vendorName'] == 'NMA':
+            from nationalmerchant import NationalMerchant
+
+            # Build the batch settlement transaction
+            the_beef = {
+                'money': {'paperOrPlastic': ''},
+                'mode': 'customer_transaction',
+                'action': 'create',
+                'method': 'batch',
+                'vendor': vdata
+            }
+
+            # Send to NMA
+            response = NationalMerchant().main(the_beef)
+
+            # Any other result code than 21 is a failure for this transaction
+            return response['response']['RESULT_CODE'] == '21'
+
+    def transaction_search_report(self, procdate=None):
+        """
+        Function to update payments in the payments table with
+        responses from posting to the bank. This will determine
+        if electronic payments have been approved for a funds
+        transfer, or if they are NSF.
+
+        @param procdate: A date to run the TSR on.
+        """
+        LOGGER.info('VendorController().transaction_search_report()')
+        LOGGER.info('procdate: %s' % procdate)
+
+        today = procdate if procdate else datetime.now().date()
+        yesterday = today - relativedelta(days=2)
+        vdata = get_vendor_data()
+
+        # Authorize.net routine
+        if vdata['vendorName'] == 'AuthnetCNP':
+            # According to the Transaction Details API document,
+            # Transaction reporting only exists for Card Not Present
+            # accounts, not the Card Present versions -- Ben
+            from authnet import AuthorizeDotNet
+            payments = self.hal.execsql('''SELECT `payments`.*
+                                        FROM `payments`
+                                        LEFT JOIN `payment_methods` ON `payments`.`paymentMethodId` = `payment_methods`.`id`
+                                        WHERE `payment_methods`.`vendorId` = %(vendorId)s
+                                        AND `vendorStageSuccess` = 1
+                                        AND `authorizationState` = 'pending'
+                                        AND `britecoreTransactionState` NOT IN ('canceled', 'deleted')''', vdata)
+
+            for payment in payments:
+                vdata.update({'vendorResponse': json_loads(payment['vendorResponse'])})
+
+                if not vdata['vendorResponse']:
+                    continue
+
+                vdata['vendorResponse']['paymentId'] = payment['id']
+
+                the_beef = {
+                    'mode': 'report',
+                    'action': 'create',
+                    'method': 'transaction_search',
+                    'vendor': vdata
+                }
+
+                AuthorizeDotNet().main(the_beef)
+
+        # National Merchant Alliance
+        elif vdata['vendorName'] == 'NMA':
+            from nationalmerchant import NationalMerchant
+
+            the_beef = {
+                'mode': 'report',
+                'action': 'create',
+                'method': 'transaction_search',
+                'vendor': vdata,
+                'report': {
+                    'max_records': '8000',
+                    'searches': {"Start Transaction Date": yesterday.strftime("%Y.%m.%d"),
+                                 "Start Transaction Time": "00:00:00",
+                                 "End Transaction Date": today.strftime("%Y.%m.%d"),
+                                 "End Transaction Time": "23:59:59"},
+                    'responses': ["Status Code",
+                                  "Result Code",
+                                  "Col 3",
+                                  "Command"]
+                }
+            }
+
+            NationalMerchant().main(the_beef)
+
+    def update_payment_method(self, call_data, payment_method_id):
+        contact_id = call_data.get('contactId', call_data.get('contact_id', call_data.get('payorId')))
+
+        # If there is not a contact_id, get the primary insured's id (website)
+        if not contact_id:
+            contact_id = self.get_contact_id(call_data)
+            call_data['contactId'] = contact_id
+
+        vendor_call = VendorCall(call_data, contact_id=contact_id, controller=self)
+
+        # Now we finish crafting the dicts required to make the payment method. Different
+        # call for NMA ACH. Everything else uses the same one.
+        if vendor_call.vendor['vendorName'] == 'NMA' and vendor_call.call_data['paperOrPlastic'] == 'ACH':
+            result = vendor_call.store_payment_method(payment_method_id)
+        else:
+            cust_profile_id = vendor_call.get_customer_profile_id(vendor_call.contact_id, vendor_call.vendor['vendorId'])
+            if cust_profile_id:
+                vendor_call.call_data.update(cust_profile_id)
+                vendor_call.call_data.update(vendor_call.get_gateway_ids(payment_method_id))
+                vendor_call.set_BFT(mode='payment_method', action='update', method='')
+            else:
+                return bail_out(message='Could not find the customer profile ID for: %s' % payment_method_id, logger=LOGGER)
+
+            ## We're going to send it to the vendor now.
+            result = vendor_call.send_to_vendor()
+            self.vendorResponse = result
+            if result.get('success'):
+                # If the vendor call was a success, write the record to the DB.
+
+                # We need to get the insert key from the vendor response. It contains
+                # the vendorPaymentMethodId.
+                insert = self.get_vendor_response_insert()
+                try:
+                    # This requires the vendorPaymentMethodId key to be present to proceed.
+                    vendor_call.call_data['vendorPaymentMethodId'] = insert['vendorPaymentMethodId']
+                    vendor_call.call_data['customerProfileId'] = insert.get('customerProfileId')
+                    result = vendor_call.store_payment_method(payment_method_id)
+                except (KeyError, TypeError):
+                    # If not, roll it back.
+                    return self.roll_back("vendorPaymentMethodId was not present. Possible network failure")
+
+        if not result.get('success'):
+            # This didn't work, roll it back.
+            return self.roll_back("Vendor Failure: %s" % result.get('message'))
+        else:
+            result['paymentMethod'] = self.payment_method
+
+        return result
+
+    def make_payment(self, payment_record, payment_type):
+        """
+        Creates a vendor call and sends off the electronic
+        payment creation.
+
+        @param payment_record: A PaymentRecord instance.
+        @param payment_type: A string like 'website' or 'auto_pay' saying what type of payment to create.
+        @return: A dictionary storing the success of the payment creation.
+        """
+        LOGGER.info('VendorController().make_payment()')
+        #LOGGER.warning('payment_record.row: %s' % payment_record.row)
+        # This method is a stub right now but I would like to validate call data before it gets sent
+        #if not self.payment_method:
+        payment_method_id = payment_record.row.get('paymentMethodId')
+
+        if payment_method_id:
+            self.payment_method = self.get_payment_method(payment_method_id)
+        else:
+            return bail_out(message='You cannot make a payment with no payment method ID. %s' % payment_record.row.get('id'),
+                            logger=LOGGER, emails='engineering@iwsapps.com')
+
+        call_data = self.create_payment_call_data(payment_record.row)
+
+        vendor_call = VendorCall(call_data, contact_id=payment_record.row['payorId'], controller=self)
+
+        # Since make_payment is used to process payments, commissions, and voids, we need to
+        # check the type of payment here and set the BFT according to what we are trying to
+        # accomplish.
+        if payment_type in ('auto_pay', 'website', 'sweep'):
+            # Making a regular payment.
+            vendor_call.set_BFT(mode='customer_transaction', action='create', method='')
+        elif payment_type == 'commission':
+            # Commissions
+            vendor_call.set_BFT(mode='customer_transaction', action='create', method='commission', payment_record=payment_record)
+        elif payment_type == 'void':
+            # Voiding a transaction
+            if vendor_call.vendor['vendorName'] == 'NMA' and vendor_call.call_data['paperOrPlastic'] == 'ACH':
+                vendor_call.set_BFT(mode='customer_transaction', action='create', method='credit')
+            else:
+                vendor_call.set_BFT(mode='customer_transaction', action='create', method='void', payment_record=payment_record)
+        else:
+            # WTF
+            return self.roll_back("The payment type was not valid.")
+
+        LOGGER.info('BFT: %s' % vendor_call.BFT)
+
+        # Update check number on the payment record, necessary for NMA ACHs
+        payment_record.set_row(checkNumber=vendor_call.call_data.get('checkNumber', ''))
+
+        result = vendor_call.send_to_vendor()
+        self.vendorResponse = result
+
+        result['paymentMethod'] = self.payment_method
+        LOGGER.info('result: %s' % result)
+
+        if not result.get('success'):
+            # This didn't work, roll it back.
+            return self.roll_back("Either the vendor response failed or the database write: %s" % result.get('message'))
+        else:
+            result['message'] = "The payment was successful."
+
+        return result
+
+    def roll_back(self, message="No reason for the roll-back. It needs to be added to the code."):
+        """
+        The roll_back method is our last-ditch effort to clean up and notify in the event
+        of a failure at some point in the vendor call process.
+
+        @param message: The message that should be logged and sent back to the user.
+        """
+        log_message = None
+        LOGGER.error('VendorController().roll_back()')
+        try:
+            LOGGER.error(message)
+        except StandardError:
+            log_message = message + ": Couldn't roll back VendorController(). Traceback: %s" % format_exc()
+            message = '''There was a serious error processing your request.
+                         Britecore administrators have been notified automatically.'''
+
+        if not log_message:
+            log_message = message
+
+        return bail_out(emails='engineering@iwsapps.com', message=message, log_message=log_message, logger=LOGGER)
+
+    def get_vendor_response_insert(self):
+        """
+        Returns the value of the 'insert' key in the vendor response.
+
+        @return: The value of the 'insert' key, or False if 'insert' is missing.
+        """
+        error_keys = ['http_error', 'http_reason']
+        self.vendorResponse if set(self.vendorResponse) & set(error_keys) or 'Error' in self.vendorResponse else None
+        insert = self.vendorResponse.get('insert')
+
+        if insert:
+            return insert
+        else:
+            return False
+
+# End of Payment & Vendor Classes
+
+
+def applyPayments(json_dict):
+    """
+    JSON Frontend function wrapping PaymentController.apply_payments()
+
+    Apply payments in the JSON list of 'payments'. If print_deposit is True,
+    then a Daily Cash Receipt will be generated in the apply_payment() call.
+
+    @param json_dict: {
+        ...
+        ...
+        ..
+    }
+    """
+    hal = HAL(CONFIG)
+    dcr_button = json_dict.get('dcrButton')
+    sql_condition = '' if dcr_button == 'applyAll' else 'AND `selectedOnDeposit` = 1'
+    payments = hal.execsql('''
+                SELECT `payments`.`id` AS `paymentId`
+                FROM `payments`
+                WHERE `printedToDeposit` = 0
+                AND (`paymentMethodId` IS NULL OR NOT `paymentMethodId`)
+                AND `accountName` IS NOT NULL
+                AND `britecoreTransactionState` NOT IN ('canceled', 'deleted', 'processed')
+                AND `transactionType` != 'CREDIT'
+                AND `nsf` = 0
+                %s
+                ORDER BY !FIELD(`britecoreTransactionState`, 'unresolved')''' % sql_condition)
+
+    if dcr_button == 'applySelected' and not payments:
+        return json_dumps({'noSelected': True})
+
+    return_value = PaymentController().apply_payments(payments, dcr_button=dcr_button)
+    return json_dumps(return_value)
+
+
+def get_vendor_data():
+    """
+    In an attempt to de-beef the rest of the code, we need a
+    method for grabbing vendor data.
+
+    @return: {'vendorId': <vendor id of NMA / Authorize.net>,
+              'customData': <vendor data with urls & login credentials>,
+              'vendorName': <vendor name that goes with vendor id>}
+    """
+
+    LOGGER.info('get_vendor_data()')
+    try:
+        vstates = VendorStates()
+
+        if vstates.AUTHORIZEDOTNETCP['checked']:
+            # Get the customData for the appropriate vendor and add it to the dictionary
+            # Add CP for credit cards presented in person
+            vendor = {'vendorId': VIDS.AUTHORIZEDOTNETCP,
+                      'customData': json_loads(retrieveVendorData({'vendorId': VIDS.AUTHORIZEDOTNETCP})),
+                      'vendorName': 'AuthnetCP'}
+
+        elif vstates.AUTHORIZEDOTNETCNP['checked']:
+            # Add CNP for credit cards not present and for eCheck(ACH)
+            vendor = {'vendorId': VIDS.AUTHORIZEDOTNETCNP,
+                      'customData': json_loads(retrieveVendorData({'vendorId': VIDS.AUTHORIZEDOTNETCNP})),
+                      'vendorName': 'AuthnetCNP'}
+
+        elif vstates.NMA['checked']:
+            # Send request to Authnet eCheck if active
+            vendor = {'vendorId': VIDS.NMA,
+                      'customData': json_loads(retrieveVendorData({'vendorId': VIDS.NMA})),
+                      'vendorName': 'NMA'}
+
+        else:
+            LOGGER.warning("No payment processing vendors enabled.")
+            raise UserWarning("There are no payment processing vendors enabled. Go to Settings -> Vendors and setup the appropriate vendor.")
+
+        if vendor:
+            return vendor
+
+    except StandardError as error:
+        LOGGER.error(error)
+        raise UserWarning("There has been an error while trying to retrieve information about your payment processing vendor. ")
+
+
+def getCreditCards():
+    """Used To return allowed cards back to front end."""
+    return json_dumps(get_vendor_data()['customData']['cards'])
+
+
+def makePayment(json_dict, request=None):
+    """
+    JSON Frontend function wrapping PaymentController().make_payment()
+
+    @param json_dict: {
+        "callData": {
+            "depositDate": '2011-08-22',
+            "transactionAmount":"250.00",
+            "maskedNumber":"",
+            "accountName":"Cash",
+            "paymentMethodId":"",
+            "paymentType": 'DCR'
+            "transactionType":"SALE"
+            "payorId":"002b63d1-8cfc-428c-8ef9-eb613be28310",
+            "policyNumbers":["10-2011-2"]
+        }
+    }
+    """
+    if not request:
+        request = REQ
+
+    contact_id = json_dict['callData'].get('payorId') or json_dict['callData'].get('contactId')
+    payment_type = json_dict['callData'].get('paymentType')
+    policy_numbers = json_dict['callData'].get('policyNumbers')
+    transaction_amount = to_dec(json_dict['callData'].get('transactionAmount'))
+    if transaction_amount:
+        json_dict['callData']['transactionAmount'] = transaction_amount
+        payment_method_id = json_dict['callData'].get('paymentMethodId')
+
+    if json_dict['callData'].get('depositDate'):
+        deposit_date = date_parse(json_dict['callData'].get('depositDate'))
+    else:
+        deposit_date = datetime.now()
+
+    LOGGER.info('callData: %s' % json_dict['callData'])
+
+    pc = PaymentController(request=request)
+
+    if payment_type == 'website':
+        result = pc.make_website_payment(json_dict['callData'], email_addr=json_dict.get('email'))
+    else:
+        result = pc.make_payment(payment_type, policy_numbers, transaction_amount,
+                                 transaction_date_time=deposit_date, contact_id=contact_id,
+                                 payment_method_id=payment_method_id)
+
+    return json_dumps(result)
+
+
+def makePaymentMethod(json_dict):
+    """
+    JSON Frontend function wrapping VendorController().make_payment_method()
+
+    @param json_dict: {
+        "callData": {
+            "paperOrPlastic": "ACH",
+            "accountName": "Test Bank",
+            "accountNumber": "12345678",
+            "routingNumber": "091801234",
+            "accountType": "Personal Checking",
+            "nameOnAccount": "Test Agent",
+            "companyOnAccount": "IWS",
+            "accountDescription": "Test Payment Method",
+            "expireDate": "",
+            "addressLine1": "123 Fake St",
+            "addressCity": "Springfield",
+            "addressState": "MO",
+            "addressZip": "65802",
+            "contactId": "123...",
+            "method": "ACH"
+        }
+    }
+    """
+    if json_dict.get('paymentMethodId'):
+        # We want to update an existing method
+        result = VendorController().update_payment_method(json_dict['callData'], json_dict['paymentMethodId'])
+    else:
+        # Make a new method
+        result = VendorController().make_payment_method(json_dict['callData'])
+
+    return json_dumps(result)
+
+
+def retrieveDCRLog(json_dict):
+    """Retrieves the deposit list for the day."""
+    result = retrieve_payments(json_dict['currentPage'], json_dict['pageSize'])
+
+    fdict = {
+        'payor': ('payor', identity),
+        'checked': ('checked', identity),
+        'resolved': ('resolved', identity),
+        'policies': ('policies', identity),
+        'paymentId': ('paymentId', identity),
+        'amount': ('amount', identity),
+        'date': ('date', identity),
+        'payorRole': ('payorRole', identity),
+        'nsf': ('nsf', identity),
+        'paymentMethod': ('paymentMethod', identity),
+        'pending': ('pending', identity)
+    }
+
+    return format_page(result, fdict)
+
+
+def retrieveDCRTotal():
+    """
+    Support function for Payment Log screen in the Policy
+    page of the system. Only sends back data on date, total
+    amount of receipts, etc. This function does not populate
+    list of payments.
+    """
+    hal = HAL(CONFIG)
+    # Collect non printed daily payments
+    payments = hal.execsql(''' SELECT SUM(`transactionAmount`) AS `transactionAmountsTotal`
+                           FROM `payments`
+                           WHERE NOT `printedToDeposit`
+                           AND `britecoreTransactionState` NOT IN ('canceled', 'deleted')
+                           AND (`paymentMethodId` IS NULL OR NOT `paymentMethodId`)
+                           AND `accountName` IS NOT NULL
+                           GROUP BY `printedToDeposit`''', fetchall=False)
+
+    if payments:
+        total_amount = payments['transactionAmountsTotal']
+    else:
+        total_amount = 0
+
+    settings_cfg = get_config(get_settings_path())
+
+    result = {
+        'total': currency(total_amount, symbol=False, grouping=True),
+        'displayDate': settings_cfg.get('policies', 'display-date'),
+        'bbtBankVendorOn': hal.get_col('checked', 'vendors', VIDS.BBT),
+        'cutoffDate': get_payment_date_cutoff()
+    }
+
+    return json_dumps(result)
+
+
+def removePayment(json_dict):
+    """
+    Wrapper for PaymentController().remove_payment.
+    @param json_dict: Takes a single payment id {"id": "123..."}
+    """
+    return json_dumps(PaymentController().remove_payment(json_dict['id']))
+
+
+def retrievePaymentInformation(json_dict):
+    """
+    Retrieve payment inoformation for the agent screen.
+    @param json_dict: Takes a policy number {"policyNum":"10-2010-3"}
+    """
+    import re
+
+    from agent import get_producers
+    from contacts import get_contact_refs, get_policies, retrieveRoles
+
+    hal = HAL(CONFIG)
+
+    LOGGER.info('retrievePaymentInformation()')
+    LOGGER.info('policyNumber: %s' % json_dict['policyNumber'])
+
+    result, final_methods, policies = {'policyIsCanceled': False}, [], []
+
+    logged_in_user = REQ.uinfo['id']
+    policy_number = json_dict['policyNumber']
+
+    # Get policies the logged in user's producers are attached to
+    producers = get_producers(logged_in_user)
+
+    for producer in producers:
+        policies.extend(get_policies(producer))
+
+    # Don't allow modification of policies if the logged in user is not associated with the policy
+    try:
+        (policy_id,) = [p['policyId'] for p in policies if p['policyNumber'].replace('-', '') == policy_number.replace('-', '')]
+        result['validPolicyNum'] = True
+    except ValueError:
+        result['validPolicyNum'] = False
+
+    # If the logged in user has permission, get payment methods
+    if result['validPolicyNum']:
+        revision_id = get_revision_id(policy_id, rev_state='committed')
+        policy_status = hal.get_col('policyStatus', 'revisions', revision_id)
+        status_reason = hal.get_col('policyStatusReasonId', 'revisions', revision_id)
+
+        #check to see if the policy is canceled #4995
+        if (len(re.findall("Pending", policy_status)) and status_reason is None) or policy_status == 'Active':
+            result['policyIsCanceled'] = False
+        else:
+            result['policyIsCanceled'] = True
+
+        contact_roles = retrieveRoles({'id': logged_in_user})
+
+        sweep_contact = False
+
+        #get the company if you are logged in as an agent
+        if contact_roles.count('Agent') > 0:
+            sweep_contact = get_contact_refs(logged_in_user, 'company').get('id', False)
+        elif contact_roles.count('Agency') > 0:
+            sweep_contact = logged_in_user
+
+        methods = retrievePaymentMethods({'policyId': policy_id, 'revisionId': revision_id}, dump=False)
+        #if they are logged in as an agency group, sweep_contact remains set to False
+        sweep_check_dict = hal.execsql('''SELECT `hasSweepAccount`, `sweepAccountId`
+                                       FROM `contacts`
+                                       WHERE `id` = %s''', sweep_contact, fetchall=False)
+
+        if bool(sweep_check_dict) and sweep_check_dict['hasSweepAccount']:
+            # filter out every payment method that is not the sweep payment method
+            methods = filter(lambda x: x['id'] == sweep_check_dict['sweepAccountId'], methods)
+
+        result['paymentMethods'] = map(lambda x: payment_method_formatter(x, format_type='combo_box'), methods)
+
+        # Get the primary named insured
+        result['primaryNamedInsured'] = get_primary_insured(policy_id)
+
+        # Gather billing schedules
+        acct = Account(policy_id)
+        result['billSchedId'] = acct.data['billSched']['id']
+        result['billingSchedule'] = acct.reformat_billing_schedule()
+        result['billingScheduleOptions'] = acct.retrieve_billing_options()
+
+        # thirty day check, that used to be done in .js.  See #2218 for the original issue
+        effective_date = hal.get_col('effectiveDate', 'revisions', revision_id)
+
+        thirty_days_from_today = datetime.now().date() + relativedelta(days=30)
+
+        result['thirtyDaysWarning'] = effective_date > thirty_days_from_today
+        result['effectiveDate'] = effective_date.strftime("%m/%d/%Y")
+
+    return json_dumps(result)
+
+
+def retrievePaymentMethods(json_dict, dump=True):
+    """
+    Returns a JSON string containing all payment methods
+    associated with the most recent committed revision's contacts.
+
+    @param json_dict: {'policyId': <id_from_policies>,
+                       'revisionId': (Optional) <id_from_revisions>,
+                       'contactId': (Optional) <id_from_contact>}
+
+    @return: Returns a JSON object as the value.
+
+    The dictionary is of the structure:
+
+        {"paymentMethods": [
+            {"customerProfileId": "000001", "vendorPaymentMethodId": "000001",
+                "name": "ChaseBank   ...0001 (Rita Bennett)"},
+            {"customerProfileId": "000002", "vendorPaymentMethodId": "000002",
+                "name": "Discover    ...0002 (Don Gann)"},
+            {"customerProfileId": "000002", "vendorPaymentMethodId": "000003",
+                "name": "MasterCard  ...0003 (Don Gann)"}]}
+    """
+    hal = HAL(CONFIG)
+
+    LOGGER.info('retrievePaymentMethods()')
+
+    results, payment_methods_list = [], []
+
+    policy_id = json_dict['policyId']
+    contact_id = json_dict.get('contactId', None)
+
+    # If we only want the methods for the contact id supplied
+    if contact_id:
+        try:
+            contact_list = ''.join(['(', json_dumps(contact_id), ')'])
+        except StandardError:
+            LOGGER.warning("No contact id was supplied in the transaction.")
+            raise UserWarning("No contact id was supplied in the transaction.")
+
+    # If we want the payment methods for everyone associated with the policy
+    else:
+        # Get the most current revision
+        if 'revisionId' in json_dict:
+            revision_id = json_dict['revisionId']
+        else:
+            revision_id = get_revision_id(policy_id, rev_state='committed')
+
+        assocated_with = get_contacts(revision_id)
+
+        bill_whom = hal.execsql('''
+                SELECT `billWhomId` AS `id`, `contacts`.`name`
+                FROM `policies`
+                LEFT JOIN `contacts` ON `policies`.`billWhomId` = `contacts`.`id`
+                WHERE `policies`.`id` = %s''', policy_id, fetchall=False)
+
+        assocated_with.append(bill_whom)
+
+        # Create a list of contacts associated with this revision
+        contacts = hal.execsql('''
+                    SELECT `x_revisions_contacts`.`contactId`
+                    FROM `x_revisions_contacts`
+                    LEFT JOIN `revisions`
+                    ON `x_revisions_contacts`.`revisionId` = `revisions`.`id` AND `revisionState` NOT IN ('archived')
+                    WHERE `revisions`.`policyId` = %s
+                    ORDER BY `dateAdded`''', policy_id)
+
+        # Add any contacts associated with the properties listed in this revision
+        contacts.extend(hal.execsql('''
+                    SELECT `x_properties_contacts`.`contactId`
+                    FROM `x_properties_contacts`
+                    LEFT JOIN `properties`
+                    ON `properties`.`id` = `x_properties_contacts`.`propertyId`
+                    LEFT JOIN `revisions`
+                    ON `revisions`.`id` = `properties`.`revisionId` AND `revisionState` NOT IN ('archived')
+                    WHERE `revisions`.`policyId` = %s''', policy_id))
+
+        contact_list = []
+        for contact in contacts:
+            if contact['contactId']:
+                contact_list.append(str(contact['contactId']))
+                ref_contacts = hal.execsql('''
+                            SELECT `refContactId`, `agencyGroupMember`
+                            FROM `x_contacts`
+                            LEFT JOIN `contacts`
+                            ON `x_contacts`.`refContactId` = `contacts`.`id`
+                            WHERE `contactId` = %s
+                            AND `relatedTo` = 0
+                            AND `type` = "organization"''', contact['contactId'])
+
+                for ref_contact in ref_contacts:
+                    if ref_contact['refContactId']:
+                        contact_list.append(str(ref_contact['refContactId']))
+                        is_agency = hal.execsql('''
+                                    SELECT `roles`.`name`
+                                    FROM `x_contacts_roles`
+                                    LEFT JOIN `roles`
+                                    ON `x_contacts_roles`.`roleId` = `roles`.`id`
+                                    WHERE `contactId` = %s
+                                    AND `roles`.`name` = "Agency"''', ref_contact['refContactId'], fetchall=False)
+
+                        if is_agency:
+                            group = hal.execsql('''
+                                        SELECT `contacts`.`id`, `contacts`.`commissionStructure`
+                                        FROM `x_contacts` RIGHT JOIN `contacts` ON `x_contacts`.`refContactId` = `contacts`.`id`
+                                        WHERE `x_contacts`.`contactId` = %s
+                                        AND `x_contacts`.`agencyGroupMember` = 1
+                                        AND `x_contacts`.`relatedTo` = 0 LIMIT 1''', ref_contact['refContactId'], fetchall=False)
+
+                            if group:
+                                contact_list.append(str(group['id']))
+        contact_list = tuple(set(contact_list))
+
+    payment_methods = hal.execsql('''SELECT * FROM `payment_methods`
+                                  WHERE `contactId` IN {0}
+                                  AND `active` = 1'''.format(str(contact_list).replace('\\', '').replace(',)', ')')))
+
+    return json_dumps(payment_methods) if dump else payment_methods
+
+
+def addToSweepQueue(json_dict):
+    '''
+    This is the front-end function for adding a payment to the sweep
+    queue.
+
+    json_dict = {
+        "passCheck":false,
+        "policyNumber": "HP-523109",
+        "paymentMethodId":"09a23e27-f1b3-49d4-964f-712344b066b3",
+        "transactionAmount":"2.50"
+    }
+    '''
+    result = json_dumps(PaymentController(request=REQ).add_to_sweep_queue(json_dict.get('policyNumber', ''),
+                                                                          to_dec(json_dict.get('transactionAmount', '')),
+                                                                          json_dict.get('paymentMethodId', {}),
+                                                                          pass_check=json_dict.get('passCheck', True)))
+
+    return result
+
+
+def retrieveSweepQueue(request=None):
+    """
+    This is the front-end function responsible for populating the
+    sweep queue on the agent portal payment screen.
+    """
+    hal = HAL(CONFIG)
+    if not request:
+        request = REQ
+
+    # Just retrieve the sweep queue here... no controller is needed.
+    results = []
+    payments = hal.execsql('''SELECT `id`, `paymentMethodId`, `policyNumbers`, `transactionAmount`
+                           FROM `payments`
+                           WHERE `payments`.`committer` = %s
+                           AND `payments`.`vendorStage` IS NULL
+                           AND `payments`.`commissionPayment` = 0
+                           AND `payments`.`britecoreTransactionState` IN ('pending', 'unresolved', 'unapplied')
+                           AND `payments`.`authorizationState` = 'pending'
+                           AND `payments`.`paymentMethodId` IS NOT NULL
+                           GROUP BY `payments`.`id`''', request.uinfo['username'] if request else 'system')
+
+    # For each payment retrieve (there will be one for each credit attached to each payment)
+    # build the row to be displayed on the sweep screen.
+    for payment in payments:
+        row = {}
+        row['paymentId'] = payment['id']
+        row['amount'] = kurrency(payment['transactionAmount'])
+        (row['policyNum'], ) = json_loads(payment['policyNumbers'])
+        row['paymentMethod'] = payment_method_formatter(payment['paymentMethodId'], format_type='combo_box')
+
+        results.append(row)
+
+    return json_dumps(results)
+
+
+def submitSweepQueue():
+    """
+    Frontend wrapper function to submit the sweep queue for the logged in agent / agency.
+    """
+    return json_dumps(PaymentController(request=REQ).submit_sweep_queue())
+
+
+# The following functions set the vendor information for running test transactions.
+# Each function corresponds with a vendor record. Hopefully they will all be
+# present in every client.
+
+
+def set_authnet_cp():
+    """
+    Sets vendor credentials to Authorize.Net (Card Present).
+    """
+    hal = HAL(CONFIG)
+
+    hal.execsql('''UPDATE `vendors`
+                   SET `checked` = 0
+                   WHERE `vendors`.`category` = "Payment Processing"''')
+
+    vendor_row = hal.execsql('''SELECT *
+                                FROM `vendors`
+                                WHERE `vendors`.`title` = "Authorize.net (Card Present)"''', fetchall=False)
+
+    custom_data = json_loads(vendor_row.get('customData'))
+    custom_data['auth']['login'] = '8v78epq8HGs'
+    custom_data['auth']['password'] = '3H9tb5nH6GB3e9Vk'
+    vendor_row['customData'] = json_dumps(custom_data)
+    vendor_row['checked'] = 1
+    hal.update({vendor_row['id']: vendor_row}, 'vendors')
+
+    return get_vendor_data()
+
+
+def set_authnet_cnp():
+    """
+    Sets vendor credentials to Authorize.Net (Card Not Present).
+    """
+    hal = HAL(CONFIG)
+
+    hal.execsql('''UPDATE `vendors`
+                   SET `checked` = 0
+                   WHERE `vendors`.`category` = "Payment Processing"''')
+
+    vendor_row = hal.execsql('''SELECT *
+                                FROM `vendors`
+                                WHERE `vendors`.`title` = "Authorize.net (Card Not Present)"''', fetchall=False)
+
+    custom_data = json_loads(vendor_row.get('customData'))
+    custom_data['auth']['login'] = '8v78epq8HGs'
+    custom_data['auth']['password'] = '3H9tb5nH6GB3e9Vk'
+    vendor_row['customData'] = json_dumps(custom_data)
+    vendor_row['checked'] = 1
+    hal.update({vendor_row['id']: vendor_row}, 'vendors')
+
+    return get_vendor_data()
+
+
+def set_nma_ach():
+    """
+    Sets vendor credentials to NMA ACH.
+    """
+    hal = HAL(CONFIG)
+
+    hal.execsql('''UPDATE `vendors`
+                   SET `checked` = 0
+                   WHERE `vendors`.`category` = "Payment Processing"''')
+
+    vendor_row = hal.execsql('''SELECT *
+                                FROM `vendors`
+                                WHERE `vendors`.`title` = "National Merchant Alliance"''', fetchall=False)
+
+    custom_data = json_loads(vendor_row.get('customData'))
+    custom_data['auth']['userPw'] = 'R5LUb3dq'
+    custom_data['auth']['userId'] = 'kheira'
+    custom_data['auth']['clientId'] = '95600010001'
+    custom_data['auth']['merchantKey'] = '123456789'
+    vendor_row['customData'] = json_dumps(custom_data)
+    vendor_row['checked'] = 1
+    hal.update({vendor_row['id']: vendor_row}, 'vendors')
+
+    return get_vendor_data()
+
+
+def set_nma_cc():
+    """
+    Sets vendor credentials to NMA Credit Card.
+    """
+    hal = HAL(CONFIG)
+
+    hal.execsql('''UPDATE `vendors`
+                   SET `checked` = 0
+                   WHERE `vendors`.`category` = "Payment Processing"''')
+
+    vendor_row = hal.execsql('''SELECT *
+                                FROM `vendors`
+                                WHERE `vendors`.`title` = "National Merchant Alliance"''', fetchall=False)
+
+    custom_data = json_loads(vendor_row.get('customData'))
+    custom_data['auth']['userPw'] = 'APItest321'
+    custom_data['auth']['userId'] = 'APItest'
+    custom_data['auth']['clientId'] = '104800010001'
+    custom_data['auth']['merchantKey'] = 'C43AF8F5-4DF7-44CC-8800-C45E83036A1C'
+    vendor_row['customData'] = json_dumps(custom_data)
+    vendor_row['checked'] = 1
+    hal.update({vendor_row['id']: vendor_row}, 'vendors')
+
+    return get_vendor_data()

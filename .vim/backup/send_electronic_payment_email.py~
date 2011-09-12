@@ -1,0 +1,50 @@
+#!/usr/bin/env python2.7
+"""
+This file seems to send an email with the payment report information to our
+clients and then run some sort of backup script.
+"""
+import locale
+import os
+from subprocess import Popen
+import sys
+import warnings
+
+
+def main():
+    """This main function runs a NMA batch settlement."""
+    # ignore any warnings issued
+    warnings.simplefilter("ignore")
+    # set locale, so all locale functions can be used
+    locale.setlocale(locale.LC_ALL, 'en_US.UTF-8')
+    vstates = VendorStates()
+
+    if any((vstates.NMA['checked'],
+            vstates.AUTHORIZEDOTNETCP['checked'],
+            vstates.AUTHORIZEDOTNETCNP['checked'])):
+        # E-mail Electronic Payments Report
+        try:
+            payments, enddatetime, startdatetime = retrieve_payments_for_report(enddatetime='2011-09-02 00:00:00', startdatetime='2011-09-01 00:00:00')
+            email_payments_report(payments, enddatetime, startdatetime)
+        except StandardError as error:
+            bail_out(message='Error: %s'%error, subject='Payments Report Error', emails='enigneering@iwsapps.com')
+#     Popen([os.path.join(os.path.dirname(__file__), os.pardir, 'bin', 'db_zip_backup.sh')])
+
+
+if __name__ == '__main__':
+    # extend sys.path to include our own mod_python lib directory
+    lib_dir = os.path.join(os.path.dirname(__file__), os.pardir, 'lib')
+    sys.path.append(lib_dir)
+    sys.path.append(os.path.join(lib_dir, 'helpers'))
+    sys.path.append(os.path.join(lib_dir, 'vendors'))
+
+    from cron_utils import CronUtils, CronJobContainer
+    from settings import VendorStates
+    from payments_helpers import retrieve_payments_for_report, email_payments_report
+    from snippets import bail_out
+
+#     cu = CronUtils()
+#     cron_id = cu.write_cron_start(CronJobContainer().SEND_ELECTRONIC_PAYMENT_EMAIL)
+    main()
+
+#     if cron_id:
+#         cu.write_cron_end(cron_id)

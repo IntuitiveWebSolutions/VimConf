@@ -1,0 +1,849 @@
+"""
+
+The payments helpers module contains functions that support the payments
+system communications or backup functionality
+@author: David Conaway, Sean O'Rear
+@contact: david@iws-web.com, sean@britecore.com
+@organization: IWS
+
+"""
+import os
+from datetime import datetime, timedelta
+from iwslib.toolbox import HAL, get_config, json_loads, date_parse
+
+from policies_utils import get_revision_id
+from settings import get_admin_alerts_section
+from snippets import bc_mail, create_log, kurrency, live_status
+
+CONFIG = get_config(os.path.join(os.path.dirname(__file__),
+                                 os.pardir, os.pardir, 'britecore.cfg'))
+LOGGER = create_log('payments_helper')
+REQ = None # A mp_request
+
+def payment_method_formatter(information, format_type):
+    ''' This method returns payment methods in a specific format to be used
+        in various functions. It can return a string formatted payment method
+        to display in a list or combo_box, or return methods as dictionaries
+        for cunsumptoin by functions.
+
+        @param: information: This function can accept a payment method dictionary,
+        payment method id uuid, or a payment id uuid as input.
+        @param: format_type: string variable indicating the type of return format.
+        @return: Formatted payment method.
+    '''
+    LOGGER.info('payment_method_formatter(%s, %s)' % (information, format_type))
+
+    hal = HAL(CONFIG)
+
+    # If a uuid is passed as an argument, retrieve either the associated records
+    if type(information) in (str, unicode):
+
+        # If it is a string, assume the string is a uuid
+        uuid = information
+
+        # Ensure it is a uuid by checking its length equals 36 characters
+        if len(uuid) == 36:
+
+
+            # Try to get a payment record first
+            payment = hal.get_row(uuid, 'payments')
+
+            # Means the uuid supplied was a payment id, so we need the payment method attached to this payment
+            if payment:
+                method = hal.get_row(payment['paymentMethodId'], 'payment_methods') if payment['paymentMethodId'] else None
+
+            # Means the uuid is a method id, so payment is None
+            else:
+                method = hal.get_row(uuid, 'payment_methods')
+
+            # If the uuid does not match a payment or a payment method
+            if not payment and not method:
+                raise UserWarning("The uuid that you entered does not match an existing payment or payment method in BriteCore.")
+
+        # The string is not exactly 36 characters - not a uuid
+        else:
+            raise UserWarning("You must supply a valid uuid for a payment or a payment method")
+
+    # If the entire payment method dictionary is passed in, don't look up again
+    elif type(information) == dict:
+        payment = None
+        method = information
+
+    else:
+        raise UserWarning("You have entered incorrect information as a parameter to vendors_utils.payment_method_formatter().")
+
+    # If the uuid does not match a payment or a payment method
+    if not payment and not method:
+        raise UserWarning("The uuid that you entered does not match an existing payment or payment method in BriteCore.")
+
+    #============= Begin formatting logic ==================================
+
+    result = None
+
+    if format_type == 'dictionary':
+
+        if method:
+            result = {"paymentMethodId": method['paymentMethodId'],
+                      "customerProfileId": method['customerProfileId'],
+                      "vendor": method['vendorId'],
+                      "customerId": method['contactId'],
+                      "details": {
+                          "accountName": method['accountName'],
+                          "nameOnAccount": method['nameOnAccount'],
+                          "maskedNumber": method['maskedNumber'],
+                          "accountType": method['accountType'],
+                          "description": method['accountDescription']}}
+
+    elif format_type == 'contact_screen':
+
+        if method:
+            result = {}
+            result["method"] = method["method"]
+            result["id"] = method["id"]
+            result["paymentMethodId"] = method["paymentMethodId"]
+            result["customerProfileId"] = method["customerProfileId"]
+            result["vendorId"] = method["vendorId"]
+
+            result["details"] = {}
+            result["details"]["description"] = method["accountDescription"]
+            result["details"]["nameOnAccount"] = method["nameOnAccount"]
+            result["details"]["companyOnAccount"] = method["companyOnAccount"]
+            result["details"]["accountName"] = method["accountName"]
+            result["details"]["expireDate"] = method["expireDate"].strftime("%M-%Y") if method["expireDate"] else ''
+            result["details"]["accountType"] = method["accountType"]
+            result["details"]["maskedNumber"] = method["maskedNumber"]
+
+            result["details"]["billingAddress"] = {}
+            result["details"]["billingAddress"]["addressLine1"] = method["addressLine1"]
+            result["details"]["billingAddress"]["addressLine2"] = method["addressLine2"]
+            result["details"]["billingAddress"]["addressCity"] = method["addressCity"]
+            result["details"]["billingAddress"]["addressState"] = method["addressState"]
+            result["details"]["billingAddress"]["addressZip"] = method["addressZip"]
+
+
+    elif format_type == 'retrieve_return_premium':
+
+        if method:
+            result = {"number": method['maskedNumber'],
+                      "type": method['accountType']}
+
+    elif format_type == 'payment_log':
+
+        if method:
+            result = {'paymentMethodName': '{0:{1}}{2} ({3})'.format(method['accountName'],
+                              12, method['maskedNumber'], method['nameOnAccount']),
+                      'paymentMethodId': method['id'],
+                      'paymentMethodType': method['method'],
+                      'vendor': hal.get_col('title', 'vendors', method['vendorId'])}
+
+        else:
+            name = hal.get_col('name', 'contacts', payment['payorId'])
+            result = {'paymentMethodName': '{0:{1}}{2} ({3})'.format(payment['accountName'],
+                              12, payment['maskedNumber'], name)}
+
+    elif format_type == 'combo_box':
+
+        if method:
+            result = {'paymentMethodName': '{0:{1}}{2} ({3})'.format(method['accountName'],
+                              12, method['maskedNumber'], method['nameOnAccount']),
+                      'paymentMethodId': method['id']}
+
+        else:
+            name = hal.get_col('name', 'contacts', payment['payorId'])
+            result = {'paymentMethodName': '{0:{1}}{2} ({3})'.format(payment['accountName'],
+                              12, payment['maskedNumber'], name)}
+
+    elif format_type == 'note':
+
+        if method:
+            result = '{0:{1}}{2}'.format(method['accountName'], 25, method['maskedNumber'])
+
+        else:
+            result = '{0:{1}}{2}'.format(payment['accountName'], 25, payment['maskedNumber'])
+
+    elif format_type == 'html_lines':
+
+        if method:
+            result = '{0} - {1}<br />{2}'.format(method['accountName'], method['maskedNumber'],
+                                method['nameOnAccount'])
+
+        else:
+            name = hal.get_col('name', 'contacts', payment['payorId'])
+            if payment['maskedNumber']:
+                result = '{0} - {1}<br />{2}'.format(payment['accountName'],
+                                    payment['maskedNumber'], name)
+            else:
+                result = '{0}<br />{1}'.format(payment['accountName'], name)
+
+    return result
+
+
+def declined_response_formatter(response):
+    ''' This function takes the declined responses from the vendors and
+        formats the output for a more readable display on any reports
+        sent to our clients.
+    '''
+    import re
+
+    LOGGER.info('declined_response_formatter(%s)' % response)
+
+    #===========================================================================
+    # National Merchant Alliance
+    #===========================================================================
+
+    if response.find("DECLINE CHECK") != -1:
+
+        response = response.replace(" - ", "").split("DECLINE CHECK")[1].lstrip()
+        reason = "<strong>Declined Check(s) Found:</strong>"
+
+        all = response.find(" (ALL)")
+        unpaids = response[0:all].strip(" UNPAIDS (ALL)")
+        phn = response.find("PHN")
+
+        re_phone = re.compile(r'(\d{3})\D*(\d{3})\D*(\d{4})')
+        numbers = re_phone.search(response)
+        phone = "({0}) {1}-{2}".format(numbers.groups()[0], numbers.groups()[1], numbers.groups()[2])
+
+        amount = response[all + 6:phn]
+        amount = amount.strip("UNPAID AMT= ")
+
+        explanation = "{0} {1} {2}".format(
+                "The check validation service found",
+                "1 NSF check" if int(unpaids) == 1 else "{0} NSF checks".format(unpaids),
+                "for this account in the total amount of ${0}.00.".format(amount))
+
+        company = response[numbers.end():]
+        contact = "Please contact {0} at {1} for more information.".format(company, phone)
+
+        return " ".join([reason, explanation, contact])
+
+
+    elif response.find("MANAGER NEEDED  RE-PRESENTED CHK") != -1:
+
+        reason = "<strong>Invalid Check Number:</strong>"
+        explanation = "This check number has been previously presented for payment from this account"
+
+        return " ".join([reason, explanation])
+
+    elif response.find("DECLINED: AUTH DECLINED 200 ") != -1:
+
+        reason = "<strong>Authorization Was Declined:</strong>"
+
+        explanation = "This account received an authorization code of 200."
+
+        return " ".join([reason, explanation])
+
+
+    elif response.find("DECLINED 30") != -1:
+
+        explanation = response.strip("DECLINED 30 - ")
+        reason = "<strong>Bad Routing Number:</strong>"
+
+        return " ".join([reason, explanation])
+
+
+    elif response.find("TRANS_AMOUNT") != -1:
+
+        reason = "<strong>Declined Amount:</strong>"
+        explanation = response.replace("TRANS_AMOUNT", "the transaction amount").replace(". ", ".")
+
+        return " ".join([reason, explanation])
+
+    elif response == "DECLINED":
+
+        reason = "<strong>This Credit Card Has Been Declined.</strong>"
+
+        return reason
+
+    elif response.find("LOST/STOLEN") != -1:
+
+        reason = "<strong>Lost Card:</strong>"
+        explanation = "This card has been reported as either lost or stolen."
+
+        return " ".join([reason, explanation])
+
+    elif response.find("INVALID CARD NO") != -1:
+
+        reason = "<strong>Invalid Card:</strong>"
+        explanation = "The card number that was entered is invalid."
+
+        return " ".join([reason, explanation])
+
+    elif response.find("account/amount") != -1:
+
+        reason = "<strong>This Transaction Has Been Declined:</strong>"
+        explanation = response
+
+        return " ".join([reason, explanation])
+
+
+#===============================================================================
+# Reporting and Email Functions
+#===============================================================================
+
+
+def format_payments_table_for_report(payments, payment_type):
+    '''This function takes in a list of payments and the payment_type, then
+    generates a HTML string containing formatted payment information.'''
+
+    LOGGER.info('format_payments_table_for_report()')
+
+    indent = 5
+    subheading_cell_width = 100
+    policy_width = 90
+    insured_width = 150
+    payor_width = 200
+    amount_width = 60
+    type_width = 70
+    initiated_width = 90
+    bank_card_width = 200
+    account_width = 60
+    msg = ''
+
+    ################# SALES, CREDITS OR COMMISSIONS #################
+    if (payments[payment_type]['COMPLETED']['list'] or
+    payments[payment_type]['DECLINED']['list'] or
+    payments[payment_type]['OTHER']['list']):
+
+        msg = '<table border="0" cellpadding="0" cellspacing="0">\n'
+        table_name = ""
+        if payment_type == 'sales':
+            table_name = 'Sales'
+            number_cols = 11
+        elif payment_type == 'credits':
+            table_name = 'Credits'
+            number_cols = 11
+        elif payment_type == 'commissions':
+            table_name = 'Commissions'
+            number_cols = 8
+
+        msg = msg + '<tr><th colspan="' + str(number_cols) + '" align="left">' + table_name + '</th></tr>\n'
+
+        # Completed
+        if payments[payment_type]['COMPLETED']['list']:
+            # Subheading, number of BFTs, total amount ($)
+            msg = msg + "<tr>"
+            msg = msg + "<td width='%s'> </td>" % indent
+            msg = msg + "<td width='%s' colspan=%s><b>COMPLETED (%s): $%s</b></td>" % (number_cols-1,
+                                                                                subheading_cell_width,
+                                                                               len(payments[payment_type]['COMPLETED']['list']),
+                                                                               kurrency(payments[payment_type]['COMPLETED']['total']))
+            msg = msg + "</tr>"
+            if payment_type == 'commissions':
+                # Column headers for detailed BFT breakdown
+                msg = msg + '<tr>'
+                msg = msg + '<th width="%s" align="left">&nbsp;</th>' % indent
+                msg = msg + '<th width="%s" align="left">&nbsp;</th>' % indent
+                msg = msg + '<th width="%s" align="left">Amount</th>' % amount_width
+                msg = msg + '<th width="%s" align="left">Payee</th>' % payor_width
+                msg = msg + '<th width="%s" align="left">Type</th>' % type_width
+                msg = msg + '<th width="%s" align="left">Bank Name/Card</th>' % bank_card_width
+                msg = msg + '<th width="%s" align="left">Account</th>' % account_width
+                msg = msg + '<th> </th>'
+                msg = msg + '</tr>\n'
+
+                # Transaction rows
+                for payment in payments[payment_type]['COMPLETED']['list']:
+                    msg = msg + "<tr>"
+                    msg = msg + "<td width='%s'>&nbsp;</td>" % indent
+                    msg = msg + "<td width='%s'>&nbsp;</td>" % indent
+                    msg = msg + "<td>$%s</td>" % kurrency(payment['transactionAmount'])
+                    msg = msg + "<td>%s</td>" % payment['payorName']
+                    if payment['method'] == 'ACH':
+                        pay_type = 'ACH'
+                    else:
+                        pay_type = 'CC'
+                    msg = msg + "<td>%s</td>" % pay_type
+                    msg = msg + "<td>%s</td>" % payment['accountName']
+                    msg = msg + "<td>%s</td>" % payment['maskedNumber']
+                    msg = msg + "<td>&nbsp;</td>"
+                    msg = msg + "</tr>\n"
+            else:
+                # Column headers for detailed BFT breakdown
+                msg = msg + '<tr>'
+                msg = msg + '<th width="%s" align="left">&nbsp;</th>' % indent
+                msg = msg + '<th width="%s" align="left">&nbsp;</th>' % indent
+                msg = msg + '<th width="%s" align="left">Policy</th>' % policy_width
+                msg = msg + '<th width="%s" align="left">Amount</th>' % amount_width
+                msg = msg + '<th width="%s" align="left">Insured</th>' % insured_width
+                msg = msg + '<th width="%s" align="left">Payor</th>' % payor_width
+                msg = msg + '<th width="%s" align="left">Type</th>' % type_width
+                msg = msg + '<th width="%s" align="left">Initiated</th>' % initiated_width
+                msg = msg + '<th width="%s" align="left">Bank Name/Card</th>' % bank_card_width
+                msg = msg + '<th width="%s" align="left">Account</th>' % account_width
+                msg = msg + '<th>&nbsp;</th>'
+                msg = msg + '</tr>\n'
+
+                # Transaction rows
+                for payment in payments[payment_type]['COMPLETED']['list']:
+                    msg = msg + "<tr>"
+                    msg = msg + "<td width='%s'>&nbsp;</td>" % indent
+                    msg = msg + "<td width='%s'>&nbsp;</td>" % indent
+                    msg = msg + "<td>%s</td>" % payment['policyNumber']
+                    msg = msg + "<td>$%s</td>" % kurrency(payment['transactionAmount'])
+                    msg = msg + "<td>%s</td>" % payment['insured']
+                    msg = msg + "<td>%s</td>" % payment['payorName']
+                    if payment['method'] == 'ACH':
+                        pay_type = 'ACH'
+                    else:
+                        pay_type = 'CC'
+                    msg = msg + "<td>%s</td>" % pay_type
+                    msg = msg + "<td>%s</td>" % payment['initiatedWhere']
+                    msg = msg + "<td>%s</td>" % payment['accountName']
+                    msg = msg + "<td>%s</td>" % payment['maskedNumber']
+                    msg = msg + "<td>&nbsp;</td>"
+                    msg = msg + "</tr>\n"
+
+        # Declined
+        if payments[payment_type]['DECLINED']['list']:
+            # Subheading, number of BFTs, total amount ($)
+            msg = msg + "<tr>"
+            msg = msg + "<td width='%s'> </td>" % indent
+            msg = msg + "<td width='%s' colspan=%s><b>DECLINED (%s): $%s</b></td>" % (number_cols-1,
+                                                                             subheading_cell_width,
+                                                                               len(payments[payment_type]['DECLINED']['list']),
+                                                                               kurrency(payments[payment_type]['DECLINED']['total']))
+            msg = msg + "</tr>\n"
+            if payment_type == 'commissions':
+                # Column headers for detailed BFT breakdown
+                msg = msg + "<tr>"
+                msg = msg + "<th width='%s' align='left'>&nbsp;</th>" % indent
+                msg = msg + "<th width='%s' align='left'>&nbsp;</th>" % indent
+                msg = msg + "<th width='%s' align='left'>Amount</th>" % amount_width
+                msg = msg + "<th width='%s' align='left'>Payee</th>" % payor_width
+                msg = msg + "<th width='%s' align='left'>Type</th>" % type_width
+                msg = msg + "<th width='%s' align='left'>Bank Name/Card</th>" % bank_card_width
+                msg = msg + "<th width='%s' align='left'>Account</th>" % account_width
+                msg = msg + "<th> </th>"
+                msg = msg + "</tr>\n"
+
+                # Transaction rows
+                for payment in payments[payment_type]['DECLINED']['list']:
+                    msg = msg + "<tr>"
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td>$%s</td>" % kurrency(payment['transactionAmount'])
+                    msg = msg + "<td>%s</td>" % payment['payorName']
+                    if payment['method'] == 'ACH':
+                        pay_type = 'ACH'
+                    else:
+                        pay_type = 'CC'
+                    msg = msg + "<td>%s</td>" % pay_type
+                    msg = msg + "<td>%s</td>" % payment['accountName']
+                    msg = msg + "<td>%s</td>" % payment['maskedNumber']
+                    msg = msg + "<td> </td>"
+                    msg = msg + "</tr>\n"
+
+                    #Reason given for declination
+                    msg = msg + "<tr>"
+                    msg = msg + "<td width='%s'>&nbsp;</td>" % indent
+                    msg = msg + "<td width='%s'>&nbsp;</td>" % indent
+                    msg = msg + "<td>Reason:</td>"
+                    msg = msg + "<td colspan=%s>%s</td>" % (number_cols-5,
+                                    declined_response_formatter(json_loads(payment['vendorResponse']).get('message', 'No Message')))
+                    msg = msg + "</tr>\n"
+
+            else:
+                # Column headers for detailed BFT breakdown
+                msg = msg + "<tr>"
+                msg = msg + "<td width='%s' align='left'> </td>" % indent
+                msg = msg + "<td width='%s' align='left'> </td>" % indent
+                msg = msg + "<th width='%s' align='left'>Policy</th>" % policy_width
+                msg = msg + "<th width='%s' align='left'>Amount</th>" % amount_width
+                msg = msg + "<th width='%s' align='left'>Insured</th>" % insured_width
+                msg = msg + "<th width='%s' align='left'>Payor</th>" % payor_width
+                msg = msg + "<th width='%s' align='left'>Type</th>" % type_width
+                msg = msg + "<th width='%s' align='left'>Initiated</th>" % initiated_width
+                msg = msg + "<th width='%s' align='left'>Bank Name/Card</th>" % bank_card_width
+                msg = msg + "<th width='%s' align='left'>Account</th>" % account_width
+                msg = msg + "<th> </th>"
+                msg = msg + "</tr>\n"
+
+                # Transaction rows
+                for payment in payments[payment_type]['DECLINED']['list']:
+                    msg = msg + "<tr>"
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td>%s</td>" % payment['policyNumber']
+                    msg = msg + "<td>$%s</td>" % kurrency(payment['transactionAmount'])
+                    msg = msg + "<td>%s</td>" % payment['insured']
+                    msg = msg + "<td>%s</td>" % payment['payorName']
+                    msg = msg + "<td>%s</td>" % payment['method']
+                    msg = msg + "<td>%s</td>" % payment['initiatedWhere']
+                    msg = msg + "<td>%s</td>" % payment['accountName']
+                    msg = msg + "<td>%s</td>" % payment['maskedNumber']
+                    msg = msg + "<td> </td>"
+                    msg = msg + "</tr>\n"
+
+                    #Reason given for declination
+                    msg = msg + "<tr>"
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td>Reason:</td>"
+                    msg = msg + "<td colspan=%s>%s</td>" % (number_cols-4,
+                                declined_response_formatter(json_loads(payment['vendorResponse']).get('message', 'No Message')))
+                    msg = msg + "</tr>\n"
+
+        # Other
+        if payments[payment_type]['OTHER']['list']:
+            # Subheading, number of BFTs, total amount ($)
+            msg = msg + "<tr>"
+            msg = msg + "<td width='%s'> </td>" % indent
+            msg = msg + "<td width='%s' colspan=%s><b>OTHER (%s): $%s</b></td>" % (number_cols-1,
+                                                                                   subheading_cell_width,
+                                                                               len(payments[payment_type]['OTHER']['list']),
+                                                                               kurrency(payments[payment_type]['OTHER']['total']))
+            msg = msg + "</tr>\n"
+            if payment_type == 'commissions':
+                # Column headers for detailed BFT breakdown
+                msg = msg + "<tr>"
+                msg = msg + "<th width='%s' align='left'> </th>" % indent
+                msg = msg + "<th width='%s' align='left'> </th>" % indent
+                msg = msg + "<th width='%s' align='left'>Amount</th>" % amount_width
+                msg = msg + "<th width='%s' align='left'>Payee</th>" % payor_width
+                msg = msg + "<th width='%s' align='left'>Type</th>" % type_width
+                msg = msg + "<th width='%s' align='left'>Bank Name/Card</th>" % bank_card_width
+                msg = msg + "<th width='%s' align='left'>Account</th>" % account_width
+                msg = msg + "<th> </th>"
+                msg = msg + "</tr>\n"
+
+                # Transaction rows
+                for payment in payments[payment_type]['COMPLETED']['list']:
+                    msg = msg + "<tr>"
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td>$%s</td>" % kurrency(payment['transactionAmount'])
+                    msg = msg + "<td>%s</td>" % payment['payorName']
+                    if payment['method'] == 'ACH':
+                        pay_type = 'ACH'
+                    else:
+                        pay_type = 'CC'
+                    msg = msg + "<td>%s</td>" % pay_type
+                    msg = msg + "<td>%s</td>" % payment['accountName']
+                    msg = msg + "<td>%s</td>" % payment['maskedNumber']
+                    msg = msg + "<td> </td>"
+                    msg = msg + "</tr>\n"
+
+                    #Reason given for declination
+                    msg = msg + "<tr>"
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td>Status:</td>"
+                    msg = msg + "<td colspan=2>%s</td>" % str(payment['britecoreTransactionState'])
+                    msg = msg + "<td>NMA Status:</td>"
+                    msg = msg + "<td colspan=5>%s</td>" % str(payment['authorizationState'])
+                    msg = msg + "</tr>\n"
+            else:
+                # Column headers for detailed BFT breakdown
+                msg = msg + "<tr>"
+                msg = msg + "<th width='%s' align='left'> </th>" % indent
+                msg = msg + "<th width='%s' align='left'> </th>" % indent
+                msg = msg + "<th width='%s' align='left'>Policy</th>" % policy_width
+                msg = msg + "<th width='%s' align='left'>Amount</th>" % amount_width
+                msg = msg + "<th width='%s' align='left'>Insured</th>" % insured_width
+                msg = msg + "<th width='%s' align='left'>Payor</th>" % payor_width
+                msg = msg + "<th width='%s' align='left'>Type</th>" % type_width
+                msg = msg + "<th width='%s' align='left'>Initiated</th>" % initiated_width
+                msg = msg + "<th width='%s' align='left'>Bank Name/Card</th>" % bank_card_width
+                msg = msg + "<th width='%s' align='left'>Account</th>" % account_width
+                msg = msg + "<th> </th>"
+                msg = msg + "</tr>\n"
+
+                # Transaction rows
+                for payment in payments[payment_type]['OTHER']['list']:
+                    msg = msg + "<tr>"
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td>%s</td>" % payment['policyNumber']
+                    msg = msg + "<td>$%s</td>" % kurrency(payment['transactionAmount'])
+                    msg = msg + "<td>%s</td>" % payment['insured']
+                    msg = msg + "<td>%s</td>" % payment['payorName']
+                    if payment['method'] == 'ACH':
+                        pay_type = 'ACH'
+                    else:
+                        pay_type = 'CC'
+                    msg = msg + "<td>%s</td>" % pay_type
+                    msg = msg + "<td>%s</td>" % payment['initiatedWhere']
+                    msg = msg + "<td>%s</td>" % payment['accountName']
+                    msg = msg + "<td>%s</td>" % payment['maskedNumber']
+                    msg = msg + "<td> </td>"
+                    msg = msg + "</tr>\n"
+
+                    #Reason given for declination
+                    msg = msg + "<tr>"
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td width='%s'> </td>" % indent
+                    msg = msg + "<td>Status:</td>"
+                    msg = msg + "<td colspan=2>%s</td>" % str(payment['britecoreTransactionState'])
+                    msg = msg + "<td>NMA Status:</td>"
+                    msg = msg + "<td colspan=5>%s</td>" % str(payment['authorizationState'])
+                    msg = msg + "</tr>\n"
+
+    msg = msg + "</table>\n"
+
+    return msg
+
+def email_payments_report(payments, enddatetime, startdatetime):
+    ''' Generates a daily payment report to be emailed to a contact
+        @param startdatetime: The date and time farthest in the past
+        @param enddatetime: The date and time closest to now
+    '''
+    from contacts import get_primary_carrier
+
+    LOGGER.info('email_payments_report(%s, %s, %s)' % (payments, enddatetime, startdatetime))
+#     raise UserWarning('email_payments_report(%s, %s, %s)' % (payments, enddatetime, startdatetime))
+    carrier = get_primary_carrier()["display"]["name"]
+    subject = '%s Electronic Payments Report' % (carrier)
+
+    if live_status() == 1:
+        emails = get_admin_alerts_section('payments')
+    else:
+        emails = ['engineering@iws-web.com']
+
+    msg_parts = {}
+    msg = "<strong>{0} ({1} {2}, {3} to {4} {5}, {6})</strong>".format(subject,
+                                startdatetime.strftime("%B"),
+                                startdatetime.strftime("%d"),
+                                startdatetime.strftime("%Y"),
+                                enddatetime.strftime("%B"),
+                                enddatetime.strftime("%d"),
+                                enddatetime.strftime("%Y"))
+    msg = msg + "<br>"
+    msg = msg + format_payments_table_for_report(payments, 'sales')
+    msg = msg + "<br>"
+    msg = msg + format_payments_table_for_report(payments, 'credits')
+    msg = msg + "<br>"
+    msg = msg + format_payments_table_for_report(payments, 'commissions')
+
+    msg_parts['plain'] = msg
+    msg_parts['html'] = msg
+
+    bc_mail(emails, subject, msg_parts)
+
+    LOGGER.info('************ Commissions ************')
+    LOGGER.info('Commissions: Completed: %s, %s' % (len(payments['commissions']['COMPLETED']['list']),
+                                                    payments['commissions']['COMPLETED']['total']))
+    LOGGER.info('Commissions: Declined: %s, %s' % (len(payments['commissions']['DECLINED']['list']),
+                                                   payments['commissions']['DECLINED']['total']))
+    LOGGER.info('Commissions: Other: %s, %s' % (len(payments['commissions']['OTHER']['list']),
+                                                payments['commissions']['OTHER']['total']))
+
+    LOGGER.info('************ Credits ************')
+    LOGGER.info('Credits: Completed: %s, %s' % (len(payments['credits']['COMPLETED']['list']),
+                                                payments['credits']['COMPLETED']['total']))
+    LOGGER.info('Credits: Declined: %s, %s' % (len(payments['credits']['DECLINED']['list']),
+                                               payments['credits']['DECLINED']['total']))
+    LOGGER.info('Credits: Other: %s, %s' % (len(payments['credits']['OTHER']['list']),
+                                            payments['credits']['OTHER']['total']))
+
+    LOGGER.info('************ Sales ************')
+    LOGGER.info('Sales: Completed: %s, %s' % (len(payments['sales']['COMPLETED']['list']),
+                                              payments['sales']['COMPLETED']['total']))
+    LOGGER.info('Sales: Declined: %s, %s' % (len(payments['sales']['DECLINED']['list']),
+                                             payments['sales']['DECLINED']['total']))
+    LOGGER.info('Sales: Other: %s, %s' % (len(payments['sales']['OTHER']['list']),
+                                          payments['sales']['OTHER']['total']))
+
+
+def payments_report_range(procdate=None):
+    """ Retrieve the start and end times for the payments report.
+    Check the cron_jobs table and return the times based on the
+    endtimes of the most recent daycrons.  If no times are passed in, default
+    to the following times:
+        startdatetime: shortly after yesterday's early morning processing (daycron).
+                     If no record can be found of what time the daycron ended,
+                     use 1:30 AM as the endtime
+        enddatetime: shortly after today's early morning processing (daycron).
+                     If no record can be found of what time the daycron ended,
+                     use 1:30 AM as the endtime
+    """
+    LOGGER.info('payments_report_range()')
+    hal = HAL(CONFIG)
+
+    today = procdate if procdate else datetime.now()
+    yesterday = today - timedelta(days=1)
+
+    LOGGER.info("Today: %s, Yesterday: %s" % (today, yesterday))
+
+    enddatetime = datetime(today.year, today.month, today.day, 23, 59, 59)
+
+    try:
+        end_res =  hal.execsql('''SELECT `endTime` FROM `cron_jobs`
+                                       WHERE `job` = 'DAYCRON'
+                                       AND `endTime` <= %s
+                                       ORDER BY `endTime` DESC''', enddatetime, fetchall=False)
+        if end_res.get('endTime'):
+            enddatetime = end_res['endTime']
+    except StandardError:
+        pass
+
+    #If the endtime is before today, then set the startTime to a day prior to the
+    #last completed daycron; otherwise, set startTime to yesterday's default startTime
+    if enddatetime.date() <= yesterday.date():
+        startdatetime = enddatetime - timedelta(days=1)
+
+    else:
+        startdatetime = datetime(yesterday.year, yesterday.month, yesterday.day, 0, 0, 0)
+
+    try:
+        end_res =  hal.execsql('''SELECT `endTime` FROM `cron_jobs`
+                                       WHERE `job` = 'DAYCRON'
+                                       AND `endTime` < %s
+                                       ORDER BY `endTime` DESC''', enddatetime, fetchall=False)
+        if end_res.get('endTime'):
+            startdatetime = end_res['endTime']
+    except StandardError:
+        pass
+
+    LOGGER.info("Start Date Time: %s, End Date Time: %s" % (startdatetime, enddatetime))
+
+    return startdatetime, enddatetime
+
+
+def retrieve_payments_for_report(procdate=None, enddatetime=None, startdatetime=None):
+    """ E-mail a report of all electronic payments submitted to NMA within
+    the passed-in start and end times.  If no times are passed in, default
+    to the following times:
+        startdatetime: shortly after yesterday's early morning processing (daycron).
+                     If no record can be found of what time the daycron ended,
+                     use 1:30 AM as the endtime
+        enddatetime: shortly after today's early morning processing (daycron).
+                     If no record can be found of what time the daycron ended,
+                     use 1:30 AM as the endtime
+    """
+    from reports import retrieve_insured
+
+    hal = HAL(CONFIG)
+
+    # Convert strings to datetime objects
+    if procdate and not isinstance(procdate, datetime):
+        procdate = date_parse(procdate)
+
+    # If both dates are passed, build report for custom date range
+    if enddatetime and startdatetime:
+        if not isinstance(enddatetime, datetime):
+            enddatetime = date_parse(enddatetime)
+        if not isinstance(startdatetime, datetime):
+            startdatetime = date_parse(startdatetime)
+
+    # Calculate report range
+    else:
+        startdatetime, enddatetime = payments_report_range(procdate) if procdate else payments_report_range()
+
+    plist = []
+    payments = hal.execsql('''
+            SELECT * FROM `payments`
+            WHERE `transactionDateTime` >= %s
+            AND `transactionDateTime` < %s
+            AND `vendorResponse` IS NOT NULL
+            ORDER BY `transactionDateTime` DESC''', (startdatetime, enddatetime))
+
+    for payment in payments:
+        payment['policyNumber'] = ''
+        payment['payorName'] = ''
+        payment['insured'] = ''
+        payment['method'] = ''
+        payment['initiatedWhere'] = ''
+        pol_num = hal.execsql('''
+                SELECT `policyNumber`, `policies`.`id` AS polid
+                FROM `policies`
+                LEFT JOIN `accounting_credits`
+                ON `accounting_credits`.`policyId` = `policies`.`id`
+                LEFT JOIN `payments`
+                ON `accounting_credits`.`paymentId` = `payments`.`id`
+                WHERE `payments`.`id` = %s ''', payment['id'], fetchall=False)
+        if pol_num and 'policyNumber' in pol_num:
+            payment['policyNumber'] = pol_num['policyNumber']
+
+        if payment['commissionPayment'] == 0:
+            try:
+                revid = get_revision_id(pol_num['polid'], rev_state='committed')
+                insured = retrieve_insured(revid)
+                payment['insured'] = insured['primaryInsured']['name']
+            except StandardError:
+                pass
+
+        payor = hal.execsql('''SELECT `name` FROM `contacts`
+                                    WHERE `contacts`.`id` = %s ''', payment['payorId'] or '', fetchall=False)
+        if payor.get('name'):
+            payment['payorName'] = payor['name']
+
+        method = hal.get_row(payment['paymentMethodId'], 'payment_methods')
+        payment['method'] = method['method'] if method else payment['accountName']
+
+        # Determine where the payment was initiated
+        if payment['commissionPayment'] == 1:
+            payment['initiatedWhere'] = 'Commissions'
+
+        elif method and method.get('accountDescription') == 'Website Method':
+            payment['initiatedWhere'] = 'Website'
+
+        elif payment.get('committer') == 'system' and payment.get('remoteIP') == '10.10.10.12':
+            payment['initiatedWhere'] = 'Auto Pay'
+
+        elif payment.get('remoteIP') != '10.10.10.12':
+            committer = payment.get('committer')
+
+            if committer == 'system':
+                committer = "IWS Rep"
+            payment['initiatedWhere'] = committer
+
+        else:
+            payment['initiatedWhere'] = 'Electronic'
+
+        plist.append(payment)
+
+    #Sort the payments list into sales, credits, and commissions with payment states and totals
+    sorted_payments = {'sales':{'COMPLETED':{'list':[], 'total':0},
+                                'DECLINED':{'list':[], 'total':0},
+                                'OTHER':{'list':[], 'total':0}},
+                       'credits':{'COMPLETED':{'list':[], 'total':0},
+                                  'DECLINED':{'list':[], 'total':0},
+                                  'OTHER':{'list':[], 'total':0}},
+                       'commissions':{'COMPLETED':{'list':[], 'total':0},
+                                      'DECLINED':{'list':[], 'total':0},
+                                      'OTHER':{'list':[], 'total':0}}}
+
+    for p in plist:
+        if p['commissionPayment'] == 1:
+            if p['authorizationState'] == 'approved':
+                sorted_payments['commissions']['COMPLETED']['list'].append(p)
+                sorted_payments['commissions']['COMPLETED']['total'] = \
+                        sorted_payments['commissions']['COMPLETED']['total'] + p['transactionAmount']
+            elif p['authorizationState'] == 'declined':
+                sorted_payments['commissions']['DECLINED']['list'].append(p)
+                sorted_payments['commissions']['DECLINED']['total'] = \
+                        sorted_payments['commissions']['DECLINED']['total'] + p['transactionAmount']
+            else:
+                sorted_payments['commissions']['OTHER']['list'].append(p)
+                sorted_payments['commissions']['OTHER']['total'] = \
+                        sorted_payments['commissions']['OTHER']['total'] + p['transactionAmount']
+        elif p.get('transactionType') == 'CREDIT':
+            if p['authorizationState'] == 'approved':
+                sorted_payments['credits']['COMPLETED']['list'].append(p)
+                sorted_payments['credits']['COMPLETED']['total'] = \
+                        sorted_payments['credits']['COMPLETED']['total'] + p['transactionAmount']
+            elif p['authorizationState'] == 'declined':
+                sorted_payments['credits']['DECLINED']['list'].append(p)
+                sorted_payments['credits']['DECLINED']['total'] = \
+                        sorted_payments['credits']['DECLINED']['total'] + p['transactionAmount']
+            else:
+                sorted_payments['credits']['OTHER']['list'].append(p)
+                sorted_payments['credits']['OTHER']['total'] = \
+                        sorted_payments['credits']['OTHER']['total'] + p['transactionAmount']
+
+        elif p.get('transactionType') == 'SALE':
+            if p['authorizationState'] == 'approved':
+                sorted_payments['sales']['COMPLETED']['list'].append(p)
+                sorted_payments['sales']['COMPLETED']['total'] = \
+                        sorted_payments['sales']['COMPLETED']['total'] + p['transactionAmount']
+            elif p['authorizationState'] == 'declined':
+                sorted_payments['sales']['DECLINED']['list'].append(p)
+                sorted_payments['sales']['DECLINED']['total'] = \
+                        sorted_payments['sales']['DECLINED']['total'] + p['transactionAmount']
+            else:
+                sorted_payments['sales']['OTHER']['list'].append(p)
+                sorted_payments['sales']['OTHER']['total'] = \
+                        sorted_payments['sales']['OTHER']['total'] + p['transactionAmount']
+
+    return sorted_payments, startdatetime, enddatetime
