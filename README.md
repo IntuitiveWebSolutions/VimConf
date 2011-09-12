@@ -10,7 +10,7 @@ I use [pathogen](https://github.com/tpope/vim-pathogen "pathogen") for automatic
 Bundle list:
 
 * [nerdtree](https://github.com/scrooloose/nerdtree "nerdtree")
-* [pyflakes.vim](https://github.com/kevinw/pyflakes-vim "pyflakes")
+* [pyflakes.vim](https://github.com/kevinw/pyflakes-vim "pyflakes") - Requires [pyflakes](https://github.com/kevinw/pyflakes "pyflakes") Python module.
 * [python.vim--Vasiliev](https://github.com/vim-scripts/python.vim--Vasiliev "python.vim--Vasiliev")
 * [python.vim](https://github.com/vim-scripts/python.vim "python.vim")
 * [simplecommenter](https://github.com/vim-scripts/simplecommenter "simplecommenter")
