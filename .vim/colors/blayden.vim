@@ -121,7 +121,7 @@ elseif &t_Co == 256
     hi SignColumn     ctermbg=233  ctermfg=141   cterm=none
     hi NonText        ctermbg=233  ctermfg=204   cterm=none
     hi Directory      ctermbg=233  ctermfg=227   cterm=none
-    hi Title          ctermbg=233  ctermfg=84    cterm=bold
+    hi Title  __main__.TestFrontendFunctions        ctermbg=233  ctermfg=84    cterm=bold
 
     " -> Cursor
     hi Cursor         ctermbg=227  ctermfg=234   cterm=none
@@ -172,6 +172,7 @@ elseif &t_Co == 256
     hi VisualNOS      ctermbg=0    ctermfg=241   cterm=none
 
     " -> Code
+    hi DictKey        ctermbg=233  ctermfg=215   cterm=none
     hi Comment        ctermbg=233  ctermfg=241   cterm=none
     hi Constant       ctermbg=233  ctermfg=84    cterm=none
     hi String         ctermbg=233  ctermfg=215   cterm=none
