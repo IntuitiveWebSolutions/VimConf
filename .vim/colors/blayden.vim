@@ -121,7 +121,7 @@ elseif &t_Co == 256
     hi SignColumn     ctermbg=233  ctermfg=141   cterm=none
     hi NonText        ctermbg=233  ctermfg=204   cterm=none
     hi Directory      ctermbg=233  ctermfg=227   cterm=none
-    hi Title  __main__.TestFrontendFunctions        ctermbg=233  ctermfg=84    cterm=bold
+    hi Title          ctermbg=233  ctermfg=84    cterm=bold
 
     " -> Cursor
     hi Cursor         ctermbg=227  ctermfg=234   cterm=none
