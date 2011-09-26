@@ -1,0 +1,7 @@
+This is a mirror of http://www.vim.org/scripts/script.php?script_id=1858
+
+Adds support for the mako python template engine to vim.
+
+Mako: http://www.makotemplates.org/
+
+License: three clause BSD
