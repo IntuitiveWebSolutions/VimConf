@@ -83,7 +83,6 @@ if has("gui_running")
     hi VisualNOS      guibg=#000000 guifg=#696567 gui=none
 
     " -> Code
-    hi DictKey        guibg=#1F1F1F guifg=#BBBDFF gui=none
     hi Comment        guibg=#1F1F1F guifg=#696567 gui=none
     hi Constant       guibg=#1F1F1F guifg=#6DF584 gui=none
     hi String         guibg=#1F1F1F guifg=#FFB539 gui=none
@@ -172,7 +171,6 @@ elseif &t_Co == 256
     hi VisualNOS      ctermbg=0    ctermfg=241   cterm=none
 
     " -> Code
-    hi DictKey        ctermbg=233  ctermfg=215   cterm=none
     hi Comment        ctermbg=233  ctermfg=241   cterm=none
     hi Constant       ctermbg=233  ctermfg=84    cterm=none
     hi String         ctermbg=233  ctermfg=215   cterm=none
@@ -183,6 +181,7 @@ elseif &t_Co == 256
     hi MatchParen     ctermbg=214  ctermfg=233   cterm=none
     hi PreProc        ctermbg=233  ctermfg=141   cterm=none
     hi Special        ctermbg=233  ctermfg=227   cterm=none
+    hi Self           ctermbg=233  ctermfg=141   cterm=none
     hi Todo           ctermbg=233  ctermfg=203   cterm=bold
     hi Underlined     ctermbg=233  ctermfg=203   cterm=underline
     hi Statement      ctermbg=233  ctermfg=176   cterm=none
