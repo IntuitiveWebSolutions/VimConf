@@ -16,6 +16,7 @@ Bundle list:
 * [simplecommenter](https://github.com/vim-scripts/simplecommenter "simplecommenter")
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
 * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
+* [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 
 Colors (looks best with a 256 color terminal or gVim):
