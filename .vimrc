@@ -101,7 +101,7 @@
     nnoremap <Leader>p :set paste nonumber<return>
     nnoremap <Leader>np :set nopaste number<return>
     " Mapping Plugin commands
-    nnoremap <Leader>Nt :NERDTree<return>
+    nnoremap <Leader>Nt :NERDTreeToggle<return>
     nnoremap <Leader>Tb :TagbarToggle<return>
     " Map some convenience commands
     nnoremap <Leader>q :wq<return>
