@@ -33,7 +33,7 @@ Custom Keybindings and Commands:
 * **,tc** *Close tab*
 * **,tn** *Next tab*
 * **,tp** *Previous tab*
-* **,tN** *New tab*
+* **,te** *Edit new tab*
 * **,p** *Set paste nonumber for easy copy & pasting in a terminal*
 * **,np** *Set nopaste number to go back normal editing mode*
 * **,Nt** *Toggle NERDTree plugin*
