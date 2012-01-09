@@ -114,9 +114,6 @@
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
     nnoremap <Leader>r :syntax off<return>:syntax on<return>
-    " Prevent cursor from moving back one character on insert mode exit
-    inoremap <silent> <Esc> <Esc>`^
-    inoremap <silent> <C-c> <Esc>`^
     " Write as super user
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace
