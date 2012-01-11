@@ -102,17 +102,20 @@
     nnoremap <Leader>tc :tabc<return>
     nnoremap <Leader>tn :tabn<return>
     nnoremap <Leader>tp :tabp<return>
-    nnoremap <Leader>tN :tabnew 
-    nnoremap <Leader>p :set paste nonumber<return>
-    nnoremap <Leader>np :set nopaste number<return>
+    nnoremap <Leader>te :tabe<space>
     " Mapping Plugin commands
     nnoremap <Leader>Nt :NERDTreeToggle<return>
     nnoremap <Leader>Tb :TagbarToggle<return>
+    " Map Paste / No Number for copying and pasting into Terminal Vim.
+    nnoremap <Leader>p :set paste nonumber<return>
+    nnoremap <Leader>np :set nopaste number<return>
     " Map some convenience commands
     nnoremap <Leader>q :wq<return>
     nnoremap <Leader>s :w<return>
-    nnoremap <Leader>v :vsp 
+    nnoremap <Leader>v :vsp<space>
     nnoremap <Leader>h :noh<return>
+    nnoremap <Leader>O O<Esc>
+    nnoremap <Leader>o o<Esc>
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
     nnoremap <Leader>r :syntax off<return>:syntax on<return>

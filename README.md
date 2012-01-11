@@ -33,7 +33,7 @@ Custom Keybindings and Commands:
 * **,tc** *Close tab*
 * **,tn** *Next tab*
 * **,tp** *Previous tab*
-* **,tN** *New tab*
+* **,te** *Edit new tab*
 * **,p** *Set paste nonumber for easy copy & pasting in a terminal*
 * **,np** *Set nopaste number to go back normal editing mode*
 * **,Nt** *Toggle NERDTree plugin*
@@ -41,9 +41,11 @@ Custom Keybindings and Commands:
 * **,ig** *Toggle IndentGuides plugin*
 * **,q**  *Write & quit file*
 * **,s** *Write file*
-* **,r** *Turn Syntax off/on on a file. A "refresh" of the syntax highlighting.*
+* **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
 * **,v** *Visual split window*
 * **,h** *Turn off highlighting*
+* **,O** *Insert a newline before the current line without entering insert mode*
+* **,o** *Insert a newline after the current line without entering insert mode*
 * **shift + down arrow** *Jump down 10 lines*
 * **shift + up arrow** *Jump up 10 lines*
 * **:W** *Write as super user*
