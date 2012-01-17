@@ -119,7 +119,7 @@
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
     nnoremap <Leader>r :syntax off<return>:syntax on<return>
-    nnoremap <Leader>ft :%s/\t/    /g<return>:retab<return>
+    nnoremap <Leader>ws :Tabs2Spaces<return>:TrimWS<return>:retab<return>
     " Write as super user
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace
