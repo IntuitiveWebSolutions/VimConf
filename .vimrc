@@ -119,6 +119,7 @@
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
     nnoremap <Leader>r :syntax off<return>:syntax on<return>
+    nnoremap <Leader>ft :set softtabstop=4 shiftwidth=4 expandtab | retab<return>
     " Write as super user
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace
