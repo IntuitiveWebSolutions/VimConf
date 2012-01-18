@@ -184,6 +184,9 @@ if !exists("*s:GetQuickFixStackCount")
         try
             silent colder 9
         catch /E380:/
+        "Added to prevent the metric-crap-ton of errors on editing files under
+        "source control.
+        catch /E788:/
         endtry
 
         try
