@@ -20,9 +20,9 @@ if has("gui_running")
 
     " -> Set GUI Font differently depending on OS
     if has("macunix")
-        set guifont=Inconsolata:h16
+        set guifont=Inconsolata:h18
     elseif has("unix")
-        set guifont=Inconsolata\ Medium\ 14
+        set guifont=Inconsolata\ Medium\ 16
     endif
 
     " -> Text; Miscellaneous
