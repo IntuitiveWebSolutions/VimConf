@@ -22,7 +22,7 @@ if has("gui_running")
     if has("macunix")
         set guifont=Inconsolata:h18
     elseif has("unix")
-        set guifont=Inconsolata\ Medium\ 16
+        set guifont=Inconsolata\ Medium\ 14
     endif
 
     " -> Text; Miscellaneous
