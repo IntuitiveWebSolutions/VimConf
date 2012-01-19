@@ -22,3 +22,6 @@
 [submodule ".vim/bundle/php.vim--Garvin"]
 	path = .vim/bundle/php.vim--Garvin
 	url = https://github.com/vim-scripts/php.vim--Garvin.git
+[submodule ".vim/bundle/vim-indent-guides"]
+	path = .vim/bundle/vim-indent-guides
+	url = https://github.com/nathanaelkane/vim-indent-guides.git
