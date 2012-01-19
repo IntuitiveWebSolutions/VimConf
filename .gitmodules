@@ -13,3 +13,6 @@
 [submodule ".vim/bundle/simplecommenter"]
 	path = .vim/bundle/simplecommenter
 	url = https://github.com/vim-scripts/simplecommenter.git
+[submodule ".vim/bundle/python.vim--Vasiliev"]
+	path = .vim/bundle/python.vim--Vasiliev
+	url = https://github.com/vim-scripts/python.vim--Vasiliev.git
