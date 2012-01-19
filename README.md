@@ -19,6 +19,7 @@ Bundle list:
 * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
+* [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
 
 Colors (looks best with a 256 color terminal or gVim):
 
