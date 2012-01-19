@@ -9,6 +9,10 @@ I use [pathogen](https://github.com/tpope/vim-pathogen "pathogen") for automatic
 
 Bundle list:
 
+All of these are loaded as git submodules as of 01/19/2012 so if your repo is older than that you will need to git pull, git submodule init, and git submodule update to use them.
+
+If you haven't checked out the repo yet, be sure and clone it with the --recursive flag and it will grab everything.
+
 * [nerdtree](https://github.com/scrooloose/nerdtree "nerdtree")
 * [php.vim--Garvin](https://github.com/vim-scripts/php.vim--Garvin "php.vim--Garvin")
 * [pyflakes.vim](https://github.com/kevinw/pyflakes-vim "pyflakes") - Requires [pyflakes](https://github.com/kevinw/pyflakes "pyflakes") Python module.
