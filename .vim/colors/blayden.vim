@@ -93,7 +93,6 @@ if has("gui_running")
     hi MatchParen     guibg=#FFA500 guifg=#1F1F1F gui=none
     hi PreProc        guibg=#1F1F1F guifg=#BF81FA gui=none
     hi Special        guibg=#1F1F1F guifg=#FC5200 gui=none
-    hi Self           guibg=#1F1F1F guifg=#FC99C6 gui=none
     hi Todo           guibg=#1F1F1F guifg=#FC4234 gui=bold
     hi Underlined     guibg=#1F1F1F guifg=#FC4234 gui=underline
     hi Statement      guibg=#1F1F1F guifg=#FF0090 gui=none
@@ -181,7 +180,6 @@ elseif &t_Co == 256
     hi MatchParen     ctermbg=214  ctermfg=233   cterm=none
     hi PreProc        ctermbg=233  ctermfg=141   cterm=none
     hi Special        ctermbg=233  ctermfg=227   cterm=none
-    hi Self           ctermbg=233  ctermfg=141   cterm=none
     hi Todo           ctermbg=233  ctermfg=203   cterm=bold
     hi Underlined     ctermbg=233  ctermfg=203   cterm=underline
     hi Statement      ctermbg=233  ctermfg=176   cterm=none
