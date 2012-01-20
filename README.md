@@ -25,6 +25,7 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 * [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
 * [vim-repeat](https://github.com/tpope/vim-repeat.git "vim-repeat")
+* [vim-abolish](https://github.com/tpope/vim-abolish.git "vim-abolish")
 
 Colors (looks best with a 256 color terminal or gVim):
 
