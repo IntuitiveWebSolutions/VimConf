@@ -124,7 +124,8 @@
     nnoremap <Leader>ws :Tabs2Spaces<return>:TrimWS<return>:retab<return>
     " Insert a single character of your choosing and return to the right spot.
     " Usage: [spacebar][character]
-    nmap <Leader><Space> i_<Esc>r
+    nnoremap <Leader><space> :exec "normal i".nr2char(getchar())."\e"<CR>
+    nnoremap <Leader><space> :exec "normal a".nr2char(getchar())."\e"<CR>
     " Write as super user
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace
