@@ -53,6 +53,7 @@ Custom Keybindings and Commands:
 * **,h** *Turn off highlighting*
 * **,O** *Insert a newline before the current line without entering insert mode*
 * **,o** *Insert a newline after the current line without entering insert mode*
+* **,[spacebar] [character]** *Insert a character in place without entering insert mode*
 * **,ws** *Runs both Tabs2Spaces & TrimWS on the current buffer*
 * **shift + down arrow** *Jump down 10 lines*
 * **shift + up arrow** *Jump up 10 lines*

@@ -119,7 +119,12 @@
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
     nnoremap <Leader>r :syntax off<return>:syntax on<return>
+    " Fix all the whitespace in a file. Re-tabs and removes trailing whitespace.
+    " Usage: ,ws
     nnoremap <Leader>ws :Tabs2Spaces<return>:TrimWS<return>:retab<return>
+    " Insert a single character of your choosing and return to the right spot.
+    " Usage: [spacebar][character]
+    nmap <Leader><Space> i_<Esc>r
     " Write as super user
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace
