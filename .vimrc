@@ -104,8 +104,8 @@
     nnoremap <Leader>tp :tabp<return>
     nnoremap <Leader>te :tabe<space>
     " Mapping Plugin commands
-    nnoremap <Leader>Nt :NERDTreeToggle<return>
-    nnoremap <Leader>Tb :TagbarToggle<return>
+    nnoremap <Leader>nt :NERDTreeToggle<return>
+    nnoremap <Leader>tb :TagbarToggle<return>
     " Map Paste / No Number for copying and pasting into Terminal Vim.
     nnoremap <Leader>p :set paste nonumber<return>
     nnoremap <Leader>np :set nopaste number<return>
