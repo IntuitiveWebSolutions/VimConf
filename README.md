@@ -24,8 +24,8 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 * [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
-* [vim-repeat](https://github.com/tpope/vim-repeat.git "vim-repeat")
-* [vim-abolish](https://github.com/tpope/vim-abolish.git "vim-abolish")
+* [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
+* [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
 
 Colors (looks best with a 256 color terminal or gVim):
 
