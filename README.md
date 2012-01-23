@@ -44,8 +44,8 @@ Custom Keybindings and Commands:
 * **,te** *Edit new tab*
 * **,p** *Set paste nonumber for easy copy & pasting in a terminal*
 * **,np** *Set nopaste number to go back normal editing mode*
-* **,Nt** *Toggle NERDTree plugin*
-* **,Tb** *Toggle Tagbar plugin*
+* **,nt** *Toggle NERDTree plugin*
+* **,tb** *Toggle Tagbar plugin*
 * **,ig** *Toggle IndentGuides plugin*
 * **,q**  *Write & quit file*
 * **,s** *Write file*
