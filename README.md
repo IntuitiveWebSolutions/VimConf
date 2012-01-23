@@ -7,9 +7,39 @@ The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfo
 
 I use [pathogen](https://github.com/tpope/vim-pathogen "pathogen") for automatically adding the below bundles to the Vim runtimepath. To generate the documentation tags for each plugin, run :Helptags.
 
-Bundle list:
+Setup
+-----
 
-All of these are loaded as git submodules as of 01/19/2012 so if your repo is older than that you will need to git pull, git submodule init, and git submodule update to use them.
+Check out VimConf to your home folder like so:
+
+> cd ~
+
+> git clone --recursive git://github.com/beardedprojamz/VimConf.git
+
+Then create symlinks to the files inside the repo:
+
+> ln -s ~/VimConf/.vim ~/.vim
+
+> ln -s ~/VimConf/.vimrc ~/.vimrc
+
+> ln -s ~/VimConf/.gvimrc ~/.gvimrc
+
+That way, any time you want to update to the latest versions of the VimConf, you can just "git pull" inside the VimConf folder.
+
+> cd ~/VimConf/
+
+> git pull
+
+Bundle List
+-----------
+
+All of these are loaded as git submodules as of 01/19/2012 so if your repo is older than that you will need to go into your checkout and do the below commands for things to work:
+
+> git pull
+
+> git submodule init
+
+> git submodule update
 
 If you haven't checked out the repo yet, be sure and clone it with the --recursive flag and it will grab everything.
 
@@ -27,13 +57,15 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
 * [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
 
-Colors (looks best with a 256 color terminal or gVim):
+Colors (looks best with a 256 color terminal or gVim)
+-----------------------------------------------------
 
 * blayden (Default scheme - inspired by herald and molokai schemes)
 * [herald](https://github.com/vim-scripts/herald.vim "herald")
 * [molokai](https://github.com/vim-scripts/molokai "molokai")
 
-Custom Keybindings and Commands:
+Custom Keybindings and Commands
+-------------------------------
 
 * **,,** *Toggle single line comment*
 * **,c** *Comment line*
