@@ -57,10 +57,10 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
 * [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
 
-Color Scheme (built for a 256 color terminal or gVim, but will work with less colors.)
---------------------------------------------------------------------------------------
+Color Scheme
+------------
 
-**blayden** - inspired by [herald](https://github.com/vim-scripts/herald "herald") and [molokai](https://github.com/vim-scripts/molokai "molokai") color schemes.
+**blayden** - inspired by [herald](https://github.com/vim-scripts/herald "herald") and [molokai](https://github.com/vim-scripts/molokai "molokai") color schemes. The scheme is built for a 256 color terminal or gVim, but will work with less colors.
 
 Custom Keybindings and Commands
 -------------------------------
