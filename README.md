@@ -78,7 +78,8 @@ Custom Keybindings and Commands
 * **,tb** *Toggle Tagbar plugin*
 * **,ig** *Toggle IndentGuides plugin*
 * **,q**  *Write & quit file*
-* **,s** *Write file* * **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
+* **,s** *Write file*
+* **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
 * **,v** *Visual split window*
 * **,h** *Turn off highlighting*
 * **,O** *Insert a newline before the current line without entering insert mode*
