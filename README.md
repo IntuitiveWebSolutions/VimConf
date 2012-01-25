@@ -57,12 +57,10 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
 * [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
 
-Colors (looks best with a 256 color terminal or gVim)
------------------------------------------------------
+Color Scheme (built for a 256 color terminal or gVim, but will work with less colors.)
+--------------------------------------------------------------------------------------
 
-* blayden (Default scheme - inspired by herald and molokai schemes)
-* [herald](https://github.com/vim-scripts/herald.vim "herald")
-* [molokai](https://github.com/vim-scripts/molokai "molokai")
+**blayden** - inspired by [herald](https://github.com/vim-scripts/herald "herald") and [molokai](https://github.com/vim-scripts/molokai "molokai") color schemes.
 
 Custom Keybindings and Commands
 -------------------------------
@@ -80,8 +78,7 @@ Custom Keybindings and Commands
 * **,tb** *Toggle Tagbar plugin*
 * **,ig** *Toggle IndentGuides plugin*
 * **,q**  *Write & quit file*
-* **,s** *Write file*
-* **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
+* **,s** *Write file* * **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
 * **,v** *Visual split window*
 * **,h** *Turn off highlighting*
 * **,O** *Insert a newline before the current line without entering insert mode*
