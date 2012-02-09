@@ -112,7 +112,6 @@
     nnoremap <Leader>np :set nopaste number<return>
     " Map some convenience commands
     nnoremap <Leader>q :wq<return>
-    nnoremap <Leader>sc :SyntasticCheck<return>
     nnoremap <Leader>v :vsp<space>
     nnoremap <Leader>h :noh<return>
     nnoremap <Leader>O O<Esc>

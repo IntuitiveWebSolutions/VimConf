@@ -78,7 +78,6 @@ Custom Keybindings and Commands
 * **,tb** *Toggle Tagbar plugin*
 * **,ig** *Toggle IndentGuides plugin*
 * **,q**  *Write & quit file*
-* **,sc** *Run Syntax Check*
 * **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
 * **,v** *Visual split window*
 * **,h** *Turn off highlighting*
