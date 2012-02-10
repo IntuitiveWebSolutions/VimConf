@@ -78,6 +78,9 @@ Custom Keybindings and Commands
 * **,nt** *Toggle NERDTree plugin*
 * **,tb** *Toggle Tagbar plugin*
 * **,ig** *Toggle IndentGuides plugin*
+* **,e**  *Find all errors / problems within a file (Runs pyflakes on python files).*
+* **,en** *Go to next error.*
+* **,ep** *Go to previous error.*
 * **,q**  *Write & quit file*
 * **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
 * **,v** *Visual split window*

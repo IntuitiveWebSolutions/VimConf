@@ -114,6 +114,9 @@
     nnoremap <Leader>q :wq<return>
     nnoremap <Leader>v :vsp<space>
     nnoremap <Leader>h :noh<return>
+    nnoremap <Leader>e :cc<return>
+    nnoremap <Leader>en :cn<return>
+    nnoremap <Leader>ep :cp<return>
     nnoremap <Leader>O O<Esc>
     nnoremap <Leader>o o<Esc>
     nnoremap <S-Down> 10j
