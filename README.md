@@ -78,7 +78,7 @@ Custom Keybindings and Commands
 * **,tb** *Toggle Tagbar plugin*
 * **,ig** *Toggle IndentGuides plugin*
 * **,p** *Set paste nonumber for easy copy & pasting in a terminal*
-* * **,np** *Set nopaste number to go back normal editing mode*
+* **,np** *Set nopaste number to go back normal editing mode*
 * **,e**  *Find all errors / problems within a file (Runs pyflakes on python files).*
 * **,en** *Go to next error.*
 * **,ep** *Go to previous error.*
