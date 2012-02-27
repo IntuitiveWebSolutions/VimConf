@@ -73,8 +73,7 @@ Custom Keybindings and Commands
 * **,tn** *Next tab*
 * **,tp** *Previous tab*
 * **,te** *Edit new tab*
-* **,p** *Set paste nonumber for easy copy & pasting in a terminal*
-* **,np** *Set nopaste number to go back normal editing mode*
+* **,ln** *Toggle Line Numbers*
 * **,nt** *Toggle NERDTree plugin*
 * **,tb** *Toggle Tagbar plugin*
 * **,ig** *Toggle IndentGuides plugin*
@@ -89,8 +88,14 @@ Custom Keybindings and Commands
 * **,o** *Insert a newline after the current line without entering insert mode*
 * **,[spacebar] [character]** *Insert a character in place without entering insert mode*
 * **,ws** *Runs both Tabs2Spaces & TrimWS on the current buffer*
-* **shift + down arrow** *Jump down 10 lines*
-* **shift + up arrow** *Jump up 10 lines*
 * **:W** *Write as super user*
 * **:Tabs2Spaces** *Convert tab characters to 4 space characters*
 * **:TrimWS** *Trim trailing whitespace*
+* **shift + down arrow** *Jump down 10 lines*
+* **shift + up arrow** *Jump up 10 lines*
+* **control + h** *Switch to left window*
+* **control + j** *Switch to bottom window*
+* **control + k** *Switch to top window*
+* **control + l** *Switch to right window*
+* **<F8>** *Paste toggle - use for pasting into terminal vim without formatting.*
+* **visual mode selection + #** *Visual Selection Search*
