@@ -18,9 +18,8 @@
     set backupdir=~/.vim/backup " where to put backup files
     set directory=~/.vim/tmp " directory to place swap files in
     set fileformats=unix,mac,dos " support all three, in this order
+    set pastetoggle=<F8> "enable paste toggle and map it to F8
     set hidden " you can change buffers without saving
-    " (XXX: #VIM/tpope warns the line below could break things)
-    set iskeyword+=_,$,@,%,# " none of these are word dividers
     if has("mouse")
         set mouse=a " use mouse everywhere
     endif
@@ -107,10 +106,8 @@
     " Mapping Plugin commands
     nnoremap <Leader>nt :NERDTreeToggle<return>
     nnoremap <Leader>tb :TagbarToggle<return>
-    " Map Paste / No Number for copying and pasting into Terminal Vim.
-    nnoremap <Leader>p :set paste nonumber<return>
-    nnoremap <Leader>np :set nopaste number<return>
     " Map some convenience commands
+    nnoremap <Leader>ln :set number! number?<return>
     nnoremap <Leader>q :wq<return>
     nnoremap <Leader>v :vsp<space>
     nnoremap <Leader>h :noh<return>
@@ -121,6 +118,10 @@
     nnoremap <Leader>o o<Esc>
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
+    nnoremap <C-h> <C-w>h
+    nnoremap <C-j> <C-w>j
+    nnoremap <C-k> <C-w>k
+    nnoremap <C-l> <C-w>l
     nnoremap <Leader>r :syntax off<return>:syntax on<return>
     " Fix all the whitespace in a file. Re-tabs and removes trailing whitespace.
     " Usage: ,ws
