@@ -97,5 +97,6 @@ Custom Keybindings and Commands
 * **control + j** *Switch to bottom window*
 * **control + k** *Switch to top window*
 * **control + l** *Switch to right window*
-* **<F8>** *Paste toggle - use for pasting into terminal vim without formatting.*
-* **visual mode selection + #** *Visual Selection Search*
+* **\<F8\>** *Paste toggle - use for pasting into terminal vim without formatting.*
+* **visual mode selection + \*** *Visual Selection Search with //*
+* **visual mode selection + #** *Visual Selection Search with ??*
