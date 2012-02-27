@@ -77,9 +77,12 @@ Custom Keybindings and Commands
 * **,nt** *Toggle NERDTree plugin*
 * **,tb** *Toggle Tagbar plugin*
 * **,ig** *Toggle IndentGuides plugin*
+* **,p** *Set paste nonumber for easy copy & pasting in a terminal*
+* * **,np** *Set nopaste number to go back normal editing mode*
 * **,e**  *Find all errors / problems within a file (Runs pyflakes on python files).*
 * **,en** *Go to next error.*
 * **,ep** *Go to previous error.*
+* **,s**  *Write file*
 * **,q**  *Write & quit file*
 * **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
 * **,v** *Visual split window*
@@ -97,6 +100,5 @@ Custom Keybindings and Commands
 * **control + j** *Switch to bottom window*
 * **control + k** *Switch to top window*
 * **control + l** *Switch to right window*
-* **\<F8\>** *Paste toggle - use for pasting into terminal vim without formatting.*
 * **visual mode selection + \*** *Visual Selection Search with //*
 * **visual mode selection + #** *Visual Selection Search with ??*

@@ -18,7 +18,6 @@
     set backupdir=~/.vim/backup " where to put backup files
     set directory=~/.vim/tmp " directory to place swap files in
     set fileformats=unix,mac,dos " support all three, in this order
-    set pastetoggle=<F8> "enable paste toggle and map it to F8
     set hidden " you can change buffers without saving
     if has("mouse")
         set mouse=a " use mouse everywhere
@@ -87,6 +86,7 @@
     set nowrap " do not wrap line
     set shiftround " when at 3 spaces, and I hit > ... go to 4, not 5
     set smartcase " if there are caps, go case-sensitive
+    set smartindent " do smart indenting when starting a new line
     set shiftwidth=4 " auto-indent amount when using cindent,
                       " >>, << and stuff like that
     set softtabstop=4 " when hitting tab or backspace, how many spaces
@@ -106,8 +106,11 @@
     " Mapping Plugin commands
     nnoremap <Leader>nt :NERDTreeToggle<return>
     nnoremap <Leader>tb :TagbarToggle<return>
+    " Map Paste / No Number for copying and pasting into Terminal Vim.
+    nnoremap <Leader>p :set paste nonumber<return>
+    nnoremap <Leader>np :set nopaste number<return>
     " Map some convenience commands
-    nnoremap <Leader>ln :set number! number?<return>
+    nnoremap <Leader>s :w<return>
     nnoremap <Leader>q :wq<return>
     nnoremap <Leader>v :vsp<space>
     nnoremap <Leader>h :noh<return>
