@@ -147,4 +147,7 @@
     endfunction
     vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR>
     vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR>
+    " Plugin Boolean settings for Programming Languages
+    let coffee_compile_vert=1 " When compiling CoffeeScript, throw output into vertical split
+    let python_highlight_all=1 " Highlight all Python syntax
 " }

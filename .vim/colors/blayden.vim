@@ -12,7 +12,6 @@ if exists("syntax_on")
 endif
 
 let colors_name = "blayden" " Name of the scheme
-let python_highlight_all=1 " Highlight all Python syntax
 
 set t_Co=256 " Enable 256 colors in vim
 
