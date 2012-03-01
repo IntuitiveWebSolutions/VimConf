@@ -22,7 +22,11 @@ Then create symlinks to the files inside the repo:
 
 > ln -s ~/VimConf/.vimrc ~/.vimrc
 
+> ln -s ~/VimConf/.vimrc ~/.vimrc_custom
+
 > ln -s ~/VimConf/.gvimrc ~/.gvimrc
+
+> ln -s ~/VimConf/.gvimrc ~/.ctags
 
 That way, any time you want to update to the latest versions of the VimConf, you can just "git pull" inside the VimConf folder.
 

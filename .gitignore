@@ -1,4 +1,4 @@
 .vim/backup/*~
-.vim/tmp/*.swp
+.vim/tmp/*
 .vim/undo/%*
 .vim/.netrwhist
