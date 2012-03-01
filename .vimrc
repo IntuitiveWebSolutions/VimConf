@@ -154,4 +154,4 @@
 
 " Include custom configurations via the .vimrc_custom file
 " which is included here:
-source .vimrc_custom
+source $HOME/.vimrc_custom
