@@ -3,43 +3,43 @@
 	url = git://github.com/tpope/vim-surround.git
 [submodule ".vim/bundle/pyflakes-vim"]
 	path = .vim/bundle/pyflakes-vim
-	url = https://github.com/kevinw/pyflakes-vim.git
+	url = git://github.com/kevinw/pyflakes-vim.git
 [submodule ".vim/bundle/nerdtree"]
 	path = .vim/bundle/nerdtree
-	url = https://github.com/scrooloose/nerdtree.git
+	url = git://github.com/scrooloose/nerdtree.git
 [submodule ".vim/bundle/tagbar"]
 	path = .vim/bundle/tagbar
-	url = https://github.com/majutsushi/tagbar.git
+	url = git://github.com/majutsushi/tagbar.git
 [submodule ".vim/bundle/simplecommenter"]
 	path = .vim/bundle/simplecommenter
-	url = https://github.com/vim-scripts/simplecommenter.git
+	url = git://github.com/vim-scripts/simplecommenter.git
 [submodule ".vim/bundle/python.vim--Vasiliev"]
 	path = .vim/bundle/python.vim--Vasiliev
-	url = https://github.com/vim-scripts/python.vim--Vasiliev.git
+	url = git://github.com/vim-scripts/python.vim--Vasiliev.git
 [submodule ".vim/bundle/python.vim"]
 	path = .vim/bundle/python.vim
-	url = https://github.com/vim-scripts/python.vim.git
+	url = git://github.com/vim-scripts/python.vim.git
 [submodule ".vim/bundle/php.vim--Garvin"]
 	path = .vim/bundle/php.vim--Garvin
-	url = https://github.com/vim-scripts/php.vim--Garvin.git
-[submodule ".vim/bundle/vim-indent-guides"]
-	path = .vim/bundle/vim-indent-guides
-	url = https://github.com/nathanaelkane/vim-indent-guides.git
+	url = git://github.com/vim-scripts/php.vim--Garvin.git
 [submodule ".vim/bundle/vim-coffee-script"]
 	path = .vim/bundle/vim-coffee-script
-	url = https://github.com/kchmck/vim-coffee-script.git
+	url = git://github.com/kchmck/vim-coffee-script.git
 [submodule ".vim/bundle/vim-javascript"]
 	path = .vim/bundle/vim-javascript
-	url = https://github.com/pangloss/vim-javascript.git
+	url = git://github.com/pangloss/vim-javascript.git
 [submodule ".vim/bundle/vim-repeat"]
 	path = .vim/bundle/vim-repeat
-	url = https://github.com/tpope/vim-repeat.git
+	url = git://github.com/tpope/vim-repeat.git
 [submodule ".vim/bundle/vim-abolish"]
 	path = .vim/bundle/vim-abolish
-	url = https://github.com/tpope/vim-abolish.git
+	url = git://github.com/tpope/vim-abolish.git
 [submodule ".vim/bundle/vim-pathogen"]
 	path = .vim/bundle/vim-pathogen
-	url = https://github.com/tpope/vim-pathogen.git
+	url = git://github.com/tpope/vim-pathogen.git
 [submodule ".vim/bundle/syntastic"]
 	path = .vim/bundle/syntastic
-	url = https://github.com/scrooloose/syntastic.git
+	url = git://github.com/scrooloose/syntastic.git
+[submodule ".vim/bundle/vim-indent-guides"]
+	path = .vim/bundle/vim-indent-guides
+	url = git://github.com/nathanaelkane/vim-indent-guides.git
