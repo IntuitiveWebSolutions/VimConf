@@ -55,6 +55,7 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [simplecommenter](https://github.com/vim-scripts/simplecommenter "simplecommenter")
 * [syntastic](https://github.com/scrooloose/syntastic "syntastic")
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
+* [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 * [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
@@ -79,6 +80,7 @@ Custom Keybindings and Commands
 * **,ln** *Toggle Line Numbers*
 * **,nt** *Toggle NERDTree plugin*
 * **,tb** *Toggle Tagbar plugin*
+* **,ig** *Toggle IndentGuides plugin*
 * **,p** *Set paste nonumber for easy copy & pasting in a terminal*
 * **,np** *Set nopaste number to go back normal editing mode*
 * **,e**  *Find all errors / problems within a file (Runs pyflakes on python files).*
