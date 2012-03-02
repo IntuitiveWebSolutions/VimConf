@@ -3,9 +3,11 @@ VimConf
 
 A vimrc file and different bundles. This vim setup requires at least Vim 7.3 compiled with python (for pyflakes) & multibyte (for tagbar) support.
 
-The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfonts/inconsolata.html "Inconsolata"); I've included the OpenType file in this repo.
+The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfonts/inconsolata.html "Inconsolata"); the OpenType file is included in this repo.
 
-I use [pathogen](https://github.com/tpope/vim-pathogen "pathogen") for automatically adding the below bundles to the Vim runtimepath. To generate the documentation tags for each plugin, run **:Helptags**.
+The config uses [pathogen](https://github.com/tpope/vim-pathogen "pathogen") for automatically adding the below bundles to the Vim runtimepath.
+
+To generate the documentation tags for each plugin, run **:Helptags**.
 
 For Tagbar to work well with JavaScript (and probably other languages), we **highly** recommend installing the latest version of [Exuberant Ctags](http://ctags.sourceforge.net/ "Exuberant Ctags").
 
@@ -29,7 +31,7 @@ Then create symlinks to the files inside the repo:
 
 > ln -s ~/VimConf/.gvimrc ~/.gvimrc
 
-That way, any time you want to update to the latest versions of the VimConf, you can just "git pull" inside the VimConf folder.
+That way, any time you want to update to the latest versions of the VimConf, you can just **git pull** inside the VimConf folder.
 
 > cd ~/VimConf/
 
