@@ -7,6 +7,9 @@ The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfo
 
 I use [pathogen](https://github.com/tpope/vim-pathogen "pathogen") for automatically adding the below bundles to the Vim runtimepath. To generate the documentation tags for each plugin, run :Helptags.
 
+For Tagbar to work well with JavaScript (and probably other languages), we **highly** recommend installing the latest version of [Exuberant Ctags](http://ctags.sourceforge.net/ "Exuberant Ctags").
+
+
 Setup
 -----
 
@@ -25,8 +28,6 @@ Then create symlinks to the files inside the repo:
 > ln -s ~/VimConf/.vimrc ~/.vimrc_custom
 
 > ln -s ~/VimConf/.gvimrc ~/.gvimrc
-
-> ln -s ~/VimConf/.gvimrc ~/.ctags
 
 That way, any time you want to update to the latest versions of the VimConf, you can just "git pull" inside the VimConf folder.
 
