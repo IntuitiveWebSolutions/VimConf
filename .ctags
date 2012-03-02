@@ -1,15 +1,15 @@
---langdef=js
---langmap=js:.js
+--langdef=VCJavaScript
+--langmap=VCJavaScript:.js
 
---regex-JavaScript=/^[var \t]*([A-Z]+[A-Za-z0-9._$]*)[ \t]*[:=][ \t]*\{/\1/c,class/
---regex-JavaScript=/([A-Za-z0-9._$()]+)[ \t]*[:=][ \t]*function[ \t]*\(.*\)[ \t]*\{/\1/m,method/
+--regex-VCJavaScript=/^[var \t]*([A-Z]+[A-Za-z0-9._$]*)[ \t]*[:=][ \t]*\{/\1/c,class/
+--regex-VCJavaScript=/([A-Za-z0-9._$()]+)[ \t]*[:=][ \t]*function[ \t]*\(.*\)[ \t]*\{/\1/m,method/
 
---regex-JavaScript=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*new Class\(\{/\1/c,class/
---regex-JavaScript=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*new[ \t]+Object\(/\1/o,object/
---regex-JavaScript=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*\{/\1/o,object/
---regex-JavaScript=/([A-Za-z0-9._$()]+)[ \t]*[:=][ \t]*function[ \t]*\(/\1/f,function/
---regex-JavaScript=/function[ \t]+([A-Za-z0-9._$]+)[ \t]*\([^\]\)]*\)/\1/f,function/
---regex-JavaScript=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*new[ \t]+Array\(/\1/a,array/
---regex-JavaScript=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*\[/\1/a,array/
---regex-JavaScript=/([^= ]+)[ \t]*=[ \t]*[^""]'[^'']*/\1/s,string/
---regex-JavaScript=/([^= ]+)[ \t]*=[ \t]*[^'']"[^""]*/\1/s,string/
+--regex-VCJavaScript=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*new Class\(\{/\1/c,class/
+--regex-VCJavaScript=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*new[ \t]+Object\(/\1/o,object/
+--regex-VCJavaScript=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*\{/\1/o,object/
+--regex-VCJavaScript=/([A-Za-z0-9._$()]+)[ \t]*[:=][ \t]*function[ \t]*\(/\1/f,function/
+--regex-VCJavaScript=/function[ \t]+([A-Za-z0-9._$]+)[ \t]*\([^\]\)]*\)/\1/f,function/
+--regex-VCJavaScript=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*new[ \t]+Array\(/\1/a,array/
+--regex-VCJavaScript=/([A-Za-z0-9._$]+)[ \t]*[:=][ \t]*\[/\1/a,array/
+--regex-VCJavaScript=/([^= ]+)[ \t]*=[ \t]*[^""]'[^'']*/\1/s,string/
+--regex-VCJavaScript=/([^= ]+)[ \t]*=[ \t]*[^'']"[^""]*/\1/s,string/
