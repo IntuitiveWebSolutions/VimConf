@@ -150,6 +150,7 @@
     " Plugin Boolean settings for Programming Languages
     let coffee_compile_vert=1 " When compiling CoffeeScript, throw output into vertical split
     let python_highlight_all=1 " Highlight all Python syntax
+    let g:syntastic_check_on_open=1 " Run Syntastic when opening files
 " }
 
 " Include custom configurations via the .vimrc_custom file
