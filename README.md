@@ -83,12 +83,10 @@ Custom Keybindings and Commands
 * **,ln** *Toggle Line Numbers*
 * **,nt** *Toggle NERDTree plugin*
 * **,tb** *Toggle Tagbar plugin*
+* **,e**  *Open Syntastic Error Location List*
 * **,ig** *Toggle IndentGuides plugin*
 * **,p** *Set paste nonumber for easy copy & pasting in a terminal*
 * **,np** *Set nopaste number to go back normal editing mode*
-* **,e**  *Find all errors / problems within a file (Runs pyflakes, jshint, etc.).*
-* **,en** *Go to next error.*
-* **,ep** *Go to previous error.*
 * **,s**  *Write file*
 * **,q**  *Write & quit file*
 * **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
