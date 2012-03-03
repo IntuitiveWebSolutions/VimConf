@@ -1,7 +1,7 @@
 VimConf
 =======
 
-A vimrc file and different bundles. This vim setup requires at least Vim 7.3 compiled with python (for pyflakes) & multibyte (for tagbar) support.
+A vimrc file and different bundles. This vim setup requires at least Vim 7.3 compiled with python & multibyte support.
 
 The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfonts/inconsolata.html "Inconsolata"); the OpenType file is included in this repo.
 
@@ -11,6 +11,7 @@ To generate the documentation tags for each plugin, run **:Helptags**.
 
 For Tagbar to work well with JavaScript (and probably other languages), we **highly** recommend installing the latest version of [Exuberant Ctags](http://ctags.sourceforge.net/ "Exuberant Ctags").
 
+For Syntastic to check syntax of different file types, you optionally need to have a PHP runtime, JSHint, and/or PyFlakes installed.
 
 Setup
 -----
@@ -52,7 +53,6 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 
 * [nerdtree](https://github.com/scrooloose/nerdtree "nerdtree")
 * [php.vim--Garvin](https://github.com/vim-scripts/php.vim--Garvin "php.vim--Garvin")
-* [pyflakes.vim](https://github.com/kevinw/pyflakes-vim "pyflakes")
 * [python.vim--Vasiliev](https://github.com/vim-scripts/python.vim--Vasiliev "python.vim--Vasiliev")
 * [python.vim](https://github.com/vim-scripts/python.vim "python.vim")
 * [simplecommenter](https://github.com/vim-scripts/simplecommenter "simplecommenter")
@@ -86,7 +86,7 @@ Custom Keybindings and Commands
 * **,ig** *Toggle IndentGuides plugin*
 * **,p** *Set paste nonumber for easy copy & pasting in a terminal*
 * **,np** *Set nopaste number to go back normal editing mode*
-* **,e**  *Find all errors / problems within a file (Runs pyflakes on python files).*
+* **,e**  *Find all errors / problems within a file (Runs pyflakes, jshint, etc.).*
 * **,en** *Go to next error.*
 * **,ep** *Go to previous error.*
 * **,s**  *Write file*
