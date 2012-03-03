@@ -75,10 +75,9 @@
     set showcmd " show the command being typed
     set showmatch " show matching brackets
     set sidescrolloff=10 " Keep 5 lines at the size
-    " jamessan's status line
     set statusline=   " clear the statusline for when vimrc is reloaded
     set statusline+=%-3.3n\                      " buffer number
-    set statusline+=%<%.99f\                     " file name
+    set statusline+=%<%.99f\                     " file name up to 99 chars
     set statusline+=%h%m%r%w                     " flags
     set statusline+=[%{strlen(&ft)?&ft:'none'},  " filetype
     set statusline+=%{strlen(&fenc)?&fenc:&enc}, " encoding
@@ -86,8 +85,7 @@
     set statusline+=%=                           " right align
     set statusline+=%b,0x%-8B\                   " current char
     set statusline+=%-14.(%l,%c%V%)\ %<%P        " offset
-    " Add syntastic status line
-    set statusline+=%#todo#%{SyntasticStatuslineFlag()}
+    set statusline+=%#todo#%{SyntasticStatuslineFlag()} " Add syntastic status line
 " }
 
 " Text Formatting/Layout {
