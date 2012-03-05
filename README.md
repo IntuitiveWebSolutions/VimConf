@@ -84,6 +84,8 @@ Custom Keybindings and Commands
 * **,nt** *Toggle NERDTree plugin*
 * **,tb** *Toggle Tagbar plugin*
 * **,e**  *Open Syntastic Error Location List*
+* **,en** *Go to next error.*
+* **,ep** *Go to previous error.*
 * **,ig** *Toggle IndentGuides plugin*
 * **,p** *Set paste nonumber for easy copy & pasting in a terminal*
 * **,np** *Set nopaste number to go back normal editing mode*

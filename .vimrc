@@ -85,7 +85,7 @@
     set statusline+=%=                           " right align
     set statusline+=%b,0x%-8B\                   " current char
     set statusline+=%-14.(%l,%c%V%)\ %<%P        " offset
-    set statusline+=%#todo#%{SyntasticStatuslineFlag()} " Add syntastic status line
+    set statusline+=%#syntodo#%{SyntasticStatuslineFlag()} " Add syntastic status line
 " }
 
 " Text Formatting/Layout {
@@ -117,6 +117,8 @@
     nnoremap <Leader>nt :NERDTreeToggle<return>
     nnoremap <Leader>tb :TagbarToggle<return>
     nnoremap <Leader>e :Errors<return>
+    nnoremap <Leader>en :lnext<return>
+    nnoremap <Leader>ep :lprev<return>
     " Map Paste / No Number for copying and pasting into Terminal Vim.
     nnoremap <Leader>p :set paste nonumber<return>
     nnoremap <Leader>np :set nopaste number<return>

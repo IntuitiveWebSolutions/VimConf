@@ -93,6 +93,7 @@ if has("gui_running")
     hi PreProc        guibg=#1F1F1F guifg=#BF81FA gui=none
     hi Special        guibg=#1F1F1F guifg=#FC5200 gui=none
     hi Todo           guibg=#1F1F1F guifg=#FC4234 gui=bold
+    hi SynTodo        guibg=#000000 guifg=#FC4234 gui=bold
     hi Underlined     guibg=#1F1F1F guifg=#FC4234 gui=underline
     hi Statement      guibg=#1F1F1F guifg=#FF0090 gui=none
     hi Operator       guibg=#1F1F1F guifg=#6EFC69 gui=none
@@ -180,6 +181,7 @@ elseif &t_Co == 256
     hi PreProc        ctermbg=233  ctermfg=141   cterm=none
     hi Special        ctermbg=233  ctermfg=227   cterm=none
     hi Todo           ctermbg=233  ctermfg=203   cterm=bold
+    hi SynTodo        ctermbg=0    ctermfg=203   cterm=bold
     hi Underlined     ctermbg=233  ctermfg=203   cterm=underline
     hi Statement      ctermbg=233  ctermfg=176   cterm=none
     hi Operator       ctermbg=233  ctermfg=204   cterm=none
@@ -268,6 +270,7 @@ elseif &t_Co == 16
     hi PreProc        ctermbg=8  ctermfg=5  cterm=none
     hi Special        ctermbg=8  ctermfg=14 cterm=none
     hi Todo           ctermbg=8  ctermfg=12 cterm=bold
+    hi SynTodo        ctermbg=0  ctermfg=12 cterm=bold
     hi Underlined     ctermbg=8  ctermfg=12 cterm=underline
     hi Statement      ctermbg=8  ctermfg=13 cterm=none
     hi Operator       ctermbg=8  ctermfg=4  cterm=none
@@ -356,6 +359,7 @@ elseif &t_Co == 8
     hi PreProc        ctermbg=8  ctermfg=5  cterm=none
     hi Special        ctermbg=8  ctermfg=6 cterm=none
     hi Todo           ctermbg=8  ctermfg=4 cterm=bold
+    hi SynTodo        ctermbg=0  ctermfg=4 cterm=bold
     hi Underlined     ctermbg=8  ctermfg=4 cterm=underline
     hi Statement      ctermbg=8  ctermfg=5 cterm=none
     hi Operator       ctermbg=8  ctermfg=4  cterm=none
