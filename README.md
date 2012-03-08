@@ -90,6 +90,8 @@ Custom Keybindings and Commands
 * **,p** *Set paste nonumber for easy copy & pasting in a terminal*
 * **,np** *Set nopaste number to go back normal editing mode*
 * **,s**  *Write file*
+* **,sp**  *Turn on Spell checking for EN_US*
+* **,nsp**  *Turn off Spell checking for EN_US*
 * **,q**  *Write & quit file*
 * **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
 * **,v** *Visual split window*
