@@ -122,6 +122,9 @@
     " Map Paste / No Number for copying and pasting into Terminal Vim.
     nnoremap <Leader>p :set paste nonumber<return>
     nnoremap <Leader>np :set nopaste number<return>
+    " Spell Checking
+    nnoremap <Leader>sp :setlocal spell spelllang=en_us<return>
+    nnoremap <Leader>nsp :setlocal spell spelllang=<return>
     " Map some convenience commands
     nnoremap <Leader>s :w<return>
     nnoremap <Leader>q :wq<return>
