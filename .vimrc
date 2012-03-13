@@ -144,8 +144,10 @@
     nnoremap <Leader>ws :Tabs2Spaces<return>:TrimWS<return>:retab<return>
     " Insert a single character of your choosing and return to the right spot.
     " Usage: ,[spacebar][character]
-    nnoremap <Leader><space> :exec "normal i".nr2char(getchar())."\e"<CR>
-    nnoremap <Leader>a :exec "normal a".nr2char(getchar())."\e"<CR>
+    nnoremap <Leader><space> :exec "normal i".nr2char(getchar())."\e"<return>
+    nnoremap <Leader>a :exec "normal a".nr2char(getchar())."\e"<return>
+    " Insert Python PDB line
+    au BufNewFile,BufReadPost *.py nnoremap <Leader>pdb :exec "normal oimport pdb; pdb.set_trace()\e"<return>
     " Write as super user
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace

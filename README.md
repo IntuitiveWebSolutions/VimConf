@@ -99,6 +99,8 @@ Custom Keybindings and Commands
 * **,O** *Insert a newline before the current line without entering insert mode*
 * **,o** *Insert a newline after the current line without entering insert mode*
 * **,[spacebar] [character]** *Insert a character in place without entering insert mode*
+* **,a [character]** *Appends a character in place without entering insert mode*
+* **,pdb** *Inserts pdb.set_trace() in Python files*
 * **,ws** *Runs both Tabs2Spaces & TrimWS on the current buffer*
 * **:W** *Write as super user*
 * **:Tabs2Spaces** *Convert tab characters to 4 space characters*
