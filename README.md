@@ -101,6 +101,7 @@ Custom Keybindings and Commands
 * **,[spacebar] [character]** *Insert a character in place without entering insert mode*
 * **,a [character]** *Appends a character in place without entering insert mode*
 * **,pdb** *Inserts pdb.set_trace() in Python files*
+* **,bp** *Run a bpython shell inside of vim!*
 * **,ws** *Runs both Tabs2Spaces & TrimWS on the current buffer*
 * **:W** *Write as super user*
 * **:Tabs2Spaces** *Convert tab characters to 4 space characters*
