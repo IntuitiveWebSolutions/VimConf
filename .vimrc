@@ -127,7 +127,8 @@
     nnoremap <Leader>nsp :setlocal spell spelllang=<return>
     " Map some convenience commands
     nnoremap <Leader>s :w<return>
-    nnoremap <Leader>bp :ConqueTerm bpython<return>
+    nnoremap <Leader>bp :ConqueTermVSplit bpython<return>
+    nnoremap <Leader>ip :ConqueTermVSplit ipython<return>
     nnoremap <Leader>q :wq<return>
     nnoremap <Leader>v :vsp<space>
     nnoremap <Leader>h :noh<return>
