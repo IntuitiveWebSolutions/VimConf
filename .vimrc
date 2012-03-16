@@ -125,10 +125,12 @@
     " Spell Checking
     nnoremap <Leader>sp :setlocal spell spelllang=en_us<return>
     nnoremap <Leader>nsp :setlocal spell spelllang=<return>
-    " Map some convenience commands
-    nnoremap <Leader>s :w<return>
+    " Set up Bash / Python Emulator Splits
+    nnoremap <Leader>sh :ConqueTermVSplit bash<return>
     nnoremap <Leader>bp :ConqueTermVSplit bpython<return>
     nnoremap <Leader>ip :ConqueTermVSplit ipython<return>
+    " Map some convenience commands
+    nnoremap <Leader>s :w<return>
     nnoremap <Leader>q :wq<return>
     nnoremap <Leader>v :vsp<space>
     nnoremap <Leader>h :noh<return>
