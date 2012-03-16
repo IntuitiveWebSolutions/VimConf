@@ -42,4 +42,4 @@
 	url = git://github.com/nathanaelkane/vim-indent-guides.git
 [submodule ".vim/bundle/Conque-Shell"]
 	path = .vim/bundle/Conque-Shell
-	url = git://github.com/sgerrand/Conque-Shell.git
+	url = git://github.com/cyrixhero/Conque-Shell.git
