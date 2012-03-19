@@ -52,6 +52,7 @@ All of these are loaded as git submodules as of 01/19/2012 so if your repo is ol
 If you haven't checked out the repo yet, be sure and clone it with the --recursive flag and it will grab everything.
 
 * [conque-shell](https://github.com/cyrixhero/Conque-Shell "conque-shell")
+* [go-vim](https://github.com/uggedal/go-vim "go-vim")
 * [nerdtree](https://github.com/scrooloose/nerdtree "nerdtree")
 * [php.vim--Garvin](https://github.com/vim-scripts/php.vim--Garvin "php.vim--Garvin")
 * [python.vim--Vasiliev](https://github.com/vim-scripts/python.vim--Vasiliev "python.vim--Vasiliev")
@@ -115,5 +116,5 @@ Custom Keybindings and Commands
 * **control + j** *Switch to bottom window*
 * **control + k** *Switch to top window*
 * **control + l** *Switch to right window*
-* **visual mode selection + \*** *Visual Selection Search with //*
+* **visual mode selection + \** *Visual Selection Search with //*
 * **visual mode selection + #** *Visual Selection Search with ??*

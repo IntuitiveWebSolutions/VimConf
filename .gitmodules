@@ -43,3 +43,6 @@
 [submodule ".vim/bundle/Conque-Shell"]
 	path = .vim/bundle/Conque-Shell
 	url = git://github.com/cyrixhero/Conque-Shell.git
+[submodule ".vim/bundle/go-vim"]
+	path = .vim/bundle/go-vim
+	url = https://github.com/uggedal/go-vim.git
