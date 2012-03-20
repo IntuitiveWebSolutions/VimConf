@@ -86,8 +86,8 @@ Custom Keybindings and Commands
 * **,nt** *Toggle NERDTree plugin*
 * **,tb** *Toggle Tagbar plugin*
 * **,e**  *Open Syntastic Error Location List*
-* **,en** *Go to next error.*
-* **,ep** *Go to previous error.*
+* **,en** *Go to next error*
+* **,ep** *Go to previous error*
 * **,ig** *Toggle IndentGuides plugin*
 * **,p** *Set paste nonumber for easy copy & pasting in a terminal*
 * **,np** *Set nopaste number to go back normal editing mode*
@@ -97,6 +97,7 @@ Custom Keybindings and Commands
 * **,q**  *Write & quit file*
 * **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
 * **,v** *Visual split window*
+* **,bd** *Delete (close) buffer*
 * **,h** *Turn off highlighting*
 * **,O** *Insert a newline before the current line without entering insert mode*
 * **,o** *Insert a newline after the current line without entering insert mode*

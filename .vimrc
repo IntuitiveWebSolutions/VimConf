@@ -133,6 +133,7 @@
     nnoremap <Leader>s :w<return>
     nnoremap <Leader>q :wq<return>
     nnoremap <Leader>v :vsp<space>
+    nnoremap <Leader>bd :bd<return>
     nnoremap <Leader>h :noh<return>
     nnoremap <Leader>O O<Esc>
     nnoremap <Leader>o o<Esc>
