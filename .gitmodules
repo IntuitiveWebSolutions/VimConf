@@ -7,9 +7,6 @@
 [submodule ".vim/bundle/tagbar"]
 	path = .vim/bundle/tagbar
 	url = git://github.com/majutsushi/tagbar.git
-[submodule ".vim/bundle/simplecommenter"]
-	path = .vim/bundle/simplecommenter
-	url = git://github.com/vim-scripts/simplecommenter.git
 [submodule ".vim/bundle/python.vim--Vasiliev"]
 	path = .vim/bundle/python.vim--Vasiliev
 	url = git://github.com/vim-scripts/python.vim--Vasiliev.git
@@ -45,4 +42,7 @@
 	url = git://github.com/cyrixhero/Conque-Shell.git
 [submodule ".vim/bundle/go-vim"]
 	path = .vim/bundle/go-vim
-	url = https://github.com/uggedal/go-vim.git
+	url = git://github.com/uggedal/go-vim.git
+[submodule ".vim/bundle/nerdcommenter"]
+	path = .vim/bundle/nerdcommenter
+	url = git://github.com/scrooloose/nerdcommenter.git

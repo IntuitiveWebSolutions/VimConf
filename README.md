@@ -53,11 +53,11 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 
 * [conque-shell](https://github.com/cyrixhero/Conque-Shell "conque-shell")
 * [go-vim](https://github.com/uggedal/go-vim "go-vim")
+* [nerdcommenter](https://github.com/scrooloose/nerdcommenter "nerdcommenter")
 * [nerdtree](https://github.com/scrooloose/nerdtree "nerdtree")
 * [php.vim--Garvin](https://github.com/vim-scripts/php.vim--Garvin "php.vim--Garvin")
 * [python.vim--Vasiliev](https://github.com/vim-scripts/python.vim--Vasiliev "python.vim--Vasiliev")
 * [python.vim](https://github.com/vim-scripts/python.vim "python.vim")
-* [simplecommenter](https://github.com/vim-scripts/simplecommenter "simplecommenter")
 * [syntastic](https://github.com/scrooloose/syntastic "syntastic")
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
 * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
@@ -75,9 +75,9 @@ Color Scheme
 Custom Keybindings and Commands
 -------------------------------
 
-* **,,** *Toggle single line comment*
-* **,c** *Comment line*
-* **,C** *Uncomment line*
+* **,c[spacebar]** *Toggles comment state of the selected line(s)*
+* **,cc** *Comment current line or text selected in visual mode*
+* **,cu** *Uncomment selected lines(s)*
 * **,tc** *Close tab*
 * **,tn** *Next tab*
 * **,tp** *Previous tab*
