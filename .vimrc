@@ -137,7 +137,6 @@
     nnoremap <Leader>h :noh<return>
     nnoremap <Leader>O O<Esc>
     nnoremap <Leader>o o<Esc>
-    nnoremap <Leader><Leader> ,c<space>
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
     imap <S-Down> <Esc>10ji
