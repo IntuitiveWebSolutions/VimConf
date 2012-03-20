@@ -72,12 +72,19 @@ Color Scheme
 
 **blayden** - inspired by [herald](https://github.com/vim-scripts/herald "herald") and [molokai](https://github.com/vim-scripts/molokai "molokai") color schemes. The scheme is built for a 256 color terminal or gVim, but will work with less colors.
 
-Custom Keybindings and Commands
+Keybindings and Commands
 -------------------------------
 
+*NERDCommenter Default Mappings*
+
+The below mappings are default in NERDCommenter, and the ones most used, so they are included in our README.
+
 * **,c[spacebar]** *Toggles comment state of the selected line(s)*
-* **,cc** *Comment current line or text selected in visual mode*
+* **,cl** *Comment current line or text selected in visual mode (forces nesting)*
 * **,cu** *Uncomment selected lines(s)*
+
+*Custom Mappings*
+
 * **,tc** *Close tab*
 * **,tn** *Next tab*
 * **,tp** *Previous tab*
