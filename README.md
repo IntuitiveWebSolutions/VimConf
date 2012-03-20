@@ -72,8 +72,8 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 Color Schemes
 -------------
 
-**blayden** - Default
-**solarized** - Can be set in .vimrc_custom - follow instructions at [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")
+* **blayden** *Default*
+* **solarized** *Can be set in .vimrc_custom - follow instructions at [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")*
 
 Keybindings and Commands
 -------------------------------
