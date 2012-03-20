@@ -106,10 +106,9 @@ Custom Keybindings and Commands
 * **,sh** *Run a bash shell inside of Vim in a vertical split*
 * **,bp** *Run a bpython shell inside of Vim in a vertical split*
 * **,ip** *Run an ipython shell inside of Vim in a vertical split*
-* **,ws** *Runs both Tabs2Spaces & TrimWS on the current buffer*
+* **,ws** *Runs TrimWS and retab on the current buffer*
 * **:W** *Write as super user*
 * **:Tabs2Spaces** *Convert tab characters to 4 space characters*
-* **:TrimWS** *Trim trailing whitespace*
 * **shift + down arrow** *Jump down 10 lines*
 * **shift + up arrow** *Jump up 10 lines*
 * **control + h** *Switch to left window*

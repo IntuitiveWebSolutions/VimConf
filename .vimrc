@@ -102,6 +102,7 @@
     set softtabstop=4 " when hitting tab or backspace, how many spaces
                        "should a tab be (see expandtab)
     au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 softtabstop=2 expandtab " For CoffeeScript
+    au BufNewFile,BufReadPost *.go setl shiftwidth=8 softtabstop=8 expandtab " For Go
     set tabstop=8 " real tabs should be 8, and they will show with
                    " set list on
 " }
@@ -145,7 +146,7 @@
     nnoremap <Leader>r :syntax off<return>:syntax on<return>
     " Fix all the whitespace in a file. Re-tabs and removes trailing whitespace.
     " Usage: ,ws
-    nnoremap <Leader>ws :Tabs2Spaces<return>:TrimWS<return>:retab<return>
+    nnoremap <Leader>ws :TrimWS<return>:retab<return>
     " Insert a single character of your choosing and return to the right spot.
     " Usage: ,[spacebar][character]
     nnoremap <Leader><space> :exec "normal i".nr2char(getchar())."\e"<return>
@@ -156,8 +157,6 @@
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace
     command TrimWS %s/\s*$//g | noh
-    " Replace tabs with spaces
-    command Tabs2Spaces %s/\t/    /g | noh
     " Visual Selection Search using * and #
     function! s:VSetSearch()
         let temp = @@
