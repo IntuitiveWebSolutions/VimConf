@@ -79,12 +79,13 @@ Keybindings and Commands
 
 The below mappings are default in NERDCommenter, and the ones most used, so they are included in our README.
 
-* **,,** *Toggles comment state of the selected line(s)*
+* **,c[spacebar]** *Toggles comment state of the selected line(s)*
 * **,cl** *Comment current line or text selected in visual mode (forces nesting)*
 * **,cu** *Uncomment selected lines(s)*
 
 **Custom Mappings**
 
+* **,,** *Toggles comment state of the selected line(s)*
 * **,tc** *Close tab*
 * **,tn** *Next tab*
 * **,tp** *Previous tab*
