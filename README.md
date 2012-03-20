@@ -75,7 +75,7 @@ Color Scheme
 Keybindings and Commands
 -------------------------------
 
-*NERDCommenter Default Mappings*
+**NERDCommenter Default Mappings**
 
 The below mappings are default in NERDCommenter, and the ones most used, so they are included in our README.
 
@@ -83,7 +83,7 @@ The below mappings are default in NERDCommenter, and the ones most used, so they
 * **,cl** *Comment current line or text selected in visual mode (forces nesting)*
 * **,cu** *Uncomment selected lines(s)*
 
-*Custom Mappings*
+**Custom Mappings**
 
 * **,tc** *Close tab*
 * **,tn** *Next tab*
