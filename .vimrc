@@ -102,7 +102,6 @@
     set softtabstop=4 " when hitting tab or backspace, how many spaces
                        "should a tab be (see expandtab)
     au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 softtabstop=2 expandtab " For CoffeeScript
-    au BufNewFile,BufReadPost *.go setl shiftwidth=8 softtabstop=8 expandtab " For Go
     set tabstop=8 " real tabs should be 8, and they will show with
                    " set list on
 " }
