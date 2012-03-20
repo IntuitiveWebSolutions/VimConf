@@ -62,6 +62,7 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
 * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
+* [vim-colors-blayden](https://github.com/beardedprojamz/vim-colors-blayden "vim-colors-blayden")
 * [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 * [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
