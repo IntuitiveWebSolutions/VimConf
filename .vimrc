@@ -142,6 +142,8 @@
     nnoremap <S-Up> 10k
     imap <S-Down> <Esc>10ji
     imap <S-Up> <Esc>10ki
+    vmap <S-Down> 10j
+    vmap <S-Up> 10k
     nnoremap <C-h> <C-w>h
     nnoremap <C-j> <C-w>j
     nnoremap <C-k> <C-w>k
