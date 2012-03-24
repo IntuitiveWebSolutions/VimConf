@@ -1,5 +1,5 @@
 " Notes {
-"   Ben Hayden
+"   Ben Hayden, Scott Blevins, Matt Thompson, et al. Public Domain.
 "   https://github.com/beardedprojamz/VimConf
 "}
 
@@ -119,11 +119,15 @@
     nnoremap <Leader>e :Errors<return>
     nnoremap <Leader>en :lnext<return>
     nnoremap <Leader>ep :lprev<return>
+    " Adding Toggle Comment
+    nnoremap <Leader><Leader> :call NERDComment("n", "Toggle")<return>
+    vnoremap <Leader><Leader> :call NERDComment("v", "Toggle")<return>
     " Map svn commands
     vnoremap <Leader>bl :<C-U>!svn blame <C-R>=expand("%:p") <CR> \| sed -n <C-R>=line("'<") <CR>,<C-R>=line("'>") <CR>p <CR>
-    " Map Paste / No Number for copying and pasting into Terminal Vim.
-    nnoremap <Leader>p :set paste nonumber<return>
-    nnoremap <Leader>np :set nopaste number<return>
+    " System Clipboard Copy / Cut / Paste shortcuts
+    noremap <Leader>p "+gP<return>
+    noremap <Leader>y "+y<return>
+    noremap <Leader>x "+x<return>
     " Spell Checking
     nnoremap <Leader>sp :setlocal spell spelllang=en_us<return>
     nnoremap <Leader>nsp :setlocal spell spelllang=<return>
@@ -131,26 +135,31 @@
     nnoremap <Leader>sh :ConqueTermVSplit bash<return>
     nnoremap <Leader>bp :ConqueTermVSplit bpython<return>
     nnoremap <Leader>ip :ConqueTermVSplit ipython<return>
-    " Map some convenience commands
+    " Write and Write & Quit shortcuts
     nnoremap <Leader>s :w<return>
     nnoremap <Leader>q :wq<return>
+    " Start vertical split command with space character.
     nnoremap <Leader>v :vsp<space>
+    " Close buffer
     nnoremap <Leader>bd :bd<return>
+    " Clear highlighting
     nnoremap <Leader>h :noh<return>
+    " Insert a line above or below cursor without insert mode.
     nnoremap <Leader>O O<Esc>
     nnoremap <Leader>o o<Esc>
-    nnoremap <Leader><Leader> :call NERDComment("n", "Toggle")<return>
-    vnoremap <Leader><Leader> :call NERDComment("v", "Toggle")<return>
+    " Make arrow keys jump by 10 lines
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
     imap <S-Down> <Esc>10ji
     imap <S-Up> <Esc>10ki
     vmap <S-Down> 10j
     vmap <S-Up> 10k
+    " Jump easily between open windows
     nnoremap <C-h> <C-w>h
     nnoremap <C-j> <C-w>j
     nnoremap <C-k> <C-w>k
     nnoremap <C-l> <C-w>l
+    " Refresh syntax highlighting
     nnoremap <Leader>r :syntax off<return>:syntax on<return>
     " Fix all the whitespace in a file. Re-tabs and removes trailing whitespace.
     " Usage: ,ws
