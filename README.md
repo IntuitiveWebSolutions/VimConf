@@ -101,9 +101,11 @@ The below mappings are default in NERDCommenter, and the ones most used, so they
 * **,en** *Go to next error*
 * **,ep** *Go to previous error*
 * **,ig** *Toggle IndentGuides plugin*
-* **,p** *Put (Paste) from system clipboard*
-* **,y** *Yank (Copy) to system clipboard*
-* **,x** *Cut to system clipboard*
+* **,p** *Set paste nonumber for easy copy & pasting in a terminal*
+* **,np** *Set nopaste number to go back normal editing mode*
+* **,xp** *Put (Paste) from system clipboard*
+* **,xy** *Yank (Copy) to system clipboard*
+* **,xx** *Cut to system clipboard*
 * **,s**  *Write file*
 * **,sp**  *Turn on Spell checking for EN_US*
 * **,nsp**  *Turn off Spell checking for EN_US*

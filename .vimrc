@@ -124,10 +124,13 @@
     vnoremap <Leader><Leader> :call NERDComment("v", "Toggle")<return>
     " Map svn commands
     vnoremap <Leader>bl :<C-U>!svn blame <C-R>=expand("%:p") <CR> \| sed -n <C-R>=line("'<") <CR>,<C-R>=line("'>") <CR>p <CR>
-    " System Clipboard Copy / Cut / Paste shortcuts
-    noremap <Leader>p "+gP<return>
-    noremap <Leader>y "+y<return>
-    noremap <Leader>x "+x<return>
+    " Map Paste / No Number for copy, paste, etc. in Vim without X.
+    nnoremap <Leader>p :set paste nonumber<return>
+    nnoremap <Leader>np :set nopaste number<return>
+    " X System Clipboard copy, cut, & paste shortcuts.
+    noremap <Leader>xp "+gP<return>
+    noremap <Leader>xy "+y<return>
+    noremap <Leader>xx "+x<return>
     " Spell Checking
     nnoremap <Leader>sp :setlocal spell spelllang=en_us<return>
     nnoremap <Leader>nsp :setlocal spell spelllang=<return>
