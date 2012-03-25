@@ -119,6 +119,8 @@
     nnoremap <Leader>e :Errors<return>
     nnoremap <Leader>en :lnext<return>
     nnoremap <Leader>ep :lprev<return>
+    " Map svn commands
+    vnoremap <Leader>bl :<C-U>!svn blame <C-R>=expand("%:p") <CR> \| sed -n <C-R>=line("'<") <CR>,<C-R>=line("'>") <CR>p <CR>
     " Map Paste / No Number for copying and pasting into Terminal Vim.
     nnoremap <Leader>p :set paste nonumber<return>
     nnoremap <Leader>np :set nopaste number<return>

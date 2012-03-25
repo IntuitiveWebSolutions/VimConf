@@ -105,6 +105,7 @@ The below mappings are default in NERDCommenter, and the ones most used, so they
 * **,q**  *Write & quit file*
 * **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
 * **,v** *Visual split window*
+* **,bl** *Runs `svn blame` over visual selection*
 * **,bd** *Delete (close) buffer*
 * **,h** *Turn off highlighting*
 * **,O** *Insert a newline before the current line without entering insert mode*
