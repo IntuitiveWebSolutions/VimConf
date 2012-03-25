@@ -62,15 +62,18 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
 * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
+* [vim-colors-blayden](https://github.com/beardedprojamz/vim-colors-blayden "vim-colors-blayden")
+* [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 * [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
 * [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
 * [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
 
-Color Scheme
-------------
+Color Schemes
+-------------
 
-**blayden** - inspired by [herald](https://github.com/vim-scripts/herald "herald") and [molokai](https://github.com/vim-scripts/molokai "molokai") color schemes. The scheme is built for a 256 color terminal or gVim, but will work with less colors.
+* **blayden** *Default*
+* **solarized** *Can be set in .vimrc_custom - follow instructions at [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")*
 
 Keybindings and Commands
 -------------------------------
