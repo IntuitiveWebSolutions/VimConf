@@ -101,7 +101,7 @@
                       " >>, << and stuff like that
     set softtabstop=4 " when hitting tab or backspace, how many spaces
                        "should a tab be (see expandtab)
-    au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 softtabstop=2 expandtab " For CoffeeScript
+    au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 softtabstop=2 " For CoffeeScript
     set tabstop=8 " real tabs should be 8, and they will show with
                    " set list on
 " }
