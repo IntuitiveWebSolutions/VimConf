@@ -79,6 +79,7 @@
     set statusline+=%-3.3n\                      " buffer number
     set statusline+=%<%.99f\                     " file name up to 99 chars
     set statusline+=%h%m%r%w                     " flags
+    set statusline+=%{fugitive#statusline()} " Git fugitive status line
     set statusline+=[%{strlen(&ft)?&ft:'none'},  " filetype
     set statusline+=%{strlen(&fenc)?&fenc:&enc}, " encoding
     set statusline+=%{&fileformat}]              " file format
