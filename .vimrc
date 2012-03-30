@@ -48,6 +48,10 @@
         au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
             \| exe "normal! g'\"" | endif
     endif
+    " CtrlP finds a versioned working directory
+    let g:ctrlp_working_path_mode = 2
+    " Ignore uploads directory in projects for CtrlP
+    let g:ctrlp_custom_ignore = '\.git$\|\.svn$\|\uploads$'
 " }
 
 " Vim UI {
