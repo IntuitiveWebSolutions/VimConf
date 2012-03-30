@@ -95,7 +95,6 @@ The below mappings are default in NERDCommenter, and the ones most used, so they
 * **,tn** *Next tab*
 * **,tp** *Previous tab*
 * **,te** *Edit new tab*
-* **,ln** *Toggle Line Numbers*
 * **,nt** *Toggle NERDTree plugin*
 * **,tb** *Toggle Tagbar plugin*
 * **,e**  *Open Syntastic Error Location List*
