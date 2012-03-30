@@ -61,6 +61,7 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [python.vim](https://github.com/vim-scripts/python.vim "python.vim")
 * [syntastic](https://github.com/scrooloose/syntastic "syntastic")
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
+* [vim-buffergator](https://github.com/jeetsukumaran/vim-buffergator "vim-buffergator")
 * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
 * [vim-colors-blayden](https://github.com/beardedprojamz/vim-colors-blayden "vim-colors-blayden")
@@ -95,6 +96,7 @@ The below mappings are default in NERDCommenter, and the ones most used, so they
 * **,tn** *Next tab*
 * **,tp** *Previous tab*
 * **,te** *Edit new tab*
+* **,l** *Toggle BufferGator plugin*
 * **,nt** *Toggle NERDTree plugin*
 * **,tb** *Toggle Tagbar plugin*
 * **,e**  *Open Syntastic Error Location List*
@@ -132,5 +134,6 @@ The below mappings are default in NERDCommenter, and the ones most used, so they
 * **control + j** *Switch to bottom window*
 * **control + k** *Switch to top window*
 * **control + l** *Switch to right window*
+* **control + p** *Start CtrlP plugin*
 * **visual mode selection + \** *Visual Selection Search with //*
 * **visual mode selection + #** *Visual Selection Search with ??*

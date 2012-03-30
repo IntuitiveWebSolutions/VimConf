@@ -132,6 +132,8 @@
     " Map Paste / No Number for copy, paste, etc. in Vim without X.
     nnoremap <Leader>p :set paste nonumber<return>
     nnoremap <Leader>np :set nopaste number<return>
+    " Set buffergator key (<Leader>b is slow because of other b* maps)
+    noremap <Leader>l :BuffergatorToggle<return>
     " X System Clipboard copy, cut, & paste shortcuts.
     noremap <Leader>xp "+gP<return>
     noremap <Leader>xy "+y<return>
