@@ -9,6 +9,9 @@
     runtime bundle/vim-pathogen/autoload/pathogen.vim " Enable pathogen for fancy plugin management
     call pathogen#infect() " Append .vim/bundles apps
     colorscheme blayden " set our customized colorscheme
+    set background=dark
+    let g:solarized_termtrans=1
+    let g:solarized_contrast="high"
 " }
 
 " General {
