@@ -55,6 +55,8 @@
     let g:ctrlp_working_path_mode = 2
     " Ignore uploads directory in projects for CtrlP
     let g:ctrlp_custom_ignore = '\.git$\|\.svn$\|\uploads$'
+
+    au BufNewFile,BufRead *.save set filetype=sql
 " }
 
 " Vim UI {
