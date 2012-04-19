@@ -50,6 +50,10 @@
     if has("autocmd")
         au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
             \| exe "normal! g'\"" | endif
+
+        " Jump to the top of git COMMIT_EDITMSG files.
+        au BufReadPost COMMIT_EDITMSG
+        \ exe "normal! gg"
     endif
     " CtrlP finds a versioned working directory
     let g:ctrlp_working_path_mode = 2
