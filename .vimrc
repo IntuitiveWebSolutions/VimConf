@@ -136,6 +136,8 @@
     " Adding Toggle Comment
     nnoremap <Leader><Leader> :call NERDComment("n", "Toggle")<return>
     vnoremap <Leader><Leader> :call NERDComment("v", "Toggle")<return>
+    " Add 'Sign' shortcut
+    nnoremap <Leader>si :exec "normal A".system("echo -n ' -- '$(git config --global --get user.name) $(date +\%D)")<return>
     " Map svn commands
     vnoremap <Leader>bl :<C-U>!svn blame <C-R>=expand("%:p") <CR> \| sed -n <C-R>=line("'<") <CR>,<C-R>=line("'>") <CR>p <CR>
     " Map Paste / No Number for copy, paste, etc. in Vim without X.

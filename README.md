@@ -92,6 +92,7 @@ The below mappings are default in NERDCommenter, and the ones most used, so they
 **Custom Mappings**
 
 * **,,** *Toggles comment state of the selected line(s)*
+* **,si** *Adds a 'Signature' to the end of the line. Ex. ' -- Ben Hayden 5/14/2012'*
 * **,tc** *Close tab*
 * **,tn** *Next tab*
 * **,tp** *Previous tab*
