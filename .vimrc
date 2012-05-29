@@ -175,6 +175,8 @@
     imap <S-Up> <Esc>10ki
     vmap <S-Down> 10j
     vmap <S-Up> 10k
+    " Send the selected hunk to Matt's hastebin
+    vmap <Leader>hb <esc>:'<,'>:w !work_haste<CR>
     " Jump easily between open windows
     nnoremap <C-h> <C-w>h
     nnoremap <C-j> <C-w>j
