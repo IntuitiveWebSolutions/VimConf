@@ -13,6 +13,7 @@
     let g:solarized_termtrans=1
     let g:solarized_contrast="high"
     let g:pymode_lint_write = 0 " we have two lint plugins...
+    let g:pymode_folding = 0 " don't fold everything by default
 " }
 
 " General {
@@ -123,6 +124,11 @@
 
 " Mappings {
     let mapleader = ","
+    " Mapping ropevim commands
+    nnoremap <Leader>g :call RopeGotoDefinition()<return>
+    nnoremap <Leader>d :call RopeShowDoc()<return>
+    nnoremap <Leader>f :call RopeFindOccurrences()<return>
+    nnoremap <Leader>j :call RopeJumpToGlobal()<return>
     " Mapping tab commands
     nnoremap <Leader>tc :tabc<return>
     nnoremap <Leader>tn :tabn<return>

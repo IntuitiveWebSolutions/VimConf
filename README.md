@@ -85,9 +85,34 @@ Keybindings and Commands
 
 The below mappings are default in NERDCommenter, and the ones most used, so they are included in our README.
 
-* **,c[spacebar]** *Toggles comment state of the selected line(s)*
-* **,cl** *Comment current line or text selected in visual mode (forces nesting)*
-* **,cu** *Uncomment selected lines(s)*
+| Keys                       | Command                                             |
+|---------------------------:|:----------------------------------------------------|
+| **,c[spacebar]**           | Toggles comment state of the selected line(s)       |
+| **,cl**                    | Comment current line or text selected in visual mode (forces nesting) |
+| **,cu**                    | Uncomment selected lines(s) |
+
+**RopeVim and Python commands**
+
+To use Rope you need to build the project: `:RopeOpenProject` and `:RopeAnalyzeModules`.
+Make sure you add anything your project needs, path wise. For example, run `:RopeProjectConfig`
+and add the paths:
+```python
+     # You can extend python path for looking up modules
+     prefs.add('python_path', 'lib')
+```
+
+| Keys                       | Command                                             |
+|---------------------------:|:----------------------------------------------------|
+| **C-space**                | Autocomplete as you type. |
+| **,g**                     | Go to definition of object under cursor. |
+| **,d**                     | Display documentation of object under cursor. |
+| **,f**                     | Find all occurrences of object under cursor. |
+| **,j**                     | Jump to global object name. |
+| **[[** or **]]**           | Next/previous class or global function. |
+| **[M** or **]M**           | Next/previous method. |
+
+See [python-mode](https://github.com/klen/python-mode) for more shortcuts and options.
+
 
 **Custom Mappings**
 
