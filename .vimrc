@@ -209,8 +209,8 @@
     vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR>
     " Plugin Boolean settings for Programming Languages
     let coffee_compile_vert=1 " When compiling CoffeeScript, throw output into vertical split
-    let python_highlight_all=1 " Highlight all Python syntax
     let g:syntastic_check_on_open=1 " Run Syntastic when opening files
+    let g:pymode_folding=0 " Turn off python-mode folding
     let NERDSpaceDelims=1 " Add space delimiters
 " }
 
