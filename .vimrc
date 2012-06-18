@@ -12,6 +12,7 @@
     set background=dark
     let g:solarized_termtrans=1
     let g:solarized_contrast="high"
+    let g:pymode_lint_write = 0 " we have two lint plugins...
 " }
 
 " General {
