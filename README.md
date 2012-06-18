@@ -91,50 +91,52 @@ The below mappings are default in NERDCommenter, and the ones most used, so they
 
 **Custom Mappings**
 
-* **,,** *Toggles comment state of the selected line(s)*
-* **,si** *Adds a 'Signature' to the end of the line. Ex. ' -- Ben Hayden 5/14/2012'*
-* **,tc** *Close tab*
-* **,tn** *Next tab*
-* **,tp** *Previous tab*
-* **,te** *Edit new tab*
-* **,l** *Toggle BufferGator plugin*
-* **,nt** *Toggle NERDTree plugin*
-* **,tb** *Toggle Tagbar plugin*
-* **,e**  *Open Syntastic Error Location List*
-* **,en** *Go to next error*
-* **,ep** *Go to previous error*
-* **,ig** *Toggle IndentGuides plugin*
-* **,p** *Set paste nonumber for easy copy & pasting in a terminal*
-* **,np** *Set nopaste number to go back normal editing mode*
-* **,xp** *Put (Paste) from system clipboard*
-* **,xy** *Yank (Copy) to system clipboard*
-* **,xx** *Cut to system clipboard*
-* **,s**  *Write file*
-* **,sp**  *Turn on Spell checking for EN_US*
-* **,nsp**  *Turn off Spell checking for EN_US*
-* **,q**  *Write & quit file*
-* **,r** *Turn Syntax off/on on a file - a "refresh" of the syntax highlighting*
-* **,v** *Visual split window*
-* **,bl** *Runs `svn blame` over visual selection*
-* **,bd** *Delete (close) buffer*
-* **,h** *Turn off highlighting*
-* **,O** *Insert a newline before the current line without entering insert mode*
-* **,o** *Insert a newline after the current line without entering insert mode*
-* **,[spacebar] [character]** *Insert a character in place without entering insert mode*
-* **,a [character]** *Appends a character in place without entering insert mode*
-* **,pdb** *Inserts pdb.set_trace() in Python files*
-* **,sh** *Run a bash shell inside of Vim in a vertical split*
-* **,bp** *Run a bpython shell inside of Vim in a vertical split*
-* **,ip** *Run an ipython shell inside of Vim in a vertical split*
-* **,ws** *Runs TrimWS and retab on the current buffer*
-* **:W** *Write as super user*
-* **:Tabs2Spaces** *Convert tab characters to 4 space characters*
-* **shift + down arrow** *Jump down 10 lines*
-* **shift + up arrow** *Jump up 10 lines*
-* **control + h** *Switch to left window*
-* **control + j** *Switch to bottom window*
-* **control + k** *Switch to top window*
-* **control + l** *Switch to right window*
-* **control + p** *Start CtrlP plugin*
-* **visual mode selection + \** *Visual Selection Search with //*
-* **visual mode selection + #** *Visual Selection Search with ??*
+| Keys                       | Command                                             |
+|---------------------------:|:----------------------------------------------------|
+|**,,**                      | Toggles comment state of the selected line(s) |
+|**,si**                     | Adds a 'Signature' to the end of the line. Ex. ' -- Ben Hayden 5/14/2012' |
+|**,tc**                     | Close tab |
+|**,tn**                     | Next tab |
+|**,tp**                     | Previous tab |
+|**,te**                     | Edit new tab |
+|**,l**                      | Toggle BufferGator plugin |
+|**,nt**                     | Toggle NERDTree plugin |
+|**,tb**                     | Toggle Tagbar plugin |
+|**,e**                      | Open Syntastic Error Location List |
+|**,en**                     | Go to next error |
+|**,ep**                     | Go to previous error |
+|**,ig**                     | Toggle IndentGuides plugin |
+|**,p**                      | Set paste nonumber for easy copy & pasting in a terminal |
+|**,np**                     | Set nopaste number to go back normal editing mode |
+|**,xp**                     | Put (Paste) from system clipboard |
+|**,xy**                     | Yank (Copy) to system clipboard |
+|**,xx**                     | Cut to system clipboard |
+|**,s**                      | Write file |
+|**,sp**                     | Turn on Spell checking for EN_US |
+|**,nsp**                    | Turn off Spell checking for EN_US |
+|**,q**                      | Write & quit file |
+|**,r**                      | Turn Syntax off/on on a file - a "refresh" of the syntax highlighting |
+|**,v**                      | Visual split window |
+|**,bl**                     | Runs `svn blame` over visual selection |
+|**,bd**                     | Delete (close) buffer |
+|**,h**                      | Turn off highlighting |
+|**,O**                      | Insert a newline before the current line without entering insert mode |
+|**,o**                      | Insert a newline after the current line without entering insert mode |
+|**,[spacebar] [character]** | Insert a character in place without entering insert mode |
+|**,a [character]**          | Appends a character in place without entering insert mode |
+|**,pdb**                    | Inserts pdb.set_trace() in Python files |
+|**,sh**                     | Run a bash shell inside of Vim in a vertical split |
+|**,bp**                     | Run a bpython shell inside of Vim in a vertical split |
+|**,ip**                     | Run an ipython shell inside of Vim in a vertical split |
+|**,ws**                     | Runs TrimWS and retab on the current buffer |
+|**:W**                      | Write as super user |
+|**:Tabs2Spaces**            | Convert tab characters to 4 space characters |
+|**shift + down arrow**      | Jump down 10 lines |
+|**shift + up arrow**        | Jump up 10 lines |
+|**control + h**             | Switch to left window |
+|**control + j**             | Switch to bottom window |
+|**control + k**             | Switch to top window |
+|**control + l**             | Switch to right window |
+|**control + p**             | Start CtrlP plugin |
+|**visual selection + \**    | Visual Selection Search with // |
+|**visual selection + #**    | Visual Selection Search with ?? |
