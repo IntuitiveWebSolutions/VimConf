@@ -12,8 +12,6 @@
     set background=dark
     let g:solarized_termtrans=1
     let g:solarized_contrast="high"
-    let g:pymode_lint_write = 0 " we have two lint plugins...
-    let g:pymode_folding = 0 " don't fold everything by default
 " }
 
 " General {
@@ -217,6 +215,8 @@
     let coffee_compile_vert=1 " When compiling CoffeeScript, throw output into vertical split
     let g:syntastic_check_on_open=1 " Run Syntastic when opening files
     let g:pymode_folding=0 " Turn off python-mode folding
+    let g:pymode_lint_write = 0 " we have two lint plugins...
+    let g:pymode_utils_whitespaces = 0 " don't molest whitespace
     let NERDSpaceDelims=1 " Add space delimiters
 " }
 
