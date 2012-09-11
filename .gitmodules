@@ -31,9 +31,6 @@
 [submodule ".vim/bundle/vim-indent-guides"]
 	path = .vim/bundle/vim-indent-guides
 	url = git://github.com/nathanaelkane/vim-indent-guides.git
-[submodule ".vim/bundle/Conque-Shell"]
-	path = .vim/bundle/Conque-Shell
-	url = git://github.com/cyrixhero/Conque-Shell.git
 [submodule ".vim/bundle/go-vim"]
 	path = .vim/bundle/go-vim
 	url = git://github.com/uggedal/go-vim.git
@@ -55,9 +52,6 @@
 [submodule ".vim/bundle/vim-buffergator"]
 	path = .vim/bundle/vim-buffergator
 	url = git://github.com/jeetsukumaran/vim-buffergator.git
-[submodule ".vim/bundle/vim-less"]
-	path = .vim/bundle/vim-less
-	url = git://github.com/groenewege/vim-less.git
 [submodule ".vim/bundle/python-mode"]
 	path = .vim/bundle/python-mode
 	url = git://github.com/klen/python-mode.git

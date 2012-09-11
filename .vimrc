@@ -143,8 +143,6 @@
     vnoremap <Leader><Leader> :call NERDComment("v", "Toggle")<return>
     " Add 'Sign' shortcut
     nnoremap <Leader>si :exec "normal A".system("echo -n ' -- '$(git config --global --get user.name) $(date +\%D)")<return>
-    " Map svn commands
-    vnoremap <Leader>bl :<C-U>!svn blame <C-R>=expand("%:p") <CR> \| sed -n <C-R>=line("'<") <CR>,<C-R>=line("'>") <CR>p <CR>
     " Map Paste / No Number for copy, paste, etc. in Vim without X.
     nnoremap <Leader>p :set paste nonumber<return>
     nnoremap <Leader>np :set nopaste number<return>
@@ -166,10 +164,14 @@
     nnoremap <Leader>q :wq<return>
     " Start vertical split command with space character.
     nnoremap <Leader>v :vsp<space>
+    " Start horizontal split command with space character.
+    nnoremap <Leader>h :sp<space>
+    " Close window
+    nnoremap <Leader>cw :close<return>
     " Close buffer
     nnoremap <Leader>bd :bd<return>
     " Clear highlighting
-    nnoremap <Leader>h :noh<return>
+    nnoremap <Leader>ch :noh<return>
     " Insert a line above or below cursor without insert mode.
     nnoremap <Leader>O O<Esc>
     nnoremap <Leader>o o<Esc>

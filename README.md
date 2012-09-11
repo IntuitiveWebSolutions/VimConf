@@ -51,7 +51,6 @@ All of these are loaded as git submodules as of 01/19/2012 so if your repo is ol
 
 If you haven't checked out the repo yet, be sure and clone it with the --recursive flag and it will grab everything.
 
-* [conque-shell](https://github.com/cyrixhero/Conque-Shell "conque-shell")
 * [ctrlp](https://github.com/kien/ctrlp.vim "ctrlp")
 * [go-vim](https://github.com/uggedal/go-vim "go-vim")
 * [nerdcommenter](https://github.com/scrooloose/nerdcommenter "nerdcommenter")
@@ -60,16 +59,17 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [python-mode](https://github.com/klen/python-mode "python-mode")
 * [syntastic](https://github.com/scrooloose/syntastic "syntastic")
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
+* [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
 * [vim-buffergator](https://github.com/jeetsukumaran/vim-buffergator "vim-buffergator")
-* [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
 * [vim-colors-blayden](https://github.com/beardedprojamz/vim-colors-blayden "vim-colors-blayden")
 * [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")
 * [vim-fugitive](https://github.com/tpope/vim-fugitive "vim-fugitive")
+* [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
-* [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
+* [vim-pathogen](https://github.com/tpope/vim-pathogen "vim-pathogen")
 * [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
-* [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
+* [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
 
 Color Schemes
 -------------
@@ -140,18 +140,17 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,nsp**                    | Turn off Spell checking for EN_US |
 |**,q**                      | Write & quit file |
 |**,r**                      | Turn Syntax off/on on a file - a "refresh" of the syntax highlighting |
-|**,v**                      | Visual split window |
-|**,bl**                     | Runs `svn blame` over visual selection |
+|**,v**                      | Vertical split window |
+|**,h**                      | Horizontal split window |
+|**,cw**                     | Close window |
 |**,bd**                     | Delete (close) buffer |
-|**,h**                      | Turn off highlighting |
+|**,ch**                     | Clear (turn off) highlighting |
+|**,hb**                     | Send selected visual hunk to hastebin |
 |**,O**                      | Insert a newline before the current line without entering insert mode |
 |**,o**                      | Insert a newline after the current line without entering insert mode |
 |**,[spacebar] [character]** | Insert a character in place without entering insert mode |
 |**,a [character]**          | Appends a character in place without entering insert mode |
 |**,pdb**                    | Inserts pdb.set_trace() in Python files |
-|**,sh**                     | Run a bash shell inside of Vim in a vertical split |
-|**,bp**                     | Run a bpython shell inside of Vim in a vertical split |
-|**,ip**                     | Run an ipython shell inside of Vim in a vertical split |
 |**,ws**                     | Runs TrimWS and retab on the current buffer |
 |**:W**                      | Write as super user |
 |**:Tabs2Spaces**            | Convert tab characters to 4 space characters |
