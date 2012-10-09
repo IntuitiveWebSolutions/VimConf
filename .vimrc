@@ -198,8 +198,6 @@
     " Usage: ,[spacebar][character]
     nnoremap <Leader><space> :exec "normal i".nr2char(getchar())."\e"<return>
     nnoremap <Leader>a :exec "normal a".nr2char(getchar())."\e"<return>
-    " Insert Python PDB line
-    au BufNewFile,BufReadPost *.py nnoremap <Leader>pdb :exec "normal oimport pdb; pdb.set_trace()\e"<return>
     " Write as super user
     command W w !sudo tee % > /dev/null
     " Trim trailing whitespace

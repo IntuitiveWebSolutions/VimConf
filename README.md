@@ -106,6 +106,7 @@ and add the paths:
 | **,d**                     | Display documentation of object under cursor. |
 | **,f**                     | Find all occurrences of object under cursor. |
 | **,j**                     | Jump to global object name. |
+| **,b**                     | Insert PDB set_trace() breakpoint. |
 | **[[** or **]]**           | Next/previous class or global function. |
 | **[M** or **]M**           | Next/previous method. |
 
@@ -149,7 +150,6 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,o**                      | Insert a newline after the current line without entering insert mode |
 |**,[spacebar] [character]** | Insert a character in place without entering insert mode |
 |**,a [character]**          | Appends a character in place without entering insert mode |
-|**,pdb**                    | Inserts pdb.set_trace() in Python files |
 |**,ws**                     | Runs TrimWS and retab on the current buffer |
 |**:W**                      | Write as super user |
 |**:Tabs2Spaces**            | Convert tab characters to 4 space characters |
