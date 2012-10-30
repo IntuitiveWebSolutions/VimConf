@@ -199,7 +199,7 @@
     nnoremap <Leader><space> :exec "normal i".nr2char(getchar())."\e"<return>
     nnoremap <Leader>a :exec "normal a".nr2char(getchar())."\e"<return>
     " Write as super user
-    command W w !sudo tee % > /dev/null
+    command! W w !sudo tee % > /dev/null
     " Trim trailing whitespace
     command TrimWS %s/\s*$//g | noh
     " Visual Selection Search using * and #
