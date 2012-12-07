@@ -46,6 +46,8 @@
     set wildignore=*.dll,*.o,*.obj,*.bak,*.exe,*.pyc,
                     \*.jpg,*.gif,*.png
     set wildmode=list:longest " turn on wild mode huge list
+    " Set shell to interactive mode
+    set shellcmdflag=-ic
     " Re-open VIM to the last spot you had open.
     if has("autocmd")
         au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
