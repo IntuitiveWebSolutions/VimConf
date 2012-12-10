@@ -192,7 +192,7 @@
     nnoremap <C-k> <C-w>k
     nnoremap <C-l> <C-w>l
     " Refresh syntax highlighting
-    nnoremap <Leader>r :syntax off<return>:syntax on<return>
+    nnoremap <Leader>rf :syntax off<return>:syntax on<return>
     " Fix all the whitespace in a file. Re-tabs and removes trailing whitespace.
     " Usage: ,ws
     nnoremap <Leader>ws :TrimWS<return>:retab<return>

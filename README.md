@@ -140,7 +140,7 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,sp**                     | Turn on Spell checking for EN_US |
 |**,nsp**                    | Turn off Spell checking for EN_US |
 |**,q**                      | Write & quit file |
-|**,r**                      | Turn Syntax off/on on a file - a "refresh" of the syntax highlighting |
+|**,rf**                      | Turn Syntax off/on on a file - a "refresh" of the syntax highlighting |
 |**,v**                      | Vertical split window |
 |**,h**                      | Horizontal split window |
 |**,cw**                     | Close window |
