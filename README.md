@@ -70,6 +70,7 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [vim-puppet](https://github.com/rodjek/vim-puppet "vim-puppet")
 * [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
 * [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
+* [vim-less](https://github.com/groenewege/vim-less "vim-less")
 
 Color Schemes
 -------------
@@ -131,6 +132,7 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,en**                     | Go to next error |
 |**,ep**                     | Go to previous error |
 |**,ig**                     | Toggle IndentGuides plugin |
+|**,lc**                     | Compile LESS file to CSS. Requires NPM install of less |
 |**,p**                      | Set paste nonumber for easy copy & pasting in a terminal |
 |**,np**                     | Set nopaste number to go back normal editing mode |
 |**,xp**                     | Put (Paste) from system clipboard |
@@ -140,7 +142,7 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,sp**                     | Turn on Spell checking for EN_US |
 |**,nsp**                    | Turn off Spell checking for EN_US |
 |**,q**                      | Write & quit file |
-|**,rf**                      | Turn Syntax off/on on a file - a "refresh" of the syntax highlighting |
+|**,rf**                     | Turn Syntax off/on on a file - a "refresh" of the syntax highlighting |
 |**,v**                      | Vertical split window |
 |**,h**                      | Horizontal split window |
 |**,cw**                     | Close window |
