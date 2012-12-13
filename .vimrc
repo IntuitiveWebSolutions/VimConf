@@ -217,6 +217,8 @@
     vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR>
     " Plugin Boolean settings for Programming Languages
     let coffee_compile_vert=1 " When compiling CoffeeScript, throw output into vertical split
+    let coffee_make_options='--bare'
+    au BufWritePost *.coffee silent CoffeeMake!
     let g:syntastic_check_on_open=1 " Run Syntastic when opening files
     let g:pymode_folding=0 " Turn off python-mode folding
     let g:pymode_lint_write = 0 " we have two lint plugins...
