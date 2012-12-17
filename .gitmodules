@@ -58,3 +58,6 @@
 [submodule ".vim/bundle/vim-less"]
 	path = .vim/bundle/vim-less
 	url = git@github.com:groenewege/vim-less.git
+[submodule ".vim/bundle/vim-nodejs-complete"]
+	path = .vim/bundle/vim-nodejs-complete
+	url = git@github.com:myhere/vim-nodejs-complete.git
