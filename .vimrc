@@ -48,6 +48,8 @@
     set wildmode=list:longest " turn on wild mode huge list
     " Set shell to interactive mode
     set shellcmdflag=-ic
+    " Use bash for the shell
+    set shell=/bin/bash\ -i
     " Re-open VIM to the last spot you had open.
     if has("autocmd")
         au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
