@@ -148,6 +148,7 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,cw**                     | Close window |
 |**,bd**                     | Delete (close) buffer |
 |**,ch**                     | Clear (turn off) highlighting |
+|**,rt**                     | Re-tab entire file. (Shortcut for gg=G) |
 |**,hb**                     | Send selected visual hunk to hastebin |
 |**,O**                      | Insert a newline before the current line without entering insert mode |
 |**,o**                      | Insert a newline after the current line without entering insert mode |

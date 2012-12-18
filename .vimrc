@@ -178,6 +178,7 @@
     nnoremap <Leader>bd :bd<return>
     " Clear highlighting
     nnoremap <Leader>ch :noh<return>
+    nnoremap <Leader>rt gg=G
     " Insert a line above or below cursor without insert mode.
     nnoremap <Leader>O O<Esc>
     nnoremap <Leader>o o<Esc>
