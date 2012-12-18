@@ -67,6 +67,7 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 * [vim-less](https://github.com/groenewege/vim-less "vim-less")
+* [vim-nodejs-complete](https://github.com/myhere/vim-nodejs-complete "vim-nodejs-complete")
 * [vim-pathogen](https://github.com/tpope/vim-pathogen "vim-pathogen")
 * [vim-puppet](https://github.com/rodjek/vim-puppet "vim-puppet")
 * [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
