@@ -157,7 +157,7 @@
     noremap <Leader>xy "+y<return>
     noremap <Leader>xx "+x<return>
     " Compile less to new CSS file
-    nnoremap <Leader>lc :w <BAR> !lessc % > %:t:r.css<CR><space>
+    nnoremap <Leader>cl :w <BAR> !lessc % > %:t:r.css<CR><space>
     " Spell Checking
     nnoremap <Leader>sp :setlocal spell spelllang=en_us<return>
     nnoremap <Leader>nsp :setlocal spell spelllang=<return>
