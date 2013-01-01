@@ -120,6 +120,7 @@
     set softtabstop=4 " when hitting tab or backspace, how many spaces
                        "should a tab be (see expandtab)
     au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 softtabstop=2 " For CoffeeScript
+    au BufNewFile,BufReadPost *.go setl shiftwidth=8 noexpandtab nolist " For Go
     set tabstop=8 " real tabs should be 8, and they will show with
                    " set list on
 " }
@@ -161,10 +162,6 @@
     " Spell Checking
     nnoremap <Leader>sp :setlocal spell spelllang=en_us<return>
     nnoremap <Leader>nsp :setlocal spell spelllang=<return>
-    " Set up Bash / Python Emulator Splits
-    nnoremap <Leader>sh :ConqueTermVSplit bash<return>
-    nnoremap <Leader>bp :ConqueTermVSplit bpython<return>
-    nnoremap <Leader>ip :ConqueTermVSplit ipython<return>
     " Write and Write & Quit shortcuts
     nnoremap <Leader>s :w<return>
     nnoremap <Leader>q :wq<return>
