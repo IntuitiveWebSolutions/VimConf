@@ -224,6 +224,7 @@
     let g:pymode_folding=0 " Turn off python-mode folding
     let g:pymode_lint_write = 0 " we have two lint plugins...
     let g:pymode_utils_whitespaces = 0 " don't molest whitespace
+    let g:ftplugin_sql_omni_key = '<C-S>' " reset sql omni key
     let NERDSpaceDelims=1 " Add space delimiters
 " }
 
