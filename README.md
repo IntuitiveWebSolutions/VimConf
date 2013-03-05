@@ -64,6 +64,7 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [vim-colors-blayden](https://github.com/beardedprojamz/vim-colors-blayden "vim-colors-blayden")
 * [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")
 * [vim-fugitive](https://github.com/tpope/vim-fugitive "vim-fugitive")
+* [vim-gitgutter](https://github.com/airblade/vim-gitgutter "vim-gitgutter")
 * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 * [vim-less](https://github.com/groenewege/vim-less "vim-less")
