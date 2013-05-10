@@ -50,8 +50,6 @@
     set shellcmdflag=-ic
     " Use bash for the shell
     set shell=/bin/bash\ -i
-    " Set the copy buffer to infinity
-    match OverLength /\%101v.\+/
     " Re-open VIM to the last spot you had open.
     if has("autocmd")
         au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
