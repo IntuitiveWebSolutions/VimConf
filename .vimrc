@@ -6,8 +6,35 @@
 " Basics {
     set nocompatible " explicitly get out of vi-compatible mode
     syntax on " syntax highlighting on
-    runtime bundle/vim-pathogen/autoload/pathogen.vim " Enable pathogen for fancy plugin management
-    call pathogen#infect() " Append .vim/bundles apps
+    if has('vim_starting')
+           set runtimepath+=~/.vim/bundle/neobundle.vim/
+    endif
+    call neobundle#rc(expand('~/.vim/bundle/'))
+    NeoBundleFetch 'Shougo/neobundle.vim'
+    NeoBundle 'Shougo/unite.vim'
+    NeoBundle 'Shougo/vimproc'
+    NeoBundle 'airblade/vim-gitgutter'
+    NeoBundle 'altercation/vim-colors-solarized'
+    NeoBundle 'beardedprojamz/vim-colors-blayden'
+    NeoBundle 'groenewege/vim-less'
+    NeoBundle 'kchmck/vim-coffee-script'
+    NeoBundle 'klen/python-mode'
+    NeoBundle 'majutsushi/tagbar'
+    NeoBundle 'nathanaelkane/vim-indent-guides'
+    NeoBundle 'pangloss/vim-javascript'
+    NeoBundle 'rodjek/vim-puppet'
+    NeoBundle 'scrooloose/nerdcommenter'
+    NeoBundle 'scrooloose/nerdtree'
+    NeoBundle 'scrooloose/syntastic'
+    NeoBundle 'tpope/vim-abolish'
+    NeoBundle 'tpope/vim-fugitive'
+    NeoBundle 'tpope/vim-pathogen'
+    NeoBundle 'tpope/vim-repeat'
+    NeoBundle 'tpope/vim-surround'
+    NeoBundle 'uggedal/go-vim'
+    NeoBundle 'vim-scripts/php.vim--Garvin'
+    filetype plugin indent on " load filetype plugins/indent settings
+    NeoBundleCheck
     colorscheme blayden " set our customized colorscheme
     set background=dark
     let g:solarized_termtrans=1
@@ -15,7 +42,6 @@
 " }
 
 " General {
-    filetype plugin indent on " load filetype plugins/indent settings
     set backspace=indent,eol,start " make backspace a more flexible
     set backup " make backup files
     set backupdir=~/.vim/backup " where to put backup files
