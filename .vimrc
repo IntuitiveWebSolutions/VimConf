@@ -28,7 +28,6 @@
     NeoBundle 'scrooloose/syntastic'
     NeoBundle 'tpope/vim-abolish'
     NeoBundle 'tpope/vim-fugitive'
-    NeoBundle 'tpope/vim-pathogen'
     NeoBundle 'tpope/vim-repeat'
     NeoBundle 'tpope/vim-surround'
     NeoBundle 'uggedal/go-vim'
