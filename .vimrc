@@ -12,12 +12,12 @@
     call neobundle#rc(expand('~/.vim/bundle/'))
     NeoBundleFetch 'Shougo/neobundle.vim'
     NeoBundle 'Shougo/unite.vim'
-    NeoBundle 'Shougo/vimproc'
     NeoBundle 'airblade/vim-gitgutter'
     NeoBundle 'altercation/vim-colors-solarized'
     NeoBundle 'beardedprojamz/vim-colors-blayden'
     NeoBundle 'groenewege/vim-less'
     NeoBundle 'kchmck/vim-coffee-script'
+    NeoBundle 'kien/ctrlp.vim'
     NeoBundle 'klen/python-mode'
     NeoBundle 'majutsushi/tagbar'
     NeoBundle 'nathanaelkane/vim-indent-guides'
@@ -33,6 +33,16 @@
     NeoBundle 'tpope/vim-surround'
     NeoBundle 'uggedal/go-vim'
     NeoBundle 'vim-scripts/php.vim--Garvin'
+    " vimproc needs a special build
+    NeoBundle 'Shougo/vimproc', {
+          \ 'build' : {
+          \     'windows' : 'make -f make_mingw32.mak',
+          \     'cygwin' : 'make -f make_cygwin.mak',
+          \     'mac' : 'make -f make_mac.mak',
+          \     'unix' : 'make -f make_unix.mak',
+          \    },
+          \ }
+    " the plugin indent needs to be on before neobundle runs...
     filetype plugin indent on " load filetype plugins/indent settings
     NeoBundleCheck
     colorscheme blayden " set our customized colorscheme
@@ -93,6 +103,15 @@
     let g:ctrlp_custom_ignore = '\.git$\|\.svn$\|\uploads$'
 
     au BufNewFile,BufRead *.save set filetype=sql
+
+    " Unite settings
+    let g:unite_enabled_start_insert=1
+    let g:unite_source_history_yank_enable=1
+
+    autocmd FileType unite call s:unite_settings()
+    function! s:unite_settings()
+        " Put settings that execute inside the unite buffer here
+    endfunction
 " }
 
 " Vim UI {
@@ -156,6 +175,10 @@
 
 " Mappings {
     let mapleader = ","
+    " Mapping Unite commands
+    nnoremap <Leader>/ :Unite grep:.<cr>
+    nnoremap <Leader>y :Unite -buffer-name=yank history/yank<cr>
+    nnoremap <Leader>l :Unite -buffer-name=buffers -quick-match buffer<cr>
     " Mapping ropevim commands
     nnoremap <Leader>g :call RopeGotoDefinition()<return>
     nnoremap <Leader>d :call RopeShowDoc()<return>
@@ -180,8 +203,6 @@
     " Map Paste / No Number for copy, paste, etc. in Vim without X.
     nnoremap <Leader>p :set paste nonumber<return>
     nnoremap <Leader>np :set nopaste number<return>
-    " Set buffergator key (<Leader>b is slow because of other b* maps)
-    noremap <Leader>l :BuffergatorToggle<return>
     " X System Clipboard copy, cut, & paste shortcuts.
     noremap <Leader>xp "+gP<return>
     noremap <Leader>xy "+y<return>

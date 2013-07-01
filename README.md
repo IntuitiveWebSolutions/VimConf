@@ -5,13 +5,17 @@ A vimrc file and different bundles. This vim setup requires at least Vim 7.3 com
 
 The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfonts/inconsolata.html "Inconsolata"); the OpenType file is included in this repo.
 
-The config uses [pathogen](https://github.com/tpope/vim-pathogen "pathogen") for automatically adding the below bundles to the Vim runtimepath.
-
-To generate the documentation tags for each plugin, run **:Helptags**.
+The config uses [neobundle](https://github.com/Shougo/neobundle.vim "neobundle") for installing and updating bundled modules.
 
 For Tagbar to work well with JavaScript (and probably other languages), we **highly** recommend installing the latest version of [Exuberant Ctags](http://ctags.sourceforge.net/ "Exuberant Ctags").
 
 For Syntastic to check syntax of different file types, you optionally need to have a PHP runtime, JSHint, and/or PyFlakes installed.
+
+Requirements
+------------
+
+ * Vim 7.3 compiled with python & multibyte support.
+ * An up to date installation of git.
 
 Setup
 -----
@@ -59,8 +63,8 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [python-mode](https://github.com/klen/python-mode "python-mode")
 * [syntastic](https://github.com/scrooloose/syntastic "syntastic")
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
+* [unite](https://github.com/Shougo/unite.vim.git "unite")
 * [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
-* [vim-buffergator](https://github.com/jeetsukumaran/vim-buffergator "vim-buffergator")
 * [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
 * [vim-colors-blayden](https://github.com/beardedprojamz/vim-colors-blayden "vim-colors-blayden")
 * [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")
@@ -73,6 +77,7 @@ If you haven't checked out the repo yet, be sure and clone it with the --recursi
 * [vim-puppet](https://github.com/rodjek/vim-puppet "vim-puppet")
 * [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
 * [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
+* [vimproc](https://github.com/Shougo/vimproc.vim.git "vimproc")
 
 Color Schemes
 -------------
@@ -127,14 +132,16 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,tn**                     | Next tab |
 |**,tp**                     | Previous tab |
 |**,te**                     | Edit new tab |
-|**,l**                      | Toggle BufferGator plugin |
+|**,l**                      | Navigate buffers |
+|**,/**                      | Grep in the current directory |
+|**,y**                      | Show yank buffers to paste from |
 |**,nt**                     | Toggle NERDTree plugin |
 |**,tb**                     | Toggle Tagbar plugin |
 |**,e**                      | Open Syntastic Error Location List |
 |**,en**                     | Go to next error |
 |**,ep**                     | Go to previous error |
 |**,ig**                     | Toggle IndentGuides plugin |
-|**,lc**                     | Compile LESS file to CSS. Requires NPM install of less |
+|**,cl**                     | Compile LESS file to CSS. Requires NPM install of less |
 |**,p**                      | Set paste nonumber for easy copy & pasting in a terminal |
 |**,np**                     | Set nopaste number to go back normal editing mode |
 |**,xp**                     | Put (Paste) from system clipboard |
