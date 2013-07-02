@@ -6,8 +6,44 @@
 " Basics {
     set nocompatible " explicitly get out of vi-compatible mode
     syntax on " syntax highlighting on
-    runtime bundle/vim-pathogen/autoload/pathogen.vim " Enable pathogen for fancy plugin management
-    call pathogen#infect() " Append .vim/bundles apps
+    if has('vim_starting')
+           set runtimepath+=~/.vim/bundle/neobundle.vim/
+    endif
+    call neobundle#rc(expand('~/.vim/bundle/'))
+    NeoBundleFetch 'Shougo/neobundle.vim'
+    NeoBundle 'Shougo/unite.vim'
+    NeoBundle 'airblade/vim-gitgutter'
+    NeoBundle 'altercation/vim-colors-solarized'
+    NeoBundle 'beardedprojamz/vim-colors-blayden'
+    NeoBundle 'groenewege/vim-less'
+    NeoBundle 'kchmck/vim-coffee-script'
+    NeoBundle 'kien/ctrlp.vim'
+    NeoBundle 'klen/python-mode'
+    NeoBundle 'majutsushi/tagbar'
+    NeoBundle 'nathanaelkane/vim-indent-guides'
+    NeoBundle 'pangloss/vim-javascript'
+    NeoBundle 'rodjek/vim-puppet'
+    NeoBundle 'scrooloose/nerdcommenter'
+    NeoBundle 'scrooloose/nerdtree'
+    NeoBundle 'scrooloose/syntastic'
+    NeoBundle 'tpope/vim-abolish'
+    NeoBundle 'tpope/vim-fugitive'
+    NeoBundle 'tpope/vim-repeat'
+    NeoBundle 'tpope/vim-surround'
+    NeoBundle 'uggedal/go-vim'
+    NeoBundle 'vim-scripts/php.vim--Garvin'
+    " vimproc needs a special build
+    NeoBundle 'Shougo/vimproc', {
+          \ 'build' : {
+          \     'windows' : 'make -f make_mingw32.mak',
+          \     'cygwin' : 'make -f make_cygwin.mak',
+          \     'mac' : 'make -f make_mac.mak',
+          \     'unix' : 'make -f make_unix.mak',
+          \    },
+          \ }
+    " the plugin indent needs to be on before neobundle runs...
+    filetype plugin indent on " load filetype plugins/indent settings
+    NeoBundleCheck
     colorscheme blayden " set our customized colorscheme
     set background=dark
     let g:solarized_termtrans=1
@@ -15,7 +51,6 @@
 " }
 
 " General {
-    filetype plugin indent on " load filetype plugins/indent settings
     set backspace=indent,eol,start " make backspace a more flexible
     set backup " make backup files
     set backupdir=~/.vim/backup " where to put backup files
@@ -67,6 +102,15 @@
     let g:ctrlp_custom_ignore = '\.git$\|\.svn$\|\uploads$'
 
     au BufNewFile,BufRead *.save set filetype=sql
+
+    " Unite settings
+    let g:unite_enabled_start_insert=1
+    let g:unite_source_history_yank_enable=1
+
+    autocmd FileType unite call s:unite_settings()
+    function! s:unite_settings()
+        " Put settings that execute inside the unite buffer here
+    endfunction
 " }
 
 " Vim UI {
@@ -130,6 +174,10 @@
 
 " Mappings {
     let mapleader = ","
+    " Mapping Unite commands
+    nnoremap <Leader>/ :Unite grep:.<cr>
+    nnoremap <Leader>y :Unite -buffer-name=yank history/yank<cr>
+    nnoremap <Leader>l :Unite -buffer-name=buffers -quick-match buffer<cr>
     " Mapping ropevim commands
     nnoremap <Leader>g :call RopeGotoDefinition()<return>
     nnoremap <Leader>d :call RopeShowDoc()<return>
@@ -154,8 +202,6 @@
     " Map Paste / No Number for copy, paste, etc. in Vim without X.
     nnoremap <Leader>p :set paste nonumber<return>
     nnoremap <Leader>np :set nopaste number<return>
-    " Set buffergator key (<Leader>b is slow because of other b* maps)
-    noremap <Leader>l :BuffergatorToggle<return>
     " X System Clipboard copy, cut, & paste shortcuts.
     noremap <Leader>xp "+gP<return>
     noremap <Leader>xy "+y<return>
