@@ -81,10 +81,6 @@
     set wildignore=*.dll,*.o,*.obj,*.bak,*.exe,*.pyc,
                     \*.jpg,*.gif,*.png
     set wildmode=list:longest " turn on wild mode huge list
-    " Set shell to interactive mode
-    set shellcmdflag=-ic
-    " Use bash for the shell
-    set shell=/bin/bash\ -i
     " Set buffer to infinity
     set viminfo='100,h
     " Re-open VIM to the last spot you had open.
@@ -206,8 +202,8 @@
     noremap <Leader>xp "+gP<return>
     noremap <Leader>xy "+y<return>
     noremap <Leader>xx "+x<return>
-    " Compile less to new CSS file
-    nnoremap <Leader>cl :w <BAR> !lessc % > %:t:r.css<CR><space>
+    " Compile (make) less to new CSS file
+    nnoremap <Leader>ml :w <BAR> !lessc % > %:t:r.css<CR><space>
     " Spell Checking
     nnoremap <Leader>sp :setlocal spell spelllang=en_us<return>
     nnoremap <Leader>nsp :setlocal spell spelllang=<return>
@@ -236,8 +232,8 @@
     imap <S-Up> <Esc>10ki
     vmap <S-Down> 10j
     vmap <S-Up> 10k
-    " Send the selected hunk to Matt's hastebin
-    vmap <Leader>hb <esc>:'<,'>:w !work_haste<CR>
+    " Send the selected hunk to IWS's hastebin
+    vmap <Leader>hb <esc>:'<,'>:w !HASTE_SERVER=http://hastebin.britecorepro.com haste<CR>
     " Jump easily between open windows
     nnoremap <C-h> <C-w>h
     nnoremap <C-j> <C-w>j

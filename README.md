@@ -141,7 +141,7 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,en**                     | Go to next error |
 |**,ep**                     | Go to previous error |
 |**,ig**                     | Toggle IndentGuides plugin |
-|**,cl**                     | Compile LESS file to CSS. Requires NPM install of less |
+|**,ml**                     | Compile LESS file to CSS. Requires NPM install of less |
 |**,p**                      | Set paste nonumber for easy copy & pasting in a terminal |
 |**,np**                     | Set nopaste number to go back normal editing mode |
 |**,xp**                     | Put (Paste) from system clipboard |
