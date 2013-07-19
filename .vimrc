@@ -281,7 +281,9 @@
     let g:pymode_utils_whitespaces=0 " don't molest whitespace
     let g:ftplugin_sql_omni_key='<C-S>' " reset sql omni key
     let NERDSpaceDelims=1 " Add space delimiters
-    let g:gitgutter_eager=0 " Only run gitgutter on read/writee of files
+    let g:gitgutter_eager=0 " Only run gitgutter on read/write of files
+    nmap gh <Plug>GitGutterNextHunk
+    nmap gH <Plug>GitGutterPrevHunk
 " }
 
 " Include custom configurations via the .vimrc_custom file

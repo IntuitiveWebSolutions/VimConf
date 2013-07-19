@@ -126,6 +126,8 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 
 | Keys                       | Command                                             |
 |---------------------------:|:----------------------------------------------------|
+|**gh**                      | GitGutter Next Hunk |
+|**gH**                      | GitGutter Previous Hunk |
 |**,,**                      | Toggles comment state of the selected line(s) |
 |**,si**                     | Adds a 'Signature' to the end of the line. Ex. ' -- Ben Hayden 5/14/2012' |
 |**,tc**                     | Close tab |
