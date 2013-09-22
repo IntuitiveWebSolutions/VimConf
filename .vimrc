@@ -31,6 +31,7 @@
     NeoBundle 'tpope/vim-repeat'
     NeoBundle 'tpope/vim-surround'
     NeoBundle 'uggedal/go-vim'
+    NeoBundle "Blackrush/vim-gocode"
     NeoBundle 'vim-scripts/php.vim--Garvin'
     " vimproc needs a special build
     NeoBundle 'Shougo/vimproc', {
@@ -107,6 +108,9 @@
     function! s:unite_settings()
         " Put settings that execute inside the unite buffer here
     endfunction
+
+    " Enable omnicompletion
+    set omnifunc=syntaxcomplete#Complete
 " }
 
 " Vim UI {
