@@ -99,7 +99,7 @@ The below mappings are default in NERDCommenter, and the ones most used, so they
 | **,cl**                    | Comment current line or text selected in visual mode (forces nesting) |
 | **,cu**                    | Uncomment selected lines(s) |
 
-**RopeVim and Python commands**
+**RopeVim and Python Commands**
 
 To use Rope you need to build the project: `:RopeOpenProject` and `:RopeAnalyzeModules`.
 Make sure you add anything your project needs, path wise. For example, run `:RopeProjectConfig`
@@ -116,11 +116,17 @@ and add the paths:
 | **,d**                     | Display documentation of object under cursor. |
 | **,f**                     | Find all occurrences of object under cursor. |
 | **,j**                     | Jump to global object name. |
-| **,b**                     | Insert PDB set_trace() breakpoint. |
+| **,b**                     | Insert PDB|iPDB|PuDB set_trace() breakpoint. |
 | **[[** or **]]**           | Next/previous class or global function. |
 | **[M** or **]M**           | Next/previous method. |
 
 See [python-mode](https://github.com/klen/python-mode) for more shortcuts and options.
+
+**JavaScript Commands**
+
+| Keys                       | Command                                             |
+|---------------------------:|:----------------------------------------------------|
+| **,b**                     | Insert 'debugger;' breakpoint. |
 
 
 **Custom Mappings**
