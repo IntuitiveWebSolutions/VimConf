@@ -286,8 +286,24 @@
     let g:ftplugin_sql_omni_key='<C-S>' " reset sql omni key
     let NERDSpaceDelims=1 " Add space delimiters
     let g:gitgutter_eager=0 " Only run gitgutter on read/write of files
+    " GitGutter Next/Prev Shortcuts
     nmap gh <Plug>GitGutterNextHunk
     nmap gH <Plug>GitGutterPrevHunk
+    " Javascript Debugger Function - inspired by pymode#breakpoint#Set
+    function JSDebugger(lnum)
+        let line = getline(a:lnum)
+        if strridx(line, "debugger;") != -1
+            normal dd
+        else
+            let plnum = prevnonblank(a:lnum)
+            call append(line('.')-1, repeat(' ', indent(plnum))."debugger;")
+            normal k
+        endif
+
+        " Save file without any events
+        if &modifiable && &modified | noautocmd write | endif
+    endfunction
+    au BufNewFile,BufReadPost *.js nnoremap <Leader>b :call JSDebugger(line('.'))<return>
 " }
 
 " Include custom configurations via the .vimrc_custom file
