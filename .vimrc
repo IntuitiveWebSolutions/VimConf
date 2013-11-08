@@ -289,6 +289,10 @@
     " GitGutter Next/Prev Shortcuts
     nmap gh <Plug>GitGutterNextHunk
     nmap gH <Plug>GitGutterPrevHunk
+    " Disable GitGutter in vimdiff
+    if &diff
+        let g:gitgutter_enabled=0
+    endif
     " Javascript Debugger Function - inspired by pymode#breakpoint#Set
     function JSDebugger(lnum)
         let line = getline(a:lnum)
