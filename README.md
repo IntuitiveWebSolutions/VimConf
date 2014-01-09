@@ -42,10 +42,12 @@ That way, any time you want to update to the latest versions of the VimConf, you
 
 > git pull
 
-Bundle List
------------
+NeoBundle
+---------
 
-All of these are loaded as git submodules as of 01/19/2012 so if your repo is older than that you will need to go into your checkout and do the below commands for things to work:
+[NeoBundle](https://github.com/Shougo/neobundle.vim "neobundle") is the tool used to pull in all the plugins below. Make sure that the bundle is checked out (it is a submodule), and check out 'master'.
+
+> cd VimConf
 
 > git pull
 
@@ -53,7 +55,15 @@ All of these are loaded as git submodules as of 01/19/2012 so if your repo is ol
 
 > git submodule update
 
-If you haven't checked out the repo yet, be sure and clone it with the --recursive flag and it will grab everything.
+> cd VimConf/.vim/bundle/neobundle.vim 
+
+> git checkout master
+
+Now open vim - when you do this NeoBundle will ask to install all the plugins listed in vimrc. You can update these at any time from inside vim by running:
+
+> :NeoBundleUpdate
+
+**Bundle List**
 
 * [ctrlp](https://github.com/kien/ctrlp.vim "ctrlp")
 * [go-vim](https://github.com/uggedal/go-vim "go-vim")
