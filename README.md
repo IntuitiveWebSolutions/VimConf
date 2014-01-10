@@ -1,7 +1,7 @@
 VimConf
 =======
 
-A vimrc file and different bundles. This vim setup requires at least Vim 7.3 compiled with python & multibyte support.
+A vimrc file and different bundles. This vim setup requires at least Vim 7.3+ compiled with python & multibyte support.
 
 The font used when running gVim is [Inconsolata](http://www.levien.com/type/myfonts/inconsolata.html "Inconsolata"); the OpenType file is included in this repo.
 
@@ -22,42 +22,40 @@ Setup
 
 Check out VimConf to your home folder like so:
 
-> cd ~
-
-> git clone --recursive git://github.com/beardedprojamz/VimConf.git
+```bash
+$> cd ~
+$> git clone --recursive git://github.com/beardedprojamz/VimConf.git
+```
 
 Then create symlinks to the files inside the repo:
 
-> ln -s ~/VimConf/.vim ~/.vim
+```bash
+$> ln -s ~/VimConf/.vim ~/.vim
+$> ln -s ~/VimConf/.vimrc ~/.vimrc
+$> ln -s ~/VimConf/.vimrc_custom ~/.vimrc_custom
+$> ln -s ~/VimConf/.gvimrc ~/.gvimrc
+```
 
-> ln -s ~/VimConf/.vimrc ~/.vimrc
+That way, any time you want to update to the latest versions of the VimConf, you can just `git pull` inside the VimConf folder.
 
-> ln -s ~/VimConf/.vimrc_custom ~/.vimrc_custom
-
-> ln -s ~/VimConf/.gvimrc ~/.gvimrc
-
-That way, any time you want to update to the latest versions of the VimConf, you can just **git pull** inside the VimConf folder.
-
-> cd ~/VimConf/
-
-> git pull
+```bash
+$> cd ~/VimConf/
+$> git pull
+```
 
 NeoBundle
 ---------
 
 [NeoBundle](https://github.com/Shougo/neobundle.vim "neobundle") is the tool used to pull in all the plugins below. Make sure that the bundle is checked out (it is a submodule), and check out 'master'.
 
-> cd VimConf
-
-> git pull
-
-> git submodule init
-
-> git submodule update
-
-> cd VimConf/.vim/bundle/neobundle.vim 
-
-> git checkout master
+```bash
+$> cd VimConf
+$> git pull
+$> git submodule init
+$> git submodule update
+$> cd VimConf/.vim/bundle/neobundle.vim 
+$> git checkout master
+```
 
 Now open vim - when you do this NeoBundle will ask to install all the plugins listed in vimrc. You can update these at any time from inside vim by running:
 
