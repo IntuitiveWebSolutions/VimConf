@@ -59,7 +59,9 @@ $> git checkout master
 
 Now open vim - when you do this NeoBundle will ask to install all the plugins listed in vimrc. You can update these at any time from inside vim by running:
 
-> :NeoBundleUpdate
+```bash
+$> :NeoBundleUpdate
+```
 
 **Bundle List**
 
