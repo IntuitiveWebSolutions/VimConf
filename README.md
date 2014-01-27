@@ -167,6 +167,8 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,xy**                     | Yank (Copy) to system clipboard |
 |**,xx**                     | Cut to system clipboard |
 |**,s**                      | Write file |
+|**,ev**                     | Edit $MYVIMRC |
+|**,sv**                     | Source $MYVIMRC |
 |**,sp**                     | Turn on Spell checking for EN_US |
 |**,nsp**                    | Turn off Spell checking for EN_US |
 |**,q**                      | Write & quit file |

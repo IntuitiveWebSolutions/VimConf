@@ -214,6 +214,9 @@
     " Write and Write & Quit shortcuts
     nnoremap <Leader>s :w<return>
     nnoremap <Leader>q :wq<return>
+    " Edit & Source $MYVIMRC
+    nnoremap <Leader>ev :vsplit $MYVIMRC<CR>
+    nnoremap <Leader>sv :source $MYVIMRC<CR>
     " Start vertical split command with space character.
     nnoremap <Leader>v :vsp<space>
     " Start horizontal split command with space character.
@@ -255,7 +258,7 @@
     " Write as super user
     command! W w !sudo tee % > /dev/null
     " Trim trailing whitespace
-    command TrimWS %s/\s*$//g | noh
+    command! TrimWS %s/\s*$//g | noh
     " Visual Selection Search using * and #
     function! s:VSetSearch()
         let temp = @@
@@ -271,7 +274,7 @@
     " Auto-compile coffee files on save.
     au BufWritePost *.coffee silent CoffeeMake!
     " Auto-compile less files on save.
-    function LessToCss()
+    function! LessToCss()
         let current_file = shellescape(expand('%:p'))
         let filename = shellescape(expand('%:r'))
         let command = "silent !lessc " . current_file . " " . filename . ".css"
@@ -294,7 +297,7 @@
         let g:gitgutter_enabled=0
     endif
     " Javascript Debugger Function - inspired by pymode#breakpoint#Set
-    function JSDebugger(lnum)
+    function! JSDebugger(lnum)
         let line = getline(a:lnum)
         if strridx(line, "debugger;") != -1
             normal dd
