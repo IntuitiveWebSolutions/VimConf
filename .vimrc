@@ -311,6 +311,11 @@
     au BufNewFile,BufReadPost *.js nnoremap <Leader>b :call JSDebugger(line('.'))<return>
 " }
 
+" Abbreviations {
+    iabbrev rn return
+    autocmd FileType javascript :iabbrev <buffer> fn function ()<left>
+" }
+
 " Include custom configurations via the .vimrc_custom file
 " which is included here:
 if filereadable($HOME."/.vimrc_custom")
