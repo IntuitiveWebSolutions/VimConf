@@ -152,7 +152,7 @@
     nnoremap <Leader>/ :Unite grep:.<cr>
     nnoremap <Leader>y :Unite -buffer-name=yank history/yank<cr>
     nnoremap <Leader>l :Unite -buffer-name=buffers -quick-match buffer<cr>
-    nnoremap <C-p> :Unite file<cr>
+    nnoremap <C-p> :Unite -start-insert file<cr>
     " Mapping tab commands
     nnoremap <Leader>tc :tabc<return>
     nnoremap <Leader>tn :tabn<return>
