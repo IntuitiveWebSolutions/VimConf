@@ -205,12 +205,12 @@
     " Make arrow keys jump by 10 lines
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
-    imap <S-Down> <Esc>10ji
-    imap <S-Up> <Esc>10ki
-    vmap <S-Down> 10j
-    vmap <S-Up> 10k
+    inoremap <S-Down> <Esc>10ji
+    inoremap <S-Up> <Esc>10ki
+    vnoremap <S-Down> 10j
+    vnoremap <S-Up> 10k
     " Send the selected hunk to IWS's hastebin
-    vmap <Leader>hb <esc>:'<,'>:w !HASTE_SERVER=http://hastebin.britecorepro.com haste<CR>
+    vnoremap <Leader>hb <esc>:'<,'>:w !HASTE_SERVER=http://hastebin.britecorepro.com haste<CR>
     " Jump easily between open windows
     nnoremap <C-h> <C-w>h
     nnoremap <C-j> <C-w>j
@@ -238,6 +238,9 @@
     endfunction
     vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR>
     vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR>
+    " 'Parameters' Operator mapping
+    " Usage: dp - Delete between ()
+    onoremap p i(
 " }
 
 " Plugin settings {
