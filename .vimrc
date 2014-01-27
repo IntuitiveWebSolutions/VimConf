@@ -17,7 +17,6 @@
     NeoBundle 'beardedprojamz/vim-colors-blayden'
     NeoBundle 'groenewege/vim-less'
     NeoBundle 'kchmck/vim-coffee-script'
-    NeoBundle 'kien/ctrlp.vim'
     NeoBundle 'klen/python-mode'
     NeoBundle 'majutsushi/tagbar'
     NeoBundle 'nathanaelkane/vim-indent-guides'
@@ -93,10 +92,6 @@
         au BufReadPost COMMIT_EDITMSG
         \ exe "normal! gg"
     endif
-    " CtrlP finds a versioned working directory
-    let g:ctrlp_working_path_mode = 2
-    " Ignore uploads directory in projects for CtrlP
-    let g:ctrlp_custom_ignore = '\.git$\|\.svn$\|\uploads$'
 
     au BufNewFile,BufRead *.save set filetype=sql
 
@@ -178,6 +173,7 @@
     nnoremap <Leader>/ :Unite grep:.<cr>
     nnoremap <Leader>y :Unite -buffer-name=yank history/yank<cr>
     nnoremap <Leader>l :Unite -buffer-name=buffers -quick-match buffer<cr>
+    nnoremap <C-p> :Unite file<cr>
     " Mapping tab commands
     nnoremap <Leader>tc :tabc<return>
     nnoremap <Leader>tn :tabn<return>
