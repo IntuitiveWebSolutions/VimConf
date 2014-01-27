@@ -178,11 +178,6 @@
     nnoremap <Leader>/ :Unite grep:.<cr>
     nnoremap <Leader>y :Unite -buffer-name=yank history/yank<cr>
     nnoremap <Leader>l :Unite -buffer-name=buffers -quick-match buffer<cr>
-    " Mapping ropevim commands
-    nnoremap <Leader>g :call RopeGotoDefinition()<return>
-    nnoremap <Leader>d :call RopeShowDoc()<return>
-    nnoremap <Leader>f :call RopeFindOccurrences()<return>
-    nnoremap <Leader>j :call RopeJumpToGlobal()<return>
     " Mapping tab commands
     nnoremap <Leader>tc :tabc<return>
     nnoremap <Leader>tn :tabn<return>
@@ -286,6 +281,9 @@
     let g:pymode_folding=0 " Turn off python-mode folding
     let g:pymode_lint=0 " Turn off python-mode lint since we use Syntastic
     let g:pymode_trim_whitespaces=0 " don't molest whitespace
+    let g:pymode_rope_goto_definition_bind = '<Leader>g'
+    let g:pymode_rope_goto_definition_cmd = 'vnew'
+    let g:pymode_doc_bind= '<Leader>d'
     let g:ftplugin_sql_omni_key='<C-S>' " reset sql omni key
     let NERDSpaceDelims=1 " Add space delimiters
     let g:gitgutter_eager=0 " Only run gitgutter on read/write of files

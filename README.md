@@ -124,8 +124,6 @@ and add the paths:
 | **C-space**                | Autocomplete as you type. |
 | **,g**                     | Go to definition of object under cursor. |
 | **,d**                     | Display documentation of object under cursor. |
-| **,f**                     | Find all occurrences of object under cursor. |
-| **,j**                     | Jump to global object name. |
 | **,b**                     | Insert PDB|iPDB|PuDB set_trace() breakpoint. |
 | **[[** or **]]**           | Next/previous class or global function. |
 | **[M** or **]M**           | Next/previous method. |
