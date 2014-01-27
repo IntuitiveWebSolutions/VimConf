@@ -9,6 +9,7 @@
     if has('vim_starting')
            set runtimepath+=~/.vim/bundle/neobundle.vim/
     endif
+    " Declare all NeoBundles
     call neobundle#rc(expand('~/.vim/bundle/'))
     NeoBundleFetch 'Shougo/neobundle.vim'
     NeoBundle 'Shougo/unite.vim'
@@ -43,6 +44,7 @@
           \ }
     " the plugin indent needs to be on before neobundle runs...
     filetype plugin indent on " load filetype plugins/indent settings
+    " Update and turn on all NeoBundles
     NeoBundleCheck
     colorscheme blayden " set our customized colorscheme
     set background=dark
@@ -83,27 +85,6 @@
     set wildmode=list:longest " turn on wild mode huge list
     " Set buffer to infinity
     set viminfo='100,h
-    " Re-open VIM to the last spot you had open.
-    if has("autocmd")
-        au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
-            \| exe "normal! g'\"" | endif
-
-        " Jump to the top of git COMMIT_EDITMSG files.
-        au BufReadPost COMMIT_EDITMSG
-        \ exe "normal! gg"
-    endif
-
-    au BufNewFile,BufRead *.save set filetype=sql
-
-    " Unite settings
-    let g:unite_enabled_start_insert=1
-    let g:unite_source_history_yank_enable=1
-
-    autocmd FileType unite call s:unite_settings()
-    function! s:unite_settings()
-        " Put settings that execute inside the unite buffer here
-    endfunction
-
     " Enable omnicompletion
     set omnifunc=syntaxcomplete#Complete
 " }
@@ -161,8 +142,6 @@
                       " >>, << and stuff like that
     set softtabstop=4 " when hitting tab or backspace, how many spaces
                        "should a tab be (see expandtab)
-    au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 softtabstop=2 " For CoffeeScript
-    au BufNewFile,BufReadPost *.go setl noexpandtab tabstop=4 nolist " For Go
     set tabstop=8 " real tabs should be 8, and they will show with
                    " set list on
 " }
@@ -259,19 +238,11 @@
     endfunction
     vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR>
     vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR>
-    " Plugin Boolean settings for Programming Languages
+" }
+
+" Plugin settings {
     let coffee_compile_vert=1 " When compiling CoffeeScript, throw output into vertical split
     let coffee_make_options='--bare'
-    " Auto-compile coffee files on save.
-    au BufWritePost *.coffee silent CoffeeMake!
-    " Auto-compile less files on save.
-    function! LessToCss()
-        let current_file = shellescape(expand('%:p'))
-        let filename = shellescape(expand('%:r'))
-        let command = "silent !lessc " . current_file . " " . filename . ".css"
-        execute command
-    endfunction
-    autocmd BufWritePost,FileWritePost *.less call LessToCss()
     let g:syntastic_check_on_open=1 " Run Syntastic when opening files
     let g:syntastic_python_checkers=['python', 'pyflakes'] " Be more strict in python syntax
     let g:pymode_folding=0 " Turn off python-mode folding
@@ -290,26 +261,79 @@
     if &diff
         let g:gitgutter_enabled=0
     endif
-    " Javascript Debugger Function - inspired by pymode#breakpoint#Set
-    function! JSDebugger(lnum)
-        let line = getline(a:lnum)
-        if strridx(line, "debugger;") != -1
-            normal dd
-        else
-            let plnum = prevnonblank(a:lnum)
-            call append(line('.')-1, repeat(' ', indent(plnum))."debugger;")
-            normal k
-        endif
-
-        " Save file without any events
-        if &modifiable && &modified | noautocmd write | endif
-    endfunction
-    au BufNewFile,BufReadPost *.js nnoremap <Leader>b :call JSDebugger(line('.'))<return>
+    " Unite settings
+    let g:unite_enabled_start_insert=1
+    let g:unite_source_history_yank_enable=1
+    let g:unite_winheight = 10
 " }
 
-" Abbreviations {
+" Global Abbreviations {
     iabbrev rn return
-    autocmd FileType javascript :iabbrev <buffer> fn function ()<left>
+" }
+
+" Autocmds {
+    augroup coffee_au
+        autocmd!
+        " 2 space tabs for CoffeeScript
+        au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 softtabstop=2
+        " Auto-compile coffee files on save.
+        au BufWritePost *.coffee silent CoffeeMake!
+    augroup END
+    augroup golang_au
+        autocmd!
+        " Display real tabs like 4 spaces, don't list trailing characters
+        au BufNewFile,BufReadPost *.go setl noexpandtab tabstop=4 nolist
+    augroup END
+    augroup javascript_au
+        autocmd!
+        " Javascript Debugger Function - inspired by pymode#breakpoint#Set
+        function! JSDebugger(lnum)
+            let line = getline(a:lnum)
+            if strridx(line, "debugger;") != -1
+                normal dd
+            else
+                let plnum = prevnonblank(a:lnum)
+                call append(line('.')-1, repeat(' ', indent(plnum))."debugger;")
+                normal k
+            endif
+
+            " Save file without any events
+            if &modifiable && &modified | noautocmd write | endif
+        endfunction
+        " Add debugger key command for JS
+        au BufNewFile,BufReadPost *.js nnoremap <Leader>b :call JSDebugger(line('.'))<return>
+        " Abbreviation for anon. functions
+        autocmd FileType javascript :iabbrev <buffer> fn function ()<left>
+    augroup END
+    augroup less_au
+        autocmd!
+        " Function to compile Less to CSS
+        function! LessToCss()
+            let current_file = shellescape(expand('%:p'))
+            let filename = shellescape(expand('%:r'))
+            let command = "silent !lessc " . current_file . " " . filename . ".css"
+            execute command
+        endfunction
+        " Auto-compile less files on save.
+        autocmd BufWritePost,FileWritePost *.less call LessToCss()
+    augroup END
+    augroup reopen_au
+        autocmd!
+        " Re-open VIM to the last spot you had open.
+        au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
+            \| exe "normal! g'\"" | endif
+
+        " Jump to the top of git COMMIT_EDITMSG files.
+        au BufReadPost COMMIT_EDITMSG
+        \ exe "normal! gg"
+    augroup END
+    augroup unite_au
+        autocmd!
+        function! s:unite_settings()
+            " Put settings that execute inside the unite buffer here
+        endfunction
+        autocmd FileType unite call s:unite_settings()
+    augroup END
 " }
 
 " Include custom configurations via the .vimrc_custom file
