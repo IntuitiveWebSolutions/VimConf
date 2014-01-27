@@ -65,7 +65,6 @@ Now open vim - when you do this NeoBundle will ask to install all the plugins li
 
 **Bundle List**
 
-* [ctrlp](https://github.com/kien/ctrlp.vim "ctrlp")
 * [go-vim](https://github.com/uggedal/go-vim "go-vim")
 * [neobundle](https://github.com/Shougo/neobundle.vim "neobundle") 
 * [nerdcommenter](https://github.com/scrooloose/nerdcommenter "nerdcommenter")
@@ -191,6 +190,6 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**control + j**             | Switch to bottom window |
 |**control + k**             | Switch to top window |
 |**control + l**             | Switch to right window |
-|**control + p**             | Start CtrlP plugin |
+|**control + p**             | Run Unite file |
 |**visual selection + \**    | Visual Selection Search with // |
 |**visual selection + #**    | Visual Selection Search with ?? |
