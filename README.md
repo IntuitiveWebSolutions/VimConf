@@ -172,6 +172,7 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,v**                      | Vertical split window |
 |**,h**                      | Horizontal split window |
 |**,cw**                     | Close window |
+|**,w**                      | Closes all but the current window |
 |**,bd**                     | Delete (close) buffer |
 |**,ch**                     | Clear (turn off) highlighting |
 |**,rt**                     | Re-tab entire file. (Shortcut for gg=G) |
