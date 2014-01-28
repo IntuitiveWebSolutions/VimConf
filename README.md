@@ -68,7 +68,6 @@ Now open vim - when you do this NeoBundle will ask to install all the plugins li
 * [go-vim](https://github.com/uggedal/go-vim "go-vim")
 * [neobundle](https://github.com/Shougo/neobundle.vim "neobundle") 
 * [nerdcommenter](https://github.com/scrooloose/nerdcommenter "nerdcommenter")
-* [nerdtree](https://github.com/scrooloose/nerdtree "nerdtree")
 * [php.vim--Garvin](https://github.com/vim-scripts/php.vim--Garvin "php.vim--Garvin")
 * [python-mode](https://github.com/klen/python-mode "python-mode")
 * [syntastic](https://github.com/scrooloose/syntastic "syntastic")
@@ -151,7 +150,7 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,l**                      | Navigate buffers |
 |**,/**                      | Grep in the current directory |
 |**,y**                      | Show yank buffers to paste from |
-|**,nt**                     | Toggle NERDTree plugin |
+|**,nt**                     | Open Netrw in a vertical split |
 |**,tb**                     | Toggle Tagbar plugin |
 |**,e**                      | Open Syntastic Error Location List |
 |**,en**                     | Go to next error |

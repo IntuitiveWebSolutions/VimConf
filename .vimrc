@@ -24,7 +24,6 @@
     NeoBundle 'pangloss/vim-javascript'
     NeoBundle 'rodjek/vim-puppet'
     NeoBundle 'scrooloose/nerdcommenter'
-    NeoBundle 'scrooloose/nerdtree'
     NeoBundle 'scrooloose/syntastic'
     NeoBundle 'tpope/vim-abolish'
     NeoBundle 'tpope/vim-fugitive'
@@ -158,9 +157,12 @@
     nnoremap <Leader>tn :tabn<return>
     nnoremap <Leader>tp :tabp<return>
     nnoremap <Leader>te :tabe<space>
-    " Mapping Plugin commands
-    nnoremap <Leader>nt :NERDTreeToggle<return>
+    " Netrw vertical left split
+    command! NetrwVSP 30vsp . | set winfixwidth
+    nnoremap <Leader>nt :NetrwVSP<return>
+    " Add Tagbar Toggle
     nnoremap <Leader>tb :TagbarToggle<return>
+    " Error list, next & previous commands for Syntastic
     nnoremap <Leader>e :Errors<return>
     nnoremap <Leader>en :lnext<return>
     nnoremap <Leader>ep :lprev<return>
