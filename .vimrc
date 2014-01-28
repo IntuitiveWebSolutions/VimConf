@@ -196,7 +196,7 @@
     " Close window
     nnoremap <Leader>cw :close<return>
     " Close all but the current window.
-    nnoremap <Leader>w :only
+    nnoremap <Leader>w :only<return>
     " Close buffer
     nnoremap <Leader>bd :bd<return>
     " Clear highlighting
