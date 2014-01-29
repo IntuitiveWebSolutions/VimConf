@@ -14,7 +14,7 @@ For Syntastic to check syntax of different file types, you optionally need to ha
 Requirements
 ------------
 
- * Vim 7.3 compiled with python & multibyte support.
+ * Vim 7.3+ compiled with python & multibyte support.
  * An up to date installation of git.
 
 Setup
