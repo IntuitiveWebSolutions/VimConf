@@ -53,7 +53,7 @@ $> cd VimConf
 $> git pull
 $> git submodule init
 $> git submodule update
-$> cd VimConf/.vim/bundle/neobundle.vim 
+$> cd VimConf/.vim/bundle/neobundle.vim
 $> git checkout master
 ```
 
@@ -65,8 +65,7 @@ Now open vim - when you do this NeoBundle will ask to install all the plugins li
 
 **Bundle List**
 
-* [go-vim](https://github.com/uggedal/go-vim "go-vim")
-* [neobundle](https://github.com/Shougo/neobundle.vim "neobundle") 
+* [neobundle](https://github.com/Shougo/neobundle.vim "neobundle")
 * [nerdcommenter](https://github.com/scrooloose/nerdcommenter "nerdcommenter")
 * [php.vim--Garvin](https://github.com/vim-scripts/php.vim--Garvin "php.vim--Garvin")
 * [python-mode](https://github.com/klen/python-mode "python-mode")
@@ -79,7 +78,6 @@ Now open vim - when you do this NeoBundle will ask to install all the plugins li
 * [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")
 * [vim-fugitive](https://github.com/tpope/vim-fugitive "vim-fugitive")
 * [vim-gitgutter](https://github.com/airblade/vim-gitgutter "vim-gitgutter")
-* [vim-gocode](https://github.com/Blackrush/vim-gocode "vim-gocode") - Requires [gocode](https://github.com/nsf/gocode)
 * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
 * [vim-less](https://github.com/groenewege/vim-less "vim-less")

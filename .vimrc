@@ -29,8 +29,6 @@
     NeoBundle 'tpope/vim-fugitive'
     NeoBundle 'tpope/vim-repeat'
     NeoBundle 'tpope/vim-surround'
-    NeoBundle 'uggedal/go-vim'
-    NeoBundle "Blackrush/vim-gocode"
     NeoBundle 'vim-scripts/php.vim--Garvin'
     " vimproc needs a special build
     NeoBundle 'Shougo/vimproc', {
@@ -285,11 +283,6 @@
         au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 softtabstop=2
         " Auto-compile coffee files on save.
         au BufWritePost *.coffee silent CoffeeMake!
-    augroup END
-    augroup golang_au
-        autocmd!
-        " Display real tabs like 4 spaces, don't list trailing characters
-        au BufNewFile,BufReadPost *.go setl noexpandtab tabstop=4 nolist
     augroup END
     augroup javascript_au
         autocmd!
