@@ -71,7 +71,7 @@ Now open vim - when you do this NeoBundle will ask to install all the plugins li
 * [python-mode](https://github.com/klen/python-mode "python-mode")
 * [syntastic](https://github.com/scrooloose/syntastic "syntastic")
 * [tagbar](https://github.com/majutsushi/tagbar "tagbar")
-* [unite](https://github.com/Shougo/unite.vim.git "unite")
+* [unite](https://github.com/Shougo/unite.vim "unite")
 * [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
 * [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
 * [vim-colors-blayden](https://github.com/beardedprojamz/vim-colors-blayden "vim-colors-blayden")
@@ -84,7 +84,7 @@ Now open vim - when you do this NeoBundle will ask to install all the plugins li
 * [vim-puppet](https://github.com/rodjek/vim-puppet "vim-puppet")
 * [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
 * [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
-* [vimproc](https://github.com/Shougo/vimproc.vim.git "vimproc")
+* [vimproc](https://github.com/Shougo/vimproc.vim "vimproc")
 
 Color Schemes
 -------------
