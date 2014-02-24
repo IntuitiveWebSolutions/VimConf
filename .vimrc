@@ -303,7 +303,7 @@
         " Add debugger key command for JS
         au BufNewFile,BufReadPost *.js nnoremap <Leader>b :call JSDebugger(line('.'))<return>
         " Abbreviation for anon. functions
-        autocmd FileType javascript :iabbrev <buffer> fn function ()<left>
+        autocmd FileType javascript :iabbrev <buffer> fn function()
     augroup END
     augroup less_au
         autocmd!
