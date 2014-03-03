@@ -276,6 +276,22 @@
     iabbrev rn return
 " }
 
+" Global Functions {
+    function! InsertDebugLine(str, lnum)
+        let line = getline(a:lnum)
+        if strridx(line, a:str) != -1
+            normal dd
+        else
+            let plnum = prevnonblank(a:lnum)
+            call append(line('.')-1, repeat(' ', indent(plnum)).a:str)
+            normal k
+        endif
+
+        " Save file without any events
+        if &modifiable && &modified | noautocmd write | endif
+    endfunction
+" }
+
 " Autocmds {
     augroup coffee_au
         autocmd!
@@ -286,22 +302,8 @@
     augroup END
     augroup javascript_au
         autocmd!
-        " Javascript Debugger Function - inspired by pymode#breakpoint#Set
-        function! JSDebugger(lnum)
-            let line = getline(a:lnum)
-            if strridx(line, "debugger;") != -1
-                normal dd
-            else
-                let plnum = prevnonblank(a:lnum)
-                call append(line('.')-1, repeat(' ', indent(plnum))."debugger;")
-                normal k
-            endif
-
-            " Save file without any events
-            if &modifiable && &modified | noautocmd write | endif
-        endfunction
         " Add debugger key command for JS
-        au BufNewFile,BufReadPost *.js nnoremap <Leader>b :call JSDebugger(line('.'))<return>
+        au BufNewFile,BufReadPost *.js nnoremap <Leader>b :call InsertDebugLine("debugger;", line('.'))<return>
         " Abbreviation for anon. functions
         autocmd FileType javascript :iabbrev <buffer> fn function()
     augroup END
@@ -316,6 +318,11 @@
         endfunction
         " Auto-compile less files on save.
         autocmd BufWritePost,FileWritePost *.less call LessToCss()
+    augroup END
+    augroup python_au
+        autocmd!
+        " Add remote debugger key command for Python
+        au BufNewFile,BufReadPost *.py nnoremap <Leader>rb :call InsertDebugLine("import rpdb; rpdb.set_trace()  # XXX BREAKPOINT", line('.'))<return>
     augroup END
     augroup reopen_au
         autocmd!
