@@ -13,6 +13,7 @@
     call neobundle#rc(expand('~/.vim/bundle/'))
     NeoBundleFetch 'Shougo/neobundle.vim'
     NeoBundle 'Shougo/unite.vim'
+    NeoBundle 'freitass/todo.txt-vim'
     NeoBundle 'airblade/vim-gitgutter'
     NeoBundle 'altercation/vim-colors-solarized'
     NeoBundle 'beardedprojamz/vim-colors-blayden'
