@@ -1,6 +1,6 @@
 " Notes {
 "   Ben Hayden, Scott Blevins, Matt Thompson, et al. Public Domain.
-"   https://github.com/beardedprojamz/VimConf
+"   https://github.com/IntuitiveWebSolutions/VimConf
 "}
 
 " Basics {
@@ -16,7 +16,7 @@
     NeoBundle 'freitass/todo.txt-vim'
     NeoBundle 'airblade/vim-gitgutter'
     NeoBundle 'altercation/vim-colors-solarized'
-    NeoBundle 'beardedprojamz/vim-colors-blayden'
+    NeoBundle 'IntuitiveWebSolutions/vim-colors-blayden'
     NeoBundle 'groenewege/vim-less'
     NeoBundle 'kchmck/vim-coffee-script'
     NeoBundle 'klen/python-mode'
