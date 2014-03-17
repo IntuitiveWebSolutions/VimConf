@@ -74,7 +74,7 @@ Now open vim - when you do this NeoBundle will ask to install all the plugins li
 * [unite](https://github.com/Shougo/unite.vim "unite")
 * [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
 * [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
-* [vim-colors-blayden](https://github.com/beardedprojamz/vim-colors-blayden "vim-colors-blayden")
+* [vim-colors-blayden](https://github.com/IntuitiveWebSolutions/vim-colors-blayden "vim-colors-blayden")
 * [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")
 * [vim-fugitive](https://github.com/tpope/vim-fugitive "vim-fugitive")
 * [vim-gitgutter](https://github.com/airblade/vim-gitgutter "vim-gitgutter")
