@@ -24,7 +24,7 @@ Check out VimConf to your home folder like so:
 
 ```bash
 $> cd ~
-$> git clone --recursive git://github.com/beardedprojamz/VimConf.git
+$> git clone --recursive git://github.com/IntuitiveWebSolutions/VimConf.git
 ```
 
 Then create symlinks to the files inside the repo:
