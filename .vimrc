@@ -12,25 +12,102 @@
     " Declare all NeoBundles
     call neobundle#rc(expand('~/.vim/bundle/'))
     NeoBundleFetch 'Shougo/neobundle.vim'
+
+    " Shougo stuff
     NeoBundle 'Shougo/unite.vim'
+
+    " A really cool shell in vim!
+    NeoBundle 'Shougo/vimshell.vim'
+
+    " todo.txt plugin.
     NeoBundle 'freitass/todo.txt-vim'
+
+    " Git Integration
     NeoBundle 'airblade/vim-gitgutter'
-    NeoBundle 'altercation/vim-colors-solarized'
-    NeoBundle 'IntuitiveWebSolutions/vim-colors-blayden'
-    NeoBundle 'groenewege/vim-less'
-    NeoBundle 'kchmck/vim-coffee-script'
-    NeoBundle 'klen/python-mode'
-    NeoBundle 'majutsushi/tagbar'
-    NeoBundle 'nathanaelkane/vim-indent-guides'
-    NeoBundle 'pangloss/vim-javascript'
-    NeoBundle 'rodjek/vim-puppet'
-    NeoBundle 'scrooloose/nerdcommenter'
-    NeoBundle 'scrooloose/syntastic'
-    NeoBundle 'tpope/vim-abolish'
     NeoBundle 'tpope/vim-fugitive'
-    NeoBundle 'tpope/vim-repeat'
+
+    " Colors
+    NeoBundle 'IntuitiveWebSolutions/vim-colors-blayden'
+    NeoBundle 'altercation/vim-colors-solarized'
+    NeoBundle 'nanotech/jellybeans.vim'
+    NeoBundle 'sickill/vim-monokai'
+
+    " Nicer start screen
+    NeoBundle 'mhinz/vim-startify'
+
+    " <Tab> all the things!
+    NeoBundle 'ervandew/supertab'
+
+    " A pretty statusline, bufferline integration
+    NeoBundle 'bling/vim-airline'
+
+    " Better Python code completion.
+    NeoBundleLazy 'davidhalter/jedi-vim', { 'filetypes' : ['python'] }
+
+    " This means we need indenting help now
+    NeoBundleLazy 'hynek/vim-python-pep8-indent', { 'filetypes' : ['python'] }
+
+    " Vim window manager. CTRL-N, CTRL-C (Close), CTRL-space (Make active
+    " window), CTRL-J (Next), CTRL-K (Prev)
+    NeoBundle 'spolu/dwm.vim'
+
+    " Track the snippets engine.
+    " CTRL-C to use
+    NeoBundle 'SirVer/ultisnips'
+
+    " Snippets are separated from the engine. Add this if you want them:
+    NeoBundle 'honza/vim-snippets'
+
+    " If you pip install "howdoi" you can use it in Vim
+    NeoBundle 'laurentgoudet/vim-howdoi'
+
+    " Tagbar for browsing source code trees.
+    NeoBundle 'majutsushi/tagbar'
+
+    " Show indent level with ,ig
+    NeoBundle 'nathanaelkane/vim-indent-guides'
+
+    " Quick commenting using ,,
+    NeoBundle 'scrooloose/nerdcommenter'
+
+    " Source code error checking
+    NeoBundle 'scrooloose/syntastic'
+
+    " Tim Pope has some awesome plugins for working with text.
+    NeoBundle 'tpope/vim-abolish'
     NeoBundle 'tpope/vim-surround'
-    NeoBundle 'vim-scripts/php.vim--Garvin'
+
+    " Repeat plugin actions
+    NeoBundle 'tpope/vim-repeat'
+
+    " Sparkup for HTML voodoo
+    " CTRL-y, to convert
+    NeoBundleLazy 'mattn/emmet-vim', { 'filetypes' : ['javascript', 'html', 'php'] }
+
+    " Syntax, tabs, indenting, etc. for PHP, JS, Puppet, Go, Coffee
+    NeoBundleLazy 'StanAngeloff/php.vim', { 'filetypes' : ['javascript', 'html', 'php', 'jinja'] }
+    NeoBundleLazy 'pangloss/vim-javascript', { 'filetypes' : ['javascript', 'html', 'php', 'jinja'] }
+    NeoBundleLazy 'rodjek/vim-puppet', { 'filetypes' : ['puppet'] }
+    NeoBundleLazy 'uggedal/go-vim', { 'filetypes' : ['go'] }
+    NeoBundleLazy "Blackrush/vim-gocode", { 'filetypes' : ['go'] }
+    NeoBundleLazy 'kchmck/vim-coffee-script', { 'filetypes' : ['coffee', 'javascript', 'html', 'jinja'] }
+    NeoBundleLazy 'plasticboy/vim-markdown', { 'filetypes' : ['mkd'] }
+    NeoBundleLazy 'elzr/vim-json', { 'filetypes' : ['json', 'jinja'] }
+    NeoBundleLazy 'groenewege/vim-less', { 'filetypes' : ['less'] }
+    NeoBundleLazy 'hdima/python-syntax', { 'filetypes' : ['python'] }
+    NeoBundleLazy 'Glench/Vim-Jinja2-Syntax', { 'filetypes' : ['html', 'jinja'] }
+    NeoBundleLazy 'sophacles/vim-bundle-mako', { 'filetypes' : ['html', 'jinja'] }
+
+    " NOT WORKING WITH HOMEBREW VIM. :( Keeping to try out later.
+    " YouCompleteMe uses jedi to complete for Python and works for many other
+    " languages. This replaces python-mode.
+    " NeoBundle 'Valloric/YouCompleteMe.git' , {
+          " \     'build' : {
+          " \         'mac' : './install.sh --clang-completer',
+          " \         'unix' : './install.sh --clang-completer --system-libclang'
+          " \     },
+          " \ }
+
     " vimproc needs a special build
     NeoBundle 'Shougo/vimproc', {
           \ 'build' : {
@@ -40,19 +117,21 @@
           \     'unix' : 'make -f make_unix.mak',
           \    },
           \ }
+
     " the plugin indent needs to be on before neobundle runs...
     filetype plugin indent on " load filetype plugins/indent settings
     " Update and turn on all NeoBundles
     NeoBundleCheck
+
     colorscheme blayden " set our customized colorscheme
     set background=dark
-    let g:solarized_termtrans=1
-    let g:solarized_contrast="high"
 " }
 
 " General {
     set backspace=indent,eol,start " make backspace a more flexible
     set backup " make backup files
+    set history=1000         " remember more commands and search history
+    set undolevels=1000      " use many big heap levels of undo
     set backupdir=~/.vim/backup " where to put backup files
     set directory=~/.vim/tmp " directory to place swap files in
     set fileformats=unix,mac,dos " support all three, in this order
@@ -83,8 +162,11 @@
     set wildmode=list:longest " turn on wild mode huge list
     " Set buffer to infinity
     set viminfo='100,h
+
     " Enable omnicompletion
-    set omnifunc=syntaxcomplete#Complete
+    " NOTE: This is turned off right now because of jedi-vim
+    " set omnifunc=syntaxcomplete#Complete
+    au FileType python set omnifunc=jedi#completions
 " }
 
 " Vim UI {
@@ -140,8 +222,7 @@
                       " >>, << and stuff like that
     set softtabstop=4 " when hitting tab or backspace, how many spaces
                        "should a tab be (see expandtab)
-    set tabstop=8 " real tabs should be 8, and they will show with
-                   " set list on
+    set tabstop=4 " We don't care about real tabs...
 " }
 
 " Mappings {
@@ -156,6 +237,8 @@
     nnoremap <Leader>tn :tabn<return>
     nnoremap <Leader>tp :tabp<return>
     nnoremap <Leader>te :tabe<space>
+    " Remap ,0 to first non-blank character
+    nnoremap <Leader>0 ^
     " Netrw vertical left split
     command! NetrwVSP 30vsp . | set winfixwidth
     nnoremap <Leader>nt :NetrwVSP<return>
@@ -165,26 +248,27 @@
     nnoremap <Leader>e :Errors<return>
     nnoremap <Leader>en :lnext<return>
     nnoremap <Leader>ep :lprev<return>
+
     " Adding Toggle Comment
     nnoremap <Leader><Leader> :call NERDComment("n", "Toggle")<return>
     vnoremap <Leader><Leader> :call NERDComment("v", "Toggle")<return>
     " Add 'Sign' shortcut
     nnoremap <Leader>si :exec "normal A".system("echo -n ' -- '$(git config --global --get user.name) $(date +\%D)")<return>
     " Map Paste / No Number for copy, paste, etc. in Vim without X.
-    nnoremap <Leader>p :set paste nonumber<return>
-    nnoremap <Leader>np :set nopaste number<return>
+    nnoremap <Leader>p :set paste!<return>
+    nnoremap <Leader>ln :set number!<return>
+
     " X System Clipboard copy, cut, & paste shortcuts.
     noremap <Leader>xp "+gP<return>
     noremap <Leader>xy "+y<return>
     noremap <Leader>xx "+x<return>
+    " Format JSON automagically
+    nmap <Leader>j :%!python -m json.tool<CR>
     " Compile (make) less to new CSS file
     nnoremap <Leader>ml :w <BAR> !lessc % > %:t:r.css<CR><space>
     " Spell Checking
     nnoremap <Leader>sp :setlocal spell spelllang=en_us<return>
     nnoremap <Leader>nsp :setlocal spell spelllang=<return>
-    " Write and Write & Quit shortcuts
-    nnoremap <Leader>s :w<return>
-    nnoremap <Leader>q :wq<return>
     " Edit & Source $MYVIMRC
     nnoremap <Leader>ev :vsplit $MYVIMRC<CR>
     nnoremap <Leader>sv :source $MYVIMRC<CR>
@@ -219,6 +303,8 @@
     nnoremap <C-j> <C-w>j
     nnoremap <C-k> <C-w>k
     nnoremap <C-l> <C-w>l
+    " Howdoi mapping
+    map <Leader>di <Plug>Howdoi
     " Refresh syntax highlighting
     nnoremap <Leader>rf :syntax off<return>:syntax on<return>
     " Fix all the whitespace in a file. Re-tabs and removes trailing whitespace.
@@ -251,26 +337,75 @@
     let coffee_make_options='--bare'
     let g:syntastic_check_on_open=1 " Run Syntastic when opening files
     let g:syntastic_python_checkers=['python', 'pyflakes'] " Be more strict in python syntax
-    let g:pymode_folding=0 " Turn off python-mode folding
-    let g:pymode_lint=0 " Turn off python-mode lint since we use Syntastic
-    let g:pymode_trim_whitespaces=0 " don't molest whitespace
-    let g:pymode_rope_goto_definition_bind = '<Leader>g'
-    let g:pymode_rope_goto_definition_cmd = 'vnew'
-    let g:pymode_doc_bind= '<Leader>d'
     let g:ftplugin_sql_omni_key='<C-S>' " reset sql omni key
     let NERDSpaceDelims=1 " Add space delimiters
     let g:gitgutter_eager=0 " Only run gitgutter on read/write of files
+
+    " airline settings
+    let g:airline#extensions#tabline#enabled = 1 " Adding pretty tabline
+    let g:airline#extensions#tabline#show_buffers = 0 " Don't show closed buffers
+    " let g:vim_json_syntax_conceal = 0 " Don't hide quotes on JSON
+
     " GitGutter Next/Prev Shortcuts
     nmap gh <Plug>GitGutterNextHunk
     nmap gH <Plug>GitGutterPrevHunk
+
     " Disable GitGutter in vimdiff
     if &diff
         let g:gitgutter_enabled=0
     endif
+
+    " Solarized variables
+    let g:solarized_termtrans=1
+    let g:solarized_contrast="high"
+
+    " Molokai settings
+    let g:rehash256 = 1
+    let g:molokai_original = 1
+
+    " Python syntax highlighting settings
+    let python_highlight_all = 1
+    let python_version_2 = 1
+
+    " Indent guide settings
+    let g:indent_guides_start_level = 2
+    let g:indent_guides_guide_size = 1
+    let g:indent_guides_auto_colors = 0
+    hi IndentGuidesOdd ctermbg=234
+    hi IndentGuidesEven ctermbg=234
+
+    " Jedi settings
+    let g:jedi#popup_on_dot = 1
+    let g:jedi#popup_select_first = 1
+
+    " Snippet settings
+    let g:UltiSnipsExpandTrigger="<c-c>"
+    let g:UltiSnipsListSnippets="<c-l>"
+    let g:UltiSnipsJumpForwardTrigger="<c-b>"
+    let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+
+    " markdown settings
+    let g:vim_markdown_folding_disabled=1
+
     " Unite settings
     let g:unite_enabled_start_insert=1
     let g:unite_source_history_yank_enable=1
     let g:unite_winheight = 10
+
+    " Startify settings
+    let g:startify_session_persistence = 1
+    let g:startify_custom_header = [
+                \ '',
+                \ '',
+                \ '     _______          _______  __      _______            _____             __',
+                \ '    |_   _\ \        / / ____| \ \    / /_   _|          / ____|           / _|',
+                \ '      | |  \ \  /\  / / (___    \ \  / /  | |  _ __ ___ | |     ___  _ __ | |_',
+                \ '      | |   \ \/  \/ / \___ \    \ \/ /   | | | `_ ` _ \| |    / _ \| `_ \|  _|',
+                \ '     _| |_   \  /\  /  ____) |    \  /   _| |_| | | | | | |___| (_) | | | | |',
+                \ '    |_____|   \/  \/  |_____/      \/   |_____|_| |_| |_|\_____\___/|_| |_|_|',
+                \ '',
+                \ '',
+                \ ]
 " }
 
 " Global Abbreviations {
@@ -294,19 +429,15 @@
 " }
 
 " Autocmds {
-    augroup coffee_au
+    augroup golang_au
         autocmd!
-        " 2 space tabs for CoffeeScript
-        au BufNewFile,BufReadPost *.coffee setl shiftwidth=2 softtabstop=2
-        " Auto-compile coffee files on save.
-        au BufWritePost *.coffee silent CoffeeMake!
+        " Display real tabs like 4 spaces, don't list trailing characters
+        au BufNewFile,BufReadPost *.go setl noexpandtab tabstop=4 nolist
     augroup END
     augroup javascript_au
         autocmd!
         " Add debugger key command for JS
         au BufNewFile,BufReadPost *.js nnoremap <Leader>b :call InsertDebugLine("debugger;", line('.'))<return>
-        " Abbreviation for anon. functions
-        autocmd FileType javascript :iabbrev <buffer> fn function()
     augroup END
     augroup less_au
         autocmd!
