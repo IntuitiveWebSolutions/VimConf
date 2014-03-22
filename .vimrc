@@ -343,7 +343,7 @@
 
     " airline settings
     let g:airline#extensions#tabline#enabled = 1 " Adding pretty tabline
-    let g:airline#extensions#tabline#show_buffers = 0 " Don't show closed buffers
+    let g:airline#extensions#tabline#show_buffers = 1 " Make 0 for not showing closed buffers
     " let g:vim_json_syntax_conceal = 0 " Don't hide quotes on JSON
 
     " GitGutter Next/Prev Shortcuts
