@@ -65,32 +65,74 @@ Now open vim - when you do this NeoBundle will ask to install all the plugins li
 
 **Bundle List**
 
-* [neobundle](https://github.com/Shougo/neobundle.vim "neobundle")
-* [nerdcommenter](https://github.com/scrooloose/nerdcommenter "nerdcommenter")
-* [php.vim--Garvin](https://github.com/vim-scripts/php.vim--Garvin "php.vim--Garvin")
-* [python-mode](https://github.com/klen/python-mode "python-mode")
-* [syntastic](https://github.com/scrooloose/syntastic "syntastic")
-* [tagbar](https://github.com/majutsushi/tagbar "tagbar")
-* [unite](https://github.com/Shougo/unite.vim "unite")
-* [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
-* [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
-* [vim-colors-blayden](https://github.com/IntuitiveWebSolutions/vim-colors-blayden "vim-colors-blayden")
-* [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")
-* [vim-fugitive](https://github.com/tpope/vim-fugitive "vim-fugitive")
 * [vim-gitgutter](https://github.com/airblade/vim-gitgutter "vim-gitgutter")
+* [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")
+* [vim-airline](https://github.com/bling/vim-airline "vim-airline")
+* [jedi-vim](https://github.com/davidhalter/jedi-vim "jedi-vim")
+* [vim-json](https://github.com/elzr/vim-json "vim-json")
+* [supertab](https://github.com/ervandew/supertab "supertab")
+* [todo.txt-vim](https://github.com/freitass/todo.txt-vim "todo.txt-vim")
+* [Vim-Jinja2-Syntax](https://github.com/Glench/Vim-Jinja2-Syntax "Vim-Jinja2-Syntax")
+* [vim-less](https://github.com/groenewege/vim-less "vim-less")
+* [python-syntax](https://github.com/hdima/python-syntax "python-syntax")
+* [vim-snippets](https://github.com/honza/vim-snippets "vim-snippets")
+* [vim-python-pep8-indent](https://github.com/hynek/vim-python-pep8-indent "vim-python-pep8-indent")
+* [vim-colors-blayden](https://github.com/IntuitiveWebSolutions/vim-colors-blayden "vim-colors-blayden")
+* [vim-coffee-script](https://github.com/kchmck/vim-coffee-script "vim-coffee-script")
+* [vim-howdoi](https://github.com/laurentgoudet/vim-howdoi "vim-howdoi")
+* [tagbar](https://github.com/majutsushi/tagbar "tagbar")
+* [emmet-vim](https://github.com/mattn/emmet-vim "emmet-vim")
+* [vim-startify](https://github.com/mhinz/vim-startify "vim-startify")
+* [jellybeans](https://github.com/nanotech/jellybeans.vim "jellybeans")
 * [vim-indent-guides](https://github.com/nathanaelkane/vim-indent-guides "vim-indent-guides")
 * [vim-javascript](https://github.com/pangloss/vim-javascript "vim-javascript")
-* [vim-less](https://github.com/groenewege/vim-less "vim-less")
+* [vim-markdown](https://github.com/plasticboy/vim-markdown "vim-markdown")
 * [vim-puppet](https://github.com/rodjek/vim-puppet "vim-puppet")
+* [nerdcommenter](https://github.com/scrooloose/nerdcommenter "nerdcommenter")
+* [syntastic](https://github.com/scrooloose/syntastic "syntastic")
+* [neobundle](https://github.com/Shougo/neobundle.vim "neobundle")
+* [unite](https://github.com/Shougo/unite.vim "unite")
+* [vimproc](https://github.com/Shougo/vimproc "vimproc")
+* [vimshell](https://github.com/Shougo/vimshell.vim "vimshell")
+* [vim-monokai](https://github.com/sickill/vim-monokai "vim-monokai")
+* [ultisnips](https://github.com/SirVer/ultisnips "ultisnips")
+* [vim-bundle-mako](https://github.com/sophacles/vim-bundle-mako "vim-bundle-mako")
+* [dwm](https://github.com/spolu/dwm.vim "dwm")
+* [php](https://github.com/StanAngeloff/php.vim "php")
+* [vim-abolish](https://github.com/tpope/vim-abolish "vim-abolish")
+* [vim-fugitive](https://github.com/tpope/vim-fugitive "vim-fugitive")
 * [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
 * [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
-* [vimproc](https://github.com/Shougo/vimproc.vim "vimproc")
+* [go-vim](https://github.com/uggedal/go-vim "go-vim")
 
 Color Schemes
 -------------
 
 * **blayden** *Default*
+* **jellybean** *Can be set in .vimrc_custom*
 * **solarized** *Can be set in .vimrc_custom - follow instructions at [vim-colors-solarized](https://github.com/altercation/vim-colors-solarized "vim-colors-solarized")*
+
+Window Management
+-------------------------------
+Windows are always organised as follows:
+
+```
+===================================
+|              |        S1        |
+|              |===================
+|      M       |        S2        |
+|              |===================
+|              |        S3        |
+===================================
+```
+
+Use the following commands to create, browse and close windows:
+
+`C-N` Creates a new window and place it in the master pane [M] & stacks all previous windows in the stacked pane [S]
+`C-C` Close the current window if no unsaved changes
+`C-J` Jumps to next window (clockwise)
+`C-K` Jumps to previous window (anti-clockwise)
+`C-Space` Focus the current window, that is, place it in the master pane [M] & stacks all other windows in the stacked pane [S]
 
 Keybindings and Commands
 -------------------------------
@@ -104,27 +146,6 @@ The below mappings are default in NERDCommenter, and the ones most used, so they
 | **,c[spacebar]**           | Toggles comment state of the selected line(s)       |
 | **,cl**                    | Comment current line or text selected in visual mode (forces nesting) |
 | **,cu**                    | Uncomment selected lines(s) |
-
-**RopeVim and Python Commands**
-
-To use Rope you need to build the project: `:RopeOpenProject` and `:RopeAnalyzeModules`.
-Make sure you add anything your project needs, path wise. For example, run `:RopeProjectConfig`
-and add the paths:
-```python
-     # You can extend python path for looking up modules
-     prefs.add('python_path', 'lib')
-```
-
-| Keys                       | Command                                             |
-|---------------------------:|:----------------------------------------------------|
-| **C-space**                | Autocomplete as you type. |
-| **,g**                     | Go to definition of object under cursor. |
-| **,d**                     | Display documentation of object under cursor. |
-| **,b**                     | Insert PDB|iPDB|PuDB set_trace() breakpoint. |
-| **[[** or **]]**           | Next/previous class or global function. |
-| **[M** or **]M**           | Next/previous method. |
-
-See [python-mode](https://github.com/klen/python-mode) for more shortcuts and options.
 
 **JavaScript Commands**
 
@@ -155,8 +176,8 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,ep**                     | Go to previous error |
 |**,ig**                     | Toggle IndentGuides plugin |
 |**,ml**                     | Compile LESS file to CSS. Requires NPM install of less |
-|**,p**                      | Set paste nonumber for easy copy & pasting in a terminal |
-|**,np**                     | Set nopaste number to go back normal editing mode |
+|**,p**                      | Toggle paste mode (for easy copy & pasting in a terminal) |
+|**,ln**                     | Toggle line numbers (for easy copying out of terminal) |
 |**,xp**                     | Put (Paste) from system clipboard |
 |**,xy**                     | Yank (Copy) to system clipboard |
 |**,xx**                     | Cut to system clipboard |
@@ -175,11 +196,13 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**,ch**                     | Clear (turn off) highlighting |
 |**,rt**                     | Re-tab entire file. (Shortcut for gg=G) |
 |**,hb**                     | Send selected visual hunk to hastebin |
+|**,0**                      | Go to the first character of a line |
 |**,O**                      | Insert a newline before the current line without entering insert mode |
 |**,o**                      | Insert a newline after the current line without entering insert mode |
 |**,[spacebar] [character]** | Insert a character in place without entering insert mode |
 |**,a [character]**          | Appends a character in place without entering insert mode |
 |**,ws**                     | Runs TrimWS and retab on the current buffer |
+|**,j**                      | Reformat JSON automatically (Requires python command in system path) |
 |**:W**                      | Write as super user |
 |**:Tabs2Spaces**            | Convert tab characters to 4 space characters |
 |**shift + down arrow**      | Jump down 10 lines |
@@ -191,3 +214,68 @@ See [python-mode](https://github.com/klen/python-mode) for more shortcuts and op
 |**control + p**             | Run Unite file |
 |**visual selection + \**    | Visual Selection Search with // |
 |**visual selection + #**    | Visual Selection Search with ?? |
+
+Emmet is Awesome
+-------------------------------
+
+1. Expand an Abbreviation
+
+  Type the abbreviation as 'div>p#foo$*3>a' and type '<c-y>,'.
+```html
+  <div>
+      <p id="foo1">
+          <a href=""></a>
+      </p>
+      <p id="foo2">
+          <a href=""></a>
+      </p>
+      <p id="foo3">
+          <a href=""></a>
+      </p>
+  </div>
+```
+2. Wrap with an Abbreviation
+
+  Write as below.
+```
+  test1
+  test2
+  test3
+```
+
+  Then do visual select(line wise) and type '<c-y>,'.
+  Once you get to the 'Tag:' prompt, type 'ul>li*'.
+
+```html
+  <ul>
+      <li>test1</li>
+      <li>test2</li>
+      <li>test3</li>
+  </ul>
+```
+
+  If you type a tag, such as 'blockquote', then you'll see the following:
+
+```
+  <blockquote>
+      test1
+      test2
+      test3
+  </blockquote>
+```
+
+3. Balance a Tag Inward
+
+  type '<c-y>d' in insert mode.
+
+4. Balance a Tag Outward
+
+  type '<c-y>D' in insert mode.
+
+5. Go to the Next Edit Point
+
+  type '<c-y>n' in insert mode.
+
+6. Go to the Previous Edit Point
+
+  type '<c-y>N' in insert mode.
