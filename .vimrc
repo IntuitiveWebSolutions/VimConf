@@ -379,7 +379,7 @@
     let g:jedi#popup_select_first = 1
 
     " Snippet settings
-    let g:UltiSnipsExpandTrigger="<c-c>"
+    let g:UltiSnipsExpandTrigger="<c-e>"
     let g:UltiSnipsListSnippets="<c-l>"
     let g:UltiSnipsJumpForwardTrigger="<c-b>"
     let g:UltiSnipsJumpBackwardTrigger="<c-z>"
