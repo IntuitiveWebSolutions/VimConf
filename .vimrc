@@ -87,6 +87,8 @@
     " Syntax, tabs, indenting, etc. for PHP, JS, Puppet, Go, Coffee
     NeoBundleLazy 'StanAngeloff/php.vim', { 'filetypes' : ['javascript', 'html', 'php', 'jinja'] }
     NeoBundleLazy 'pangloss/vim-javascript', { 'filetypes' : ['javascript', 'html', 'php', 'jinja'] }
+    NeoBundleLazy 'maksimr/vim-jsbeautify', { 'filetypes' : ['javascript', 'html', 'php', 'jinja', 'css'] }
+    NeoBundleLazy 'einars/js-beautify', { 'filetypes' : ['javascript', 'html', 'php', 'jinja', 'css'] }
     NeoBundleLazy 'rodjek/vim-puppet', { 'filetypes' : ['puppet'] }
     NeoBundleLazy 'uggedal/go-vim', { 'filetypes' : ['go'] }
     NeoBundleLazy "Blackrush/vim-gocode", { 'filetypes' : ['go'] }
@@ -263,7 +265,7 @@
     noremap <Leader>xy "+y<return>
     noremap <Leader>xx "+x<return>
     " Format JSON automagically
-    nmap <Leader>j :%!python -m json.tool<CR>
+    nmap <Leader>json :%!python -m json.tool<CR>
     " Compile (make) less to new CSS file
     nnoremap <Leader>ml :w <BAR> !lessc % > %:t:r.css<CR><space>
     " Spell Checking
@@ -273,9 +275,9 @@
     nnoremap <Leader>ev :vsplit $MYVIMRC<CR>
     nnoremap <Leader>sv :source $MYVIMRC<CR>
     " Start vertical split command with space character.
-    nnoremap <Leader>v :vsp<space>
+    nnoremap <Leader>vs :vsp<space>
     " Start horizontal split command with space character.
-    nnoremap <Leader>h :sp<space>
+    nnoremap <Leader>hs :sp<space>
     " Close window
     nnoremap <Leader>cw :close<return>
     " Close all but the current window.
@@ -299,17 +301,20 @@
     " Send the selected hunk to IWS's hastebin
     vnoremap <Leader>hb <esc>:'<,'>:w !HASTE_SERVER=http://hastebin.britecorepro.com haste<CR>
     " Jump easily between open windows
-    nnoremap <C-h> <C-w>h
-    nnoremap <C-j> <C-w>j
-    nnoremap <C-k> <C-w>k
-    nnoremap <C-l> <C-w>l
-    " Howdoi mapping
-    map <Leader>di <Plug>Howdoi
+    " Deprecated in favor of DWM
+    " nnoremap <C-h> <C-w>h
+    " nnoremap <C-j> <C-w>j
+    " nnoremap <C-k> <C-w>k
+    " nnoremap <C-l> <C-w>l
+    " " Howdoi mapping
+    map <Leader>hdi <Plug>Howdoi
     " Refresh syntax highlighting
     nnoremap <Leader>rf :syntax off<return>:syntax on<return>
     " Fix all the whitespace in a file. Re-tabs and removes trailing whitespace.
     " Usage: ,ws
-    nnoremap <Leader>ws :TrimWS<return>gg=G
+    nnoremap <Leader>ws :TrimWS
+    nnoremap <Leader>rt gg=G
+    nnoremap <Leader>rw :TrimWS<return>gg=G
     " Insert a single character of your choosing and return to the right spot.
     " Usage: ,[spacebar][character]
     nnoremap <Leader><space> :exec "normal i".nr2char(getchar())."\e"<return>
@@ -429,6 +434,13 @@
 " }
 
 " Autocmds {
+    autocmd FileType javascript noremap <buffer>  <Leader>js :call JsBeautify()<cr>
+    autocmd FileType html noremap <buffer> <Leader>js :call HtmlBeautify()<cr>
+    autocmd FileType css noremap <buffer> <Leader>js :call CSSBeautify()<cr>
+    autocmd FileType javascript vnoremap <buffer>  <c-f> :call RangeJsBeautify()<cr>
+    autocmd FileType html vnoremap <buffer> <c-f> :call RangeHtmlBeautify()<cr>
+    autocmd FileType css vnoremap <buffer> <c-f> :call RangeCSSBeautify()<cr>
+
     augroup golang_au
         autocmd!
         " Display real tabs like 4 spaces, don't list trailing characters
