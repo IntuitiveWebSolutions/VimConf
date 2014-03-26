@@ -27,10 +27,7 @@
     NeoBundle 'tpope/vim-fugitive'
 
     " Colors
-    NeoBundle 'IntuitiveWebSolutions/vim-colors-blayden'
-    NeoBundle 'altercation/vim-colors-solarized'
-    NeoBundle 'nanotech/jellybeans.vim'
-    NeoBundle 'sickill/vim-monokai'
+    NeoBundle 'smeggingsmegger/vim-colorschemes'
 
     " Nicer start screen
     NeoBundle 'mhinz/vim-startify'
