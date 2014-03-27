@@ -43,6 +43,7 @@
 
     " This means we need indenting help now
     NeoBundleLazy 'hynek/vim-python-pep8-indent', { 'filetypes' : ['python'] }
+    NeoBundleLazy 'smeggingsmegger/vim-better-python', { 'filetypes' : ['python'] }
 
     " Vim window manager. CTRL-N, CTRL-C (Close), CTRL-space (Make active
     " window), CTRL-J (Next), CTRL-K (Prev)
@@ -379,6 +380,9 @@
     " Jedi settings
     let g:jedi#popup_on_dot = 1
     let g:jedi#popup_select_first = 1
+    " Disabling parameter autocomplete to speed up completion for now.
+    " Will enable after it is fixed in Jedi.
+    let g:jedi#show_call_signatures = "0"
 
     " Snippet settings
     let g:UltiSnipsExpandTrigger="<c-e>"
@@ -464,6 +468,7 @@
         autocmd!
         " Add remote debugger key command for Python
         au BufNewFile,BufReadPost *.py nnoremap <Leader>rb :call InsertDebugLine("import rpdb; rpdb.set_trace()  # XXX BREAKPOINT", line('.'))<return>
+        au BufNewFile,BufReadPost *.py nnoremap <Leader>bb :call InsertDebugLine("import pudb; pudb.set_trace()  # XXX BREAKPOINT", line('.'))<return>
     augroup END
     augroup reopen_au
         autocmd!
