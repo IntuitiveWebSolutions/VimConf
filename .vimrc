@@ -40,10 +40,8 @@
 
     " Better Python code completion.
     NeoBundleLazy 'davidhalter/jedi-vim', { 'filetypes' : ['python'] }
-
-    " This means we need indenting help now
-    NeoBundleLazy 'hynek/vim-python-pep8-indent', { 'filetypes' : ['python'] }
-    NeoBundleLazy 'smeggingsmegger/vim-better-python', { 'filetypes' : ['python'] }
+    " Use Python mode for all the awesome PEP-8 stuff but not for completion.
+    NeoBundleLazy 'klen/python-mode', { 'filetypes' : ['python'] }
 
     " Vim window manager. CTRL-N, CTRL-C (Close), CTRL-space (Make active
     " window), CTRL-J (Next), CTRL-K (Prev)
@@ -383,6 +381,15 @@
     " Disabling parameter autocomplete to speed up completion for now.
     " Will enable after it is fixed in Jedi.
     let g:jedi#show_call_signatures = "0"
+
+    " No rope for autocomplete!
+    let g:pymode_rope = 0
+    let g:pymode_folding = 0
+    let g:pymode_lint=0 " Turn off python-mode lint since we use Syntastic
+    let g:pymode_trim_whitespaces=0 " don't molest whitespace
+    let g:pymode_syntax_all = 1
+    let g:pymode_syntax_print_as_function = 1
+    let g:pymode_syntax = 1
 
     " Snippet settings
     let g:UltiSnipsExpandTrigger="<c-e>"
