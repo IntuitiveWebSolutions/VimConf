@@ -282,8 +282,6 @@
     nnoremap <Leader>bd :bd<return>
     " Clear highlighting
     nnoremap <Leader>ch :noh<return>
-    " Retab entire file
-    nnoremap <Leader>rt gg=G
     " Insert a line above or below cursor without insert mode.
     nnoremap <Leader>O O<Esc>
     nnoremap <Leader>o o<Esc>
@@ -308,7 +306,7 @@
     nnoremap <Leader>rf :syntax off<return>:syntax on<return>
     " Fix all the whitespace in a file. Re-tabs and removes trailing whitespace.
     " Usage: ,ws
-    nnoremap <Leader>ws :TrimWS
+    nnoremap <Leader>ws :TrimWS<return>
     nnoremap <Leader>rt gg=G
     nnoremap <Leader>rw :TrimWS<return>gg=G
     " Insert a single character of your choosing and return to the right spot.
