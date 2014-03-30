@@ -449,6 +449,7 @@
     autocmd FileType html vnoremap <buffer> <c-f> :call RangeHtmlBeautify()<cr>
     autocmd FileType css vnoremap <buffer> <c-f> :call RangeCSSBeautify()<cr>
 
+    au BufNewFile,BufRead *.wsgi set filetype=python
     augroup golang_au
         autocmd!
         " Display real tabs like 4 spaces, don't list trailing characters
