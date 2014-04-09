@@ -16,6 +16,9 @@
     " Shougo stuff
     NeoBundle 'Shougo/unite.vim'
 
+    " Search using ag or ack!
+    NeoBundle 'smeggingsmegger/ag.vim'
+
     " A really cool shell in vim!
     NeoBundle 'Shougo/vimshell.vim'
 
@@ -92,7 +95,6 @@
     NeoBundleLazy 'plasticboy/vim-markdown', { 'filetypes' : ['mkd'] }
     NeoBundleLazy 'elzr/vim-json', { 'filetypes' : ['json', 'jinja'] }
     NeoBundleLazy 'groenewege/vim-less', { 'filetypes' : ['less'] }
-    NeoBundleLazy 'hdima/python-syntax', { 'filetypes' : ['python'] }
     NeoBundleLazy 'Glench/Vim-Jinja2-Syntax', { 'filetypes' : ['html', 'jinja'] }
     NeoBundleLazy 'sophacles/vim-bundle-mako', { 'filetypes' : ['html', 'jinja'] }
 
