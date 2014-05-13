@@ -71,6 +71,7 @@ Now open vim - when you do this NeoBundle will ask to install all the plugins li
 * [js-beautify](https://github.com/einars/js-beautify "js-beautify")
 * [vim-json](https://github.com/elzr/vim-json "vim-json")
 * [supertab](https://github.com/ervandew/supertab "supertab")
+* [vim-go](https://github.com/fatih/vim-go "vim-go")
 * [todo.txt-vim](https://github.com/freitass/todo.txt-vim "todo.txt-vim")
 * [Vim-Jinja2-Syntax](https://github.com/Glench/Vim-Jinja2-Syntax "Vim-Jinja2-Syntax")
 * [vim-less](https://github.com/groenewege/vim-less "vim-less")
@@ -102,7 +103,7 @@ Now open vim - when you do this NeoBundle will ask to install all the plugins li
 * [vim-fugitive](https://github.com/tpope/vim-fugitive "vim-fugitive")
 * [vim-repeat](https://github.com/tpope/vim-repeat "vim-repeat")
 * [vim-surround](https://github.com/tpope/vim-surround "vim-surround")
-* [go-vim](https://github.com/uggedal/go-vim "go-vim")
+* [YouCompleteMe.git](https://github.com/Valloric/YouCompleteMe.git "YouCompleteMe.git")
 
 Color Schemes
 -------------
