@@ -89,8 +89,7 @@
     NeoBundleLazy 'maksimr/vim-jsbeautify', { 'filetypes' : ['javascript', 'html', 'php', 'jinja', 'css'] }
     NeoBundleLazy 'einars/js-beautify', { 'filetypes' : ['javascript', 'html', 'php', 'jinja', 'css'] }
     NeoBundleLazy 'rodjek/vim-puppet', { 'filetypes' : ['puppet'] }
-    NeoBundleLazy 'uggedal/go-vim', { 'filetypes' : ['go'] }
-    NeoBundleLazy "Blackrush/vim-gocode", { 'filetypes' : ['go'] }
+    NeoBundleLazy 'fatih/vim-go', { 'filetypes' : ['go'] }
     NeoBundleLazy 'kchmck/vim-coffee-script', { 'filetypes' : ['coffee', 'javascript', 'html', 'jinja'] }
     NeoBundleLazy 'plasticboy/vim-markdown', { 'filetypes' : ['mkd'] }
     NeoBundleLazy 'elzr/vim-json', { 'filetypes' : ['json', 'jinja'] }
@@ -311,6 +310,9 @@
     nnoremap <Leader>ws :TrimWS<return>
     nnoremap <Leader>rt gg=G
     nnoremap <Leader>rw :TrimWS<return>gg=G
+
+    nnoremap <Leader>lw :set wrap!<return>:set linebreak!<return>:set list!<return>
+
     " Insert a single character of your choosing and return to the right spot.
     " Usage: ,[spacebar][character]
     nnoremap <Leader><space> :exec "normal i".nr2char(getchar())."\e"<return>
@@ -399,6 +401,9 @@
 
     " markdown settings
     let g:vim_markdown_folding_disabled=1
+
+    " golang settings
+    " let g:go_fmt_command = "goimports"
 
     " Unite settings
     let g:unite_enabled_start_insert=1
