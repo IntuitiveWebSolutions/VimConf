@@ -16,6 +16,9 @@
     " Shougo stuff
     NeoBundle 'Shougo/unite.vim'
 
+    " Search using ag or ack!
+    NeoBundle 'smeggingsmegger/ag.vim'
+
     " A really cool shell in vim!
     NeoBundle 'Shougo/vimshell.vim'
 
@@ -86,13 +89,11 @@
     NeoBundleLazy 'maksimr/vim-jsbeautify', { 'filetypes' : ['javascript', 'html', 'php', 'jinja', 'css'] }
     NeoBundleLazy 'einars/js-beautify', { 'filetypes' : ['javascript', 'html', 'php', 'jinja', 'css'] }
     NeoBundleLazy 'rodjek/vim-puppet', { 'filetypes' : ['puppet'] }
-    NeoBundleLazy 'uggedal/go-vim', { 'filetypes' : ['go'] }
-    NeoBundleLazy "Blackrush/vim-gocode", { 'filetypes' : ['go'] }
+    NeoBundleLazy 'fatih/vim-go', { 'filetypes' : ['go'] }
     NeoBundleLazy 'kchmck/vim-coffee-script', { 'filetypes' : ['coffee', 'javascript', 'html', 'jinja'] }
     NeoBundleLazy 'plasticboy/vim-markdown', { 'filetypes' : ['mkd'] }
     NeoBundleLazy 'elzr/vim-json', { 'filetypes' : ['json', 'jinja'] }
     NeoBundleLazy 'groenewege/vim-less', { 'filetypes' : ['less'] }
-    NeoBundleLazy 'hdima/python-syntax', { 'filetypes' : ['python'] }
     NeoBundleLazy 'Glench/Vim-Jinja2-Syntax', { 'filetypes' : ['html', 'jinja'] }
     NeoBundleLazy 'sophacles/vim-bundle-mako', { 'filetypes' : ['html', 'jinja'] }
 
@@ -282,8 +283,6 @@
     nnoremap <Leader>bd :bd<return>
     " Clear highlighting
     nnoremap <Leader>ch :noh<return>
-    " Retab entire file
-    nnoremap <Leader>rt gg=G
     " Insert a line above or below cursor without insert mode.
     nnoremap <Leader>O O<Esc>
     nnoremap <Leader>o o<Esc>
@@ -308,9 +307,12 @@
     nnoremap <Leader>rf :syntax off<return>:syntax on<return>
     " Fix all the whitespace in a file. Re-tabs and removes trailing whitespace.
     " Usage: ,ws
-    nnoremap <Leader>ws :TrimWS
+    nnoremap <Leader>ws :TrimWS<return>
     nnoremap <Leader>rt gg=G
     nnoremap <Leader>rw :TrimWS<return>gg=G
+
+    nnoremap <Leader>lw :set wrap!<return>:set linebreak!<return>:set list!<return>
+
     " Insert a single character of your choosing and return to the right spot.
     " Usage: ,[spacebar][character]
     nnoremap <Leader><space> :exec "normal i".nr2char(getchar())."\e"<return>
@@ -400,6 +402,9 @@
     " markdown settings
     let g:vim_markdown_folding_disabled=1
 
+    " golang settings
+    " let g:go_fmt_command = "goimports"
+
     " Unite settings
     let g:unite_enabled_start_insert=1
     let g:unite_source_history_yank_enable=1
@@ -449,6 +454,7 @@
     autocmd FileType html vnoremap <buffer> <c-f> :call RangeHtmlBeautify()<cr>
     autocmd FileType css vnoremap <buffer> <c-f> :call RangeCSSBeautify()<cr>
 
+    au BufNewFile,BufRead *.wsgi set filetype=python
     augroup golang_au
         autocmd!
         " Display real tabs like 4 spaces, don't list trailing characters
