@@ -53,7 +53,7 @@ $> cd VimConf
 $> git pull
 $> git submodule init
 $> git submodule update
-$> cd VimConf/.vim/bundle/neobundle.vim
+$> cd ~/VimConf/.vim/bundle/neobundle.vim
 $> git checkout master
 ```
 
