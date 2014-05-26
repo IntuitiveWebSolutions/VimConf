@@ -29,11 +29,20 @@ $> git clone --recursive git://github.com/IntuitiveWebSolutions/VimConf.git
 
 Then create symlinks to the files inside the repo:
 
+ON OSX
 ```bash
 $> ln -s ~/VimConf/.vim ~/.vim
 $> ln -s ~/VimConf/.vimrc ~/.vimrc
 $> ln -s ~/VimConf/.vimrc_custom ~/.vimrc_custom
 $> ln -s ~/VimConf/.gvimrc ~/.gvimrc
+```
+
+ON Ubuntu
+```bash
+$> ln -s ~/VimConf/.vim ~
+$> ln -s ~/VimConf/.vimrc ~
+$> ln -s ~/VimConf/.vimrc_custom ~
+$> ln -s ~/VimConf/.gvimrc ~
 ```
 
 That way, any time you want to update to the latest versions of the VimConf, you can just `git pull` inside the VimConf folder.
