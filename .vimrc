@@ -94,7 +94,7 @@
     NeoBundleLazy 'plasticboy/vim-markdown', { 'filetypes' : ['mkd'] }
     NeoBundleLazy 'elzr/vim-json', { 'filetypes' : ['json', 'jinja'] }
     NeoBundleLazy 'groenewege/vim-less', { 'filetypes' : ['less'] }
-    NeoBundleLazy 'Glench/Vim-Jinja2-Syntax', { 'filetypes' : ['html', 'jinja'] }
+    NeoBundleLazy 'mitsuhiko/vim-jinja', { 'filetypes' : ['html', 'jinja'] }
     NeoBundleLazy 'sophacles/vim-bundle-mako', { 'filetypes' : ['html', 'jinja'] }
 
     " NOT WORKING WITH HOMEBREW VIM. :( Keeping to try out later.
