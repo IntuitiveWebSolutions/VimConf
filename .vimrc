@@ -454,6 +454,7 @@
     autocmd FileType javascript vnoremap <buffer>  <c-f> :call RangeJsBeautify()<cr>
     autocmd FileType html vnoremap <buffer> <c-f> :call RangeHtmlBeautify()<cr>
     autocmd FileType css vnoremap <buffer> <c-f> :call RangeCSSBeautify()<cr>
+    autocmd FileType gitcommit setlocal colorcolumn=50
 
     au BufNewFile,BufRead *.wsgi set filetype=python
     augroup golang_au
