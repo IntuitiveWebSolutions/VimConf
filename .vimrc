@@ -10,7 +10,7 @@
            set runtimepath+=~/.vim/bundle/neobundle.vim/
     endif
     " Declare all NeoBundles
-    call neobundle#rc(expand('~/.vim/bundle/'))
+    call neobundle#begin(expand('~/.vim/bundle/'))
     NeoBundleFetch 'Shougo/neobundle.vim'
 
     " Shougo stuff
@@ -116,6 +116,8 @@
           \     'unix' : 'make -f make_unix.mak',
           \    },
           \ }
+
+    call neobundle#end()
 
     " the plugin indent needs to be on before neobundle runs...
     filetype plugin indent on " load filetype plugins/indent settings
