@@ -36,13 +36,13 @@
     NeoBundle 'mhinz/vim-startify'
 
     " <Tab> all the things!
-    NeoBundle 'ervandew/supertab'
+    " NeoBundle 'ervandew/supertab'
 
     " A pretty statusline, bufferline integration
     NeoBundle 'bling/vim-airline'
 
     " Better Python code completion.
-    NeoBundleLazy 'davidhalter/jedi-vim', { 'filetypes' : ['python'] }
+    " NeoBundleLazy 'davidhalter/jedi-vim', { 'filetypes' : ['python'] }
     " Use Python mode for all the awesome PEP-8 stuff but not for completion.
     NeoBundleLazy 'klen/python-mode', { 'filetypes' : ['python'] }
 
@@ -52,13 +52,10 @@
 
     " Track the snippets engine.
     " CTRL-C to use
-    NeoBundle 'SirVer/ultisnips'
+    " NeoBundle 'SirVer/ultisnips'
 
     " Snippets are separated from the engine. Add this if you want them:
-    NeoBundle 'honza/vim-snippets'
-
-    " If you pip install "howdoi" you can use it in Vim
-    NeoBundle 'laurentgoudet/vim-howdoi'
+    " NeoBundle 'honza/vim-snippets'
 
     " Tagbar for browsing source code trees.
     NeoBundle 'majutsushi/tagbar'
@@ -78,6 +75,11 @@
 
     " Repeat plugin actions
     NeoBundle 'tpope/vim-repeat'
+
+    " NeoComplete
+    NeoBundle 'Shougo/neocomplete.vim'
+    NeoBundle 'Shougo/neosnippet.vim'
+    NeoBundle 'Shougo/neosnippet-snippets'
 
     " Sparkup for HTML voodoo
     " CTRL-y, to convert
@@ -165,7 +167,7 @@
     " Enable omnicompletion
     " NOTE: This is turned off right now because of jedi-vim
     " set omnifunc=syntaxcomplete#Complete
-    au FileType python set omnifunc=jedi#completions
+    " au FileType python set omnifunc=jedi#completions
 " }
 
 " Vim UI {
@@ -378,11 +380,11 @@
     hi IndentGuidesEven ctermbg=234
 
     " Jedi settings
-    let g:jedi#popup_on_dot = 1
-    let g:jedi#popup_select_first = 1
+    " let g:jedi#popup_on_dot = 1
+    " let g:jedi#popup_select_first = 1
     " Disabling parameter autocomplete to speed up completion for now.
     " Will enable after it is fixed in Jedi.
-    let g:jedi#show_call_signatures = "0"
+    " let g:jedi#show_call_signatures = "0"
 
     " No rope for autocomplete!
     let g:pymode_rope = 0
@@ -395,10 +397,10 @@
     let g:pymode_options_max_line_length = 0
 
     " Snippet settings
-    let g:UltiSnipsExpandTrigger="<c-e>"
-    let g:UltiSnipsListSnippets="<c-l>"
-    let g:UltiSnipsJumpForwardTrigger="<c-b>"
-    let g:UltiSnipsJumpBackwardTrigger="<c-z>"
+    " let g:UltiSnipsExpandTrigger="<c-e>"
+    " let g:UltiSnipsListSnippets="<c-l>"
+    " let g:UltiSnipsJumpForwardTrigger="<c-b>"
+    " let g:UltiSnipsJumpBackwardTrigger="<c-z>"
 
     " markdown settings
     let g:vim_markdown_folding_disabled=1
@@ -426,6 +428,56 @@
                 \ '',
                 \ ]
 " }
+
+" -------------------------------
+" Neocomplete Settings & Mappings
+" -------------------------------
+
+" Turn this thing on.
+let g:neocomplete#enable_at_startup = 1
+" Use smartcase.
+let g:neocomplete#enable_smart_case = 1
+" Set minimum syntax keyword length.
+let g:neocomplete#sources#syntax#min_keyword_length = 3
+
+" Plugin key-mappings.
+inoremap <expr><C-g> neocomplete#undo_completion()
+inoremap <expr><C-l> neocomplete#complete_common_string()
+
+" Recommended key-mappings.
+" <CR>: close popup and save indent.
+inoremap <silent> <CR> <C-r>=CloseNeoCompleteCR()<CR>
+function! CloseNeoCompleteCR()
+  return pumvisible() ? neocomplete#close_popup() : "\<CR>"
+endfunction
+" <TAB>: completion.
+inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
+" <C-h>, <BS>: close popup and delete backword char.
+inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+inoremap <expr><C-y> neocomplete#close_popup()
+inoremap <expr><C-e> neocomplete#cancel_popup()
+
+" Enable heavy omni completion.
+if !exists('g:neocomplete#sources#omni#input_patterns')
+  let g:neocomplete#sources#omni#input_patterns = {}
+endif
+" Python's omni completion is broken
+let g:neocomplete#sources#omni#input_patterns.python = ''
+
+" --------------------
+" Neosnippets Mappings
+" --------------------
+
+imap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+\ "\<Plug>(neosnippet_expand_or_jump)"
+\: pumvisible() ? "\<C-n>" : "\<TAB>"
+smap <expr><TAB> neosnippet#expandable_or_jumpable() ?
+\ "\<Plug>(neosnippet_expand_or_jump)"
+\: "\<TAB>"
+
+
+
 
 " Global Abbreviations {
     iabbrev rn return
