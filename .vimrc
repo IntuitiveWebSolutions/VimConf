@@ -10,11 +10,20 @@
            set runtimepath+=~/.vim/bundle/neobundle.vim/
     endif
     " Declare all NeoBundles
-    call neobundle#rc(expand('~/.vim/bundle/'))
+    call neobundle#begin(expand('~/.vim/bundle/'))
     NeoBundleFetch 'Shougo/neobundle.vim'
 
-    " Shougo stuff
+    " Unite UI
     NeoBundle 'Shougo/unite.vim'
+
+    " Unite plugin for outline
+    NeoBundle 'Shougo/unite-outline'
+
+    " Unite plugin for MRU (most-recently-used)
+    NeoBundle 'Shougo/neomru.vim'
+
+    " Unite plugin for tags
+    NeoBundle 'tsukkee/unite-tag'
 
     " Search using ag or ack!
     NeoBundle 'smeggingsmegger/ag.vim'
@@ -31,6 +40,7 @@
 
     " Colors
     NeoBundle 'smeggingsmegger/vim-colorschemes'
+    NeoBundle 'nanotech/jellybeans.vim'
 
     " Nicer start screen
     NeoBundle 'mhinz/vim-startify'
@@ -41,8 +51,9 @@
     " A pretty statusline, bufferline integration
     NeoBundle 'bling/vim-airline'
 
-    " Better Python code completion.
-    NeoBundleLazy 'davidhalter/jedi-vim', { 'filetypes' : ['python'] }
+    " Next generation completion framework
+    NeoBundle 'Shougo/neocomplete.vim'
+
     " Use Python mode for all the awesome PEP-8 stuff but not for completion.
     NeoBundleLazy 'klen/python-mode', { 'filetypes' : ['python'] }
 
@@ -96,16 +107,7 @@
     NeoBundleLazy 'groenewege/vim-less', { 'filetypes' : ['less'] }
     NeoBundleLazy 'mitsuhiko/vim-jinja', { 'filetypes' : ['html', 'jinja'] }
     NeoBundleLazy 'sophacles/vim-bundle-mako', { 'filetypes' : ['html', 'jinja'] }
-
-    " NOT WORKING WITH HOMEBREW VIM. :( Keeping to try out later.
-    " YouCompleteMe uses jedi to complete for Python and works for many other
-    " languages. This replaces python-mode.
-    " NeoBundle 'Valloric/YouCompleteMe.git' , {
-          " \     'build' : {
-          " \         'mac' : './install.sh --clang-completer',
-          " \         'unix' : './install.sh --clang-completer --system-libclang'
-          " \     },
-          " \ }
+    NeoBundleLazy 'saltstack/salt-vim', { 'filetypes' : ['sls'] }
 
     " vimproc needs a special build
     NeoBundle 'Shougo/vimproc', {
@@ -117,12 +119,14 @@
           \    },
           \ }
 
+    call neobundle#end()
+
     " the plugin indent needs to be on before neobundle runs...
     filetype plugin indent on " load filetype plugins/indent settings
     " Update and turn on all NeoBundles
     NeoBundleCheck
 
-    colorscheme blayden " set our customized colorscheme
+    colorscheme jellybeans
     set background=dark
 " }
 
@@ -161,11 +165,6 @@
     set wildmode=list:longest " turn on wild mode huge list
     " Set buffer to infinity
     set viminfo='100,h
-
-    " Enable omnicompletion
-    " NOTE: This is turned off right now because of jedi-vim
-    " set omnifunc=syntaxcomplete#Complete
-    au FileType python set omnifunc=jedi#completions
 " }
 
 " Vim UI {
@@ -228,9 +227,22 @@
     let mapleader = ","
     " Mapping Unite commands
     nnoremap <Leader>/ :Unite grep:.<cr>
-    nnoremap <Leader>y :Unite -buffer-name=yank history/yank<cr>
-    nnoremap <Leader>l :Unite -buffer-name=buffers -quick-match buffer<cr>
     nnoremap <C-p> :Unite -start-insert file<cr>
+    nnoremap <Leader>/ :<C-u>Unite -buffer-name=grep grep:.<CR>
+    nnoremap <Leader>t :<C-u>Unite -buffer-name=files file_rec/async<CR>
+    nnoremap <Leader>f :<C-u>Unite -buffer-name=files file<CR>
+    nnoremap <Leader>u :<C-u>Unite -buffer-name=mr file_mru<CR>
+    nnoremap <Leader>r :<C-u>Unite -buffer-name=tag tag<CR>
+    nnoremap <Leader>o :<C-u>Unite -buffer-name=outline outline<CR>
+    nnoremap <Leader>y :<C-u>Unite -buffer-name=yank history/yank<CR>
+    nnoremap <Leader>l :<C-u>Unite -buffer-name=buffer -quick-match buffer<CR>
+    nnoremap <Leader>m :<C-u>UniteResume<CR>
+    function! UniteGrepCWord()
+        " Function to search current word in buffer via unite/grep
+        let l:cword = expand("<cword>")
+        :exe "Unite -buffer-name=grep -input=" . l:cword . " grep:."
+    endfunction
+    nnoremap <Leader>? :call UniteGrepCWord()<CR>
     " Mapping tab commands
     nnoremap <Leader>tc :tabc<return>
     nnoremap <Leader>tn :tabn<return>
@@ -264,7 +276,7 @@
     " Format JSON automagically
     nmap <Leader>json :%!python -m json.tool<CR>
     " Compile (make) less to new CSS file
-    nnoremap <Leader>ml :w <BAR> !lessc % > %:t:r.css<CR><space>
+    nnoremap <Leader>gl :w <BAR> !lessc % > %:t:r.css<CR><space>
     " Spell Checking
     nnoremap <Leader>sp :setlocal spell spelllang=en_us<return>
     nnoremap <Leader>nsp :setlocal spell spelllang=<return>
@@ -283,9 +295,6 @@
     nnoremap <Leader>bd :bd<return>
     " Clear highlighting
     nnoremap <Leader>ch :noh<return>
-    " Insert a line above or below cursor without insert mode.
-    nnoremap <Leader>O O<Esc>
-    nnoremap <Leader>o o<Esc>
     " Make arrow keys jump by 10 lines
     nnoremap <S-Down> 10j
     nnoremap <S-Up> 10k
@@ -377,12 +386,35 @@
     hi IndentGuidesOdd ctermbg=234
     hi IndentGuidesEven ctermbg=234
 
-    " Jedi settings
-    let g:jedi#popup_on_dot = 1
-    let g:jedi#popup_select_first = 1
-    " Disabling parameter autocomplete to speed up completion for now.
-    " Will enable after it is fixed in Jedi.
-    let g:jedi#show_call_signatures = "0"
+    " Neocomplete settings
+
+    " Turn this thing on.
+    let g:neocomplete#enable_at_startup = 1
+    let g:neocomplete#data_directory = "~/.vim/tmp/neocomplete"
+    " Use smartcase.
+    let g:neocomplete#enable_smart_case = 1
+    " Set minimum syntax keyword length.
+    let g:neocomplete#sources#syntax#min_keyword_length = 3
+
+    " Plugin key-mappings.
+    inoremap <expr><C-g> neocomplete#undo_completion()
+    inoremap <expr><C-l> neocomplete#complete_common_string()
+
+    " Recommended key-mappings.
+    " <TAB>: completion.
+    inoremap <expr><TAB> pumvisible() ? "\<C-n>" : "\<TAB>"
+    " <C-h>, <BS>: close popup and delete backword char.
+    inoremap <expr><C-h> neocomplete#smart_close_popup()."\<C-h>"
+    inoremap <expr><BS> neocomplete#smart_close_popup()."\<C-h>"
+    inoremap <expr><C-y> neocomplete#close_popup()
+    inoremap <expr><C-e> neocomplete#cancel_popup()
+
+    " Enable heavy omni completion.
+    if !exists('g:neocomplete#sources#omni#input_patterns')
+    let g:neocomplete#sources#omni#input_patterns = {}
+    endif
+    " Python's omni completion is broken
+    let g:neocomplete#sources#omni#input_patterns.python = ''
 
     " No rope for autocomplete!
     let g:pymode_rope = 0
@@ -407,9 +439,20 @@
     " let g:go_fmt_command = "goimports"
 
     " Unite settings
-    let g:unite_enabled_start_insert=1
-    let g:unite_source_history_yank_enable=1
-    let g:unite_winheight = 10
+    let g:unite_data_directory = "~/.vim/tmp/unite"
+    let g:unite_source_history_yank_enable = 1
+    " Fuzz that match
+    call unite#filters#matcher_default#use(['matcher_fuzzy'])
+    call unite#custom#source('grep', 'matchers', 'matcher_fuzzy')
+    " Start in insert mode by default & shrink window size
+    call unite#custom#profile('default', 'context', {'start_insert' : 1, 'winheight': 10})
+    " Use ag for file_rec & grep
+    if executable('ag')
+        let g:unite_source_rec_async_command = 'ag --nogroup --nocolor --column -g ""'
+        let g:unite_source_grep_command = 'ag'
+        let g:unite_source_grep_default_opts = '--nogroup --nocolor --column'
+        let g:unite_source_grep_recursive_opt = ''
+    endif
 
     " Startify settings
     let g:startify_session_persistence = 1
