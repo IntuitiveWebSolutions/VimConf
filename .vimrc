@@ -297,8 +297,12 @@
     inoremap <S-Up> <Esc>10ki
     vnoremap <S-Down> 10j
     vnoremap <S-Up> 10k
-    " Send the selected hunk to IWS's hastebin
-    vnoremap <Leader>hb <esc>:'<,'>:w !HASTE_SERVER=http://hastebin.britecorepro.com haste<CR>
+    " Send the selected hunk to Slack using slackcat
+    function! Slack() range
+      execute ':' . a:firstline . ',' . a:lastline . 'w !slackcat -t ' . &filetype . ' -T ' . bufname('%')
+    endfunction
+    command! -range Slack <line1>,<line2> call Slack()
+    vnoremap <Leader>sl <Esc>:'<,'>:Slack<CR>
     " Jump easily between open windows
     " Deprecated in favor of DWM
     " nnoremap <C-h> <C-w>h
