@@ -297,6 +297,7 @@
     inoremap <S-Up> <Esc>10ki
     vnoremap <S-Down> 10j
     vnoremap <S-Up> 10k
+
     " Send the selected hunk to IWS's hastebin
     vnoremap <Leader>hb <esc>:'<,'>:w !HASTE_SERVER=http://hastebin.britecorepro.com haste<CR>
     " Jump easily between open windows
@@ -343,7 +344,7 @@
     let coffee_compile_vert=1 " When compiling CoffeeScript, throw output into vertical split
     let coffee_make_options='--bare'
     let g:syntastic_check_on_open=1 " Run Syntastic when opening files
-    let g:syntastic_python_checkers=['python', 'pyflakes'] " Be more strict in python syntax
+    let g:syntastic_python_checkers=['python', 'flake8'] " Be more strict in python syntax
     let g:ftplugin_sql_omni_key='<C-S>' " reset sql omni key
     let NERDSpaceDelims=1 " Add space delimiters
     let g:gitgutter_eager=0 " Only run gitgutter on read/write of files
